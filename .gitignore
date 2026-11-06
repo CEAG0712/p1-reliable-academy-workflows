@@ -1,0 +1,39 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.tfvars
+*.tfvars.json
+!.terraform.tfvars.example
+
+# Terraform local state and generated files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Go build artifacts
+*.exe
+*.test
+*.out
+coverage.html
+coverage.out
+bin/
+dist/
+
+# Editor and system files
+.DS_Store
+.vscode/
+.idea/
+
+# Python AI integration
+__pycache__/
+*.pyc
+.venv/
+venv/
