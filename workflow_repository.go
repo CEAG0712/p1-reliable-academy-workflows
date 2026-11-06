@@ -32,6 +32,12 @@ func (r *InMemoryWorkflowRepository) Save(execution *WorkflowExecution) {
     r.mu.Lock()
     defer r.mu.Unlock()
 
+
+    // Do not overwrite an existing workflow execution.
+    if _, exists := r.executions[snapshot.WorkflowID]; exists {
+        return
+    }
+
     r.executions[snapshot.WorkflowID] = snapshot
 }
 
@@ -47,3 +53,30 @@ func (r *InMemoryWorkflowRepository) Get(workflowID string) (*WorkflowExecution,
 
     return cloneWorkflowExecution(stored), true
 }
+
+
+func (r *InMemoryWorkflowRepository) TryClaim(
+    workflowID string,
+    workerID string,
+) bool {
+    r.mu.Lock()
+    defer r.mu.Unlock()
+
+    stored, exists := r.executions[workflowID]
+
+    if !exists {
+        return false
+    }
+
+    if stored.Status != "READY" || workerID == "" {
+        return false
+    }
+
+    stored.Status = "RUNNING"
+    stored.ClaimOwner = workerID
+
+    return true
+}
+
+
+
