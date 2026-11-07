@@ -542,3 +542,333 @@ func TestInMemoryWorkflowRepositoryConcurrentVersionedUpdates(t *testing.T) {
 		)
 	}
 }
+
+func TestRepositoryOwnerCanCompleteWorkflow(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	if !repo.TryClaim("workflow-001", "worker-A") {
+		t.Fatal("expected claim to succeed")
+	}
+
+	completed := repo.Complete("workflow-001", "worker-A", 2)
+
+	if !completed {
+		t.Fatal("expected owner to complete workflow")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "COMPLETED" {
+		t.Fatalf("expected COMPLETED, got %s", stored.Status)
+	}
+
+	if stored.Version != 3 {
+		t.Fatalf("expected version 3, got %d", stored.Version)
+	}
+}
+
+func TestRepositoryRejectsCompletionByDifferentWorker(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	if repo.Complete("workflow-001", "worker-B", 2) {
+		t.Fatal("expected non-owner completion to be rejected")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "RUNNING" || stored.Version != 2 {
+		t.Fatal("rejected completion must preserve state and version")
+	}
+}
+
+func TestRepositoryRejectsStaleCompletion(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	if repo.Complete("workflow-001", "worker-A", 1) {
+		t.Fatal("expected stale version to be rejected")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "RUNNING" || stored.Version != 2 {
+		t.Fatal("stale completion changed stored execution")
+	}
+}
+
+func TestRepositoryOwnerCanFailWorkflow(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	failed := repo.Fail(
+		"workflow-001",
+		"worker-A",
+		2,
+		"provider timeout",
+	)
+
+	if !failed {
+		t.Fatal("expected owner to fail workflow")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "FAILED" {
+		t.Fatalf("expected FAILED, got %s", stored.Status)
+	}
+
+	if stored.LastError != "provider timeout" {
+		t.Fatalf("unexpected error: %s", stored.LastError)
+	}
+
+	if stored.Version != 3 {
+		t.Fatalf("expected version 3, got %d", stored.Version)
+	}
+}
+
+func TestRepositoryRejectsFailureWithoutReason(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	if repo.Fail("workflow-001", "worker-A", 2, "") {
+		t.Fatal("expected empty failure reason to be rejected")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "RUNNING" || stored.Version != 2 {
+		t.Fatal("invalid failure changed execution")
+	}
+}
+
+func TestRepositoryRejectsFailureByDifferentWorker(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	if repo.Fail("workflow-001", "worker-B", 2, "error") {
+		t.Fatal("expected non-owner failure to be rejected")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "RUNNING" || stored.Version != 2 {
+		t.Fatal("rejected failure changed execution")
+	}
+}
+
+func TestRepositoryTracksSuccessfulClaimAndCompletion(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	if !repo.TryClaim("workflow-001", "worker-A") {
+		t.Fatal("expected claim to succeed")
+	}
+
+	if repo.TryClaim("workflow-001", "worker-B") {
+		t.Fatal("expected second claim to fail")
+	}
+
+	if !repo.Complete("workflow-001", "worker-A", 2) {
+		t.Fatal("expected completion to succeed")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Attempts != 1 {
+		t.Fatalf("expected 1 attempt, got %d", stored.Attempts)
+	}
+
+	if len(stored.History) != 2 {
+		t.Fatalf(
+			"expected 2 history entries, got %d",
+			len(stored.History),
+		)
+	}
+
+	claim := stored.History[0]
+
+	if claim.From != "READY" ||
+		claim.To != "RUNNING" ||
+		claim.WorkerID != "worker-A" ||
+		claim.Version != 2 {
+		t.Fatal("incorrect claim history entry")
+	}
+
+	completion := stored.History[1]
+
+	if completion.From != "RUNNING" ||
+		completion.To != "COMPLETED" ||
+		completion.WorkerID != "worker-A" ||
+		completion.Version != 3 {
+		t.Fatal("incorrect completion history entry")
+	}
+}
+
+func TestRepositoryTracksFailureHistory(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	repo.TryClaim("workflow-001", "worker-A")
+
+	if !repo.Fail(
+		"workflow-001",
+		"worker-A",
+		2,
+		"provider timeout",
+	) {
+		t.Fatal("expected failure transition to succeed")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if len(stored.History) != 2 {
+		t.Fatalf(
+			"expected 2 transitions, got %d",
+			len(stored.History),
+		)
+	}
+
+	failure := stored.History[1]
+
+	if failure.To != "FAILED" ||
+		failure.Reason != "provider timeout" ||
+		failure.Version != 3 {
+		t.Fatal("incorrect failure history entry")
+	}
+}
+
+func TestRepositoryHistorySnapshotIsIndependent(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	snapshot, exists := repo.Get("workflow-001")
+
+	if !exists {
+		t.Fatal("expected stored workflow")
+	}
+
+	if len(snapshot.History) != 1 {
+		t.Fatal("expected claim history entry")
+	}
+
+	// Attempt to tamper with the returned snapshot.
+	snapshot.History[0].To = "COMPLETED"
+
+	storedAgain, _ := repo.Get("workflow-001")
+
+	if storedAgain.History[0].To != "RUNNING" {
+		t.Fatal("snapshot mutation changed stored history")
+	}
+}
+
+func TestRepositoryVersionedUpdateRecordsHistory(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+	repo.TryClaim("workflow-001", "worker-A")
+
+	snapshot, _ := repo.Get("workflow-001")
+	snapshot.Status = "COMPLETED"
+
+	if !repo.SaveIfVersion(snapshot, snapshot.Version) {
+		t.Fatal("expected versioned update to succeed")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if len(stored.History) != 2 {
+		t.Fatalf(
+			"expected 2 history entries, got %d",
+			len(stored.History),
+		)
+	}
+
+	if stored.History[1].To != "COMPLETED" ||
+		stored.History[1].Version != 3 {
+		t.Fatal("versioned update history was not recorded")
+	}
+}
+
+func TestRepositoryCannotCompleteReadyWorkflow(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	if repo.Complete("workflow-001", "worker-A", 1) {
+		t.Fatal("READY workflow must not complete")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "READY" ||
+		stored.Version != 1 ||
+		len(stored.History) != 0 {
+		t.Fatal("invalid completion changed execution")
+	}
+}
+
+func TestRepositoryCannotCompleteTwice(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	repo.TryClaim("workflow-001", "worker-A")
+
+	if !repo.Complete("workflow-001", "worker-A", 2) {
+		t.Fatal("expected first completion to succeed")
+	}
+
+	if repo.Complete("workflow-001", "worker-A", 3) {
+		t.Fatal("expected second completion to be rejected")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "COMPLETED" ||
+		stored.Version != 3 ||
+		len(stored.History) != 2 {
+		t.Fatal("duplicate completion changed execution")
+	}
+}
+
+func TestRepositoryCannotFailCompletedWorkflow(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	repo.TryClaim("workflow-001", "worker-A")
+	repo.Complete("workflow-001", "worker-A", 2)
+
+	if repo.Fail(
+		"workflow-001",
+		"worker-A",
+		3,
+		"late error",
+	) {
+		t.Fatal("completed workflow must not become FAILED")
+	}
+
+	stored, _ := repo.Get("workflow-001")
+
+	if stored.Status != "COMPLETED" ||
+		stored.Version != 3 ||
+		len(stored.History) != 2 {
+		t.Fatal("terminal-state mutation detected")
+	}
+}
+
+func TestRepositoryCannotCompleteMissingWorkflow(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+
+	if repo.Complete("missing", "worker-A", 1) {
+		t.Fatal("missing workflow must not complete")
+	}
+
+	if repo.Fail("missing", "worker-A", 1, "error") {
+		t.Fatal("missing workflow must not fail")
+	}
+}

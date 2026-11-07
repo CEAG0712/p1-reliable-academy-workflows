@@ -24,6 +24,12 @@ func cloneWorkflowExecution(source *WorkflowExecution) *WorkflowExecution {
 		Status:     source.Status,
 		ClaimOwner: source.ClaimOwner,
 		Version:    source.Version,
+		LastError:  source.LastError,
+		Attempts:   source.Attempts,
+		History: append(
+			[]WorkflowTransition(nil),
+			source.History...,
+		),
 	}
 }
 
@@ -71,9 +77,22 @@ func (r *InMemoryWorkflowRepository) TryClaim(
 		return false
 	}
 
+	previousStatus := stored.Status
+
 	stored.Status = "RUNNING"
 	stored.ClaimOwner = workerID
 	stored.Version++
+	stored.Attempts++
+
+	stored.History = append(
+		stored.History,
+		WorkflowTransition{
+			From:     previousStatus,
+			To:       stored.Status,
+			WorkerID: workerID,
+			Version:  stored.Version,
+		},
+	)
 
 	return true
 }
@@ -86,50 +105,141 @@ func (r *InMemoryWorkflowRepository) SaveIfVersion(
 		return false
 	}
 
-	// Copy the caller's data into an independent snapshot.
 	snapshot := cloneWorkflowExecution(execution)
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// The workflow must already exist.
 	stored, exists := r.executions[snapshot.WorkflowID]
-
 	if !exists {
 		return false
 	}
 
-	// Both the expected and submitted versions must
-	// match the authoritative stored version.
-	if stored.Version != expectedVersion {
+	if stored.Version != expectedVersion ||
+		snapshot.Version != expectedVersion {
 		return false
 	}
 
-	if snapshot.Version != expectedVersion {
-		return false
-	}
-
-	// Do not allow this update to change claim ownership.
 	if snapshot.ClaimOwner != stored.ClaimOwner {
 		return false
 	}
 
-	// Only previously claimed executions may be updated.
-	if stored.Status != "RUNNING" || stored.ClaimOwner == "" {
+	if stored.Status != "RUNNING" ||
+		stored.ClaimOwner == "" {
 		return false
 	}
 
-	// M1 permits only these terminal transitions.
 	if snapshot.Status != "COMPLETED" &&
 		snapshot.Status != "FAILED" {
 		return false
 	}
 
-	// The update is accepted. Advance the revision.
-	snapshot.Version = stored.Version + 1
+	// Preserve repository-owned metadata, not caller-supplied history.
+	snapshot.Attempts = stored.Attempts
+	snapshot.History = append(
+		[]WorkflowTransition(nil),
+		stored.History...,
+	)
 
-	// Atomically replace the authoritative stored record.
+	previousStatus := stored.Status
+
+	snapshot.Version = stored.Version + 1
+	snapshot.LastError = ""
+
+	snapshot.History = append(
+		snapshot.History,
+		WorkflowTransition{
+			From:     previousStatus,
+			To:       snapshot.Status,
+			WorkerID: stored.ClaimOwner,
+			Version:  snapshot.Version,
+		},
+	)
+
 	r.executions[snapshot.WorkflowID] = snapshot
+
+	return true
+}
+
+func (r *InMemoryWorkflowRepository) Complete(
+	workflowID string,
+	workerID string,
+	expectedVersion uint64,
+) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	stored, exists := r.executions[workflowID]
+
+	if !exists {
+		return false
+	}
+
+	if workerID == "" ||
+		stored.Status != "RUNNING" ||
+		stored.ClaimOwner != workerID ||
+		stored.Version != expectedVersion {
+		return false
+	}
+
+	previousStatus := stored.Status
+
+	stored.Status = "COMPLETED"
+	stored.LastError = ""
+	stored.Version++
+
+	stored.History = append(
+		stored.History,
+		WorkflowTransition{
+			From:     previousStatus,
+			To:       stored.Status,
+			WorkerID: workerID,
+			Version:  stored.Version,
+		},
+	)
+
+	return true
+}
+
+func (r *InMemoryWorkflowRepository) Fail(
+	workflowID string,
+	workerID string,
+	expectedVersion uint64,
+	reason string,
+) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	stored, exists := r.executions[workflowID]
+
+	if !exists {
+		return false
+	}
+
+	if workerID == "" ||
+		reason == "" ||
+		stored.Status != "RUNNING" ||
+		stored.ClaimOwner != workerID ||
+		stored.Version != expectedVersion {
+		return false
+	}
+
+	previousStatus := stored.Status
+
+	stored.Status = "FAILED"
+	stored.LastError = reason
+	stored.Version++
+
+	stored.History = append(
+		stored.History,
+		WorkflowTransition{
+			From:     previousStatus,
+			To:       stored.Status,
+			WorkerID: workerID,
+			Version:  stored.Version,
+			Reason:   reason,
+		},
+	)
 
 	return true
 }
