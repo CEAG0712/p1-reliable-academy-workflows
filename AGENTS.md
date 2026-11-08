@@ -8,6 +8,21 @@ Confirm the current state first
 - Read README.md, go.mod, workflow.go, workflow_repository.go, and relevant tests before changing code.
 - Check the working tree (git status) and the current implementation. README milestone notes may lag local work.
 - Ask for clarification or stop with a blocker rather than inventing missing M3 requirements.
+
+Information map - Load context when relevant
+- README.md: project purpose, implemented stack,
+  and documented commands.
+- PROGRESS.md: current milestone, blockers,
+  and next actions. Read at session start.
+- workflow.go and workflow_repository.go:
+  read when changing workflow state, ownership,
+  version checks, or execution persistence.
+- workflow_test.go and workflow_repository_test.go:
+  read when changing or verifying workflow behavior.
+- enrollment.go and enrollment_test.go:
+  read when changing enrollment business rules.
+- Do not load unrelated future infrastructure
+  documentation unless the task requires it.
 Existing correctness constraints
 - Preserve single-winner workflow claims and owner-aware transitions.
 - Preserve version checks; never silently overwrite stale workflow state.

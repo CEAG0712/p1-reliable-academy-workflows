@@ -27,7 +27,8 @@
 
 ## Harness Status
 - AGENTS.md: implemented and committed
-- PROGRESS.md: being introduced
+- AGENTS.md context-routing rules: implemented
+- PROGRESS.md: implemented and committed
 - init.sh: not implemented
 - feature_list.json: not implemented
 - scripts/verify.sh: not implemented
