@@ -2,6 +2,9 @@ P1 Reliable Academy Workflows - Agent Instructions
 Purpose
 Build a reusable Go workflow execution engine. Student enrollment is the first use case, not a reason to hardcode the engine to enrollment.
 Confirm the current state first
+- Read PROGRESS.md before starting work. Treat its status
+  as a checkpoint that must be reconciled with the
+  current source code, Git history, and test results.
 - Read README.md, go.mod, workflow.go, workflow_repository.go, and relevant tests before changing code.
 - Check the working tree (git status) and the current implementation. README milestone notes may lag local work.
 - Ask for clarification or stop with a blocker rather than inventing missing M3 requirements.
