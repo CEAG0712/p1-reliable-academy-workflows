@@ -39,7 +39,34 @@
 - scripts/test_validate_features.py: 27 unittest tests PASS with
   `python3 -m unittest discover -s scripts -p "test_*.py" -v`
   (bytecode writes disabled); original feature_list.json remains unchanged
-- scripts/verify.sh: not yet implemented
+- scripts/verify.sh: implemented; resolves the root from its own location,
+  checks tools, and runs tracker validation, Python harness tests, Go unit
+  tests, race detection, go vet, and both Git whitespace checks in order.
+  Stops on the first failure, identifies the check, and preserves its exit code.
+- scripts/test_verify.sh: 12 isolated shell tests PASS; root/nested invocation
+  (including spaces), ordered commands/headings, final PASS, seven command
+  failures preserving exit codes 41-47 with no later commands or PASS,
+  and missing python3/go/git exiting 127 before any checks.
+- Lesson 9 verification (2026-11-08): clean starting tree on main at
+  0a6fbc7794fee2cd4d2137631e8805796a3a9336; local HEAD matched cached
+  origin/main. Remote was not fetched. No Go source changes since the
+  documented 2538574 baseline; no local M3 engine implementation found.
+- Commands: `bash init.sh`, `python3 scripts/validate_features.py feature_list.json`,
+  `bash -n scripts/verify.sh`, `bash -n scripts/test_verify.sh`, and
+  `bash scripts/test_verify.sh` all exited 0.
+- Actual `bash scripts/verify.sh`: first exited 1 at Go unit tests because
+  the sandbox denied Go build-cache access; no final PASS was printed.
+  Retried with permission for cache access and exited 0: tracker PASS,
+  27 Python tests PASS, Go unit tests PASS, Go race tests PASS, go vet
+  without diagnostics, and both Git whitespace checks PASS.
+- Lesson 9 changes are limited to scripts/verify.sh, scripts/test_verify.sh,
+  AGENTS.md, and this Harness Status section; feature_list.json and Go
+  files remain unchanged. Await human review; no commit or push performed.
+- AGENTS.md now requires unified verification before engineering acceptance
+  and retains individual commands for targeted debugging.
+- After documentation updates, `git diff --check` and
+  `git diff --cached --check` exited 0. `git status --short` exited 0:
+  AGENTS.md and PROGRESS.md modified; both new shell scripts untracked.
 - Codex local execution: verified at commit a20b8d1
 - Fresh-agent context reconstruction: passed
 - docs/ROADMAP.md: implemented and committed

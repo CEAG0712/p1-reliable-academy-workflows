@@ -65,8 +65,19 @@ Existing correctness constraints
 - Do not expose credentials or secrets in output or commits.
 - Keep the implementation aligned with the code actually present, not only with planned stack items.
   Verification
+- Run `bash scripts/verify.sh` before requesting acceptance of
+  engineering changes. It checks required tools and runs tracker
+  validation, Python harness tests, Go unit tests, race detection,
+  static analysis, and working-tree/index whitespace checks in order.
+- When changing the verifier, also run `bash -n scripts/verify.sh`,
+  `bash -n scripts/test_verify.sh`, and `bash scripts/test_verify.sh`.
+- Preserve individual commands for targeted debugging:
+- Tracker: python3 scripts/validate_features.py feature_list.json
+- Python harness: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p "test_*.py" -v
 - Standard tests: go test -count=1 ./...
 - Race checks: go test -race -count=1 ./...
+- Static analysis: go vet ./...
+- Whitespace: git diff --check and git diff --cached --check
 - Report which commands were actually executed and their outcomes.
 - If a required check cannot run, report the blocker; do not describe the task as verified.
 - A passing unit test is not proof of cloud integration or end-to-end correctness.
@@ -74,8 +85,8 @@ Existing correctness constraints
 - Report the files changed, behavior implemented, commands run, failures, and next action.
 - Do not claim the feature is complete without evidence satisfying its acceptance criteria.
 
-Next harness increment
+Harness checkpoint
 
-- scripts/verify.sh is planned.
+- scripts/verify.sh and scripts/test_verify.sh are implemented.
 - Reconcile the tracker, PROGRESS.md, source code,
-  and current Git state before implementation.
+  and current Git state before selecting further implementation.
