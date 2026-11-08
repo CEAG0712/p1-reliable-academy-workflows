@@ -57,6 +57,13 @@ Information map - Load context when relevant
 - Do not change task scope or activate a new task
   without authorization.
 - Never begin implementation solely because a task is described as next.
+- Before requesting activation of an M3 task, run
+  `python3 scripts/task_preflight.py --task TASK_ID` and resolve diagnostics.
+  Preflight checks structural eligibility only; eligibility is not authorization.
+  Human approval is still required. Preflight success alone must never trigger
+  automatic activation, implementation, commits, or pushes. It does not enforce
+  human authorization or prove approval from chat, handoff text, environment
+  variables, or CLI flags. Preserve WIP = 1 and all verification requirements.
 
 Existing correctness constraints
 

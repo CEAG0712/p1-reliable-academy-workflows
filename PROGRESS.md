@@ -16,12 +16,17 @@
 - go vet: No diagnostics reported in user output
 - Results apply to the confirmed baseline, not future changes.
 
-Current Lesson 10 starting checkpoint (2026-11-08): main at
+Historical Lesson 10 starting checkpoint (2026-11-08): main at
 b0e4db4ec4d20a7e3d150de0342e9f80821669cb, the confirmed Lesson 9
 GitHub commit. Starting tree was clean; HEAD matched cached origin/main.
 No fetch performed; live synchronization remains unverified. Source/tests
 support implemented M1, M2, and Exercise 82. No Go source/test differences
 exist between 2538574 and this HEAD; fresh checks are recorded below.
+
+Current Lesson 11 starting checkpoint (2026-11-08): clean main at
+01ef1e37f288459276d3025335b7cdcde669f733, matching the expected Lesson 10
+commit and cached origin/main. Local Git history confirms the Lesson 10
+documentation commit. No fetch or live remote verification was performed.
 
 ## Implemented in the Confirmed Repository
 
@@ -81,9 +86,10 @@ exist between 2538574 and this HEAD; fresh checks are recorded below.
 - docs/ROADMAP.md: implemented and committed
 - docs/INTERVIEW_DEFENSE.md: implemented and committed
 - Interview-defense protocol: defined; practice during M3 pending
-- docs/HANDOFF.md: created in Lesson 10; pending human review and
-  commit/push with AGENTS.md and PROGRESS.md. No Lesson 10 commit exists
-  in this session; check actual HEAD at the next startup.
+- docs/HANDOFF.md: created in Lesson 10 and committed with AGENTS.md and
+  PROGRESS.md as 01ef1e37f288459276d3025335b7cdcde669f733, confirmed in
+  local Git history. The user reports the Lesson 10 fresh-agent acceptance
+  test succeeded; that historical report is not a newly executed check here.
 - Fresh Lesson 10 verification (2026-11-08), starting at b0e4db4:
   `bash init.sh` and `python3 scripts/validate_features.py feature_list.json`
   exited 0. Initial `bash scripts/verify.sh` exited 1 at Go unit tests
@@ -94,6 +100,46 @@ exist between 2538574 and this HEAD; fresh checks are recorded below.
   separate from the historical Lesson 9 checks above.
 - Current M3 active task: none
 - Next planned task: M3.1, pending authorization
+
+## Lesson 11 — Controlled Task Preflight (2026-11-08)
+
+- Uncommitted harness-only changes: scripts/task_preflight.py,
+  scripts/test_task_preflight.py, AGENTS.md, PROGRESS.md, docs/HANDOFF.md.
+  Starting/current observed HEAD is 01ef1e37f288459276d3025335b7cdcde669f733.
+- Standard-library CLI reuses validate_tracker contract checks; rejects
+  unreadable/malformed/invalid trackers, unknown IDs, non-pending tasks,
+  unverified dependencies, and another in_progress task. Default tracker
+  resolves from the script location, independently of the caller's directory.
+- Success explicitly requires human approval, does not authorize implementation,
+  and activates nothing. This is a snapshot eligibility check, not an enforceable
+  human-authorization system; it neither authenticates approval nor reserves
+  eligibility against later tracker changes. Chat/handoff/environment/flags
+  are not treated as proof of approval.
+- Actually executed: `bash init.sh` and
+  `python3 scripts/validate_features.py feature_list.json` exited 0.
+  Initialization warned that cached origin/main is not live remote evidence.
+- `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p "test_*.py" -v`
+  exited 0: 44 tests passed (27 existing and 17 new preflight tests).
+- `python3 scripts/task_preflight.py --task M3.1` exited 0: ELIGIBLE,
+  HUMAN APPROVAL REQUIRED, no task activated, no implementation authority.
+- `python3 scripts/task_preflight.py --task M3.2` exited 1: depends on
+  unverified M3.1. This is the expected successful negative test, run separately.
+- `bash scripts/verify.sh` initially exited 1 at go vet because sandbox
+  access to a Go build-cache file was denied; tracker, 44 Python tests,
+  Go unit and race tests had passed. Permission-enabled rerun exited 0:
+  tracker, 44 Python tests, `go test -count=1 ./...`,
+  `go test -race -count=1 ./...`, `go vet ./...`, and both Git whitespace
+  checks passed. No existing initialization or verification scripts changed.
+- `git diff --check`, `git diff --cached --check`, and `git status --short`
+  exited 0. Status: three documentation files modified; two Python files
+  untracked. No commit or push was made.
+- Read-only Python assertions exited 0: feature_list.json equals HEAD bytes
+  and its starting SHA-256
+  `5fb4828b8fbec11444e4dbfe396e8cbcd882ebaad5e6c3de2554dbef084bc2c3`;
+  all ten tasks pending, active_task_id null, WIP 1; exactly five authorized
+  files changed. No Go application/test files changed; no M3 task activated
+  or implemented. M3.1 remains pending and unauthorized.
+- Next action: human review of Lesson 11; wait before committing or pushing.
 
 ## Current Engineering Milestone
 
@@ -120,17 +166,19 @@ Status:
 Before M3 implementation, reconcile live local-to-remote state and obtain
 explicit authorization. No local M3 engine was found. Initialization and
 verification harnesses are implemented; they are not the remaining blocker.
-A fresh-agent reconstruction test of the new handoff remains pending.
+The Lesson 10 fresh-agent acceptance test is reported successful by the user.
 
 ## Next Actions
 
-1. Test fresh-agent reconstruction using docs/HANDOFF.md; this session's
-   document review does not establish that test passed.
-2. Review the three documentation changes; commit/push requires human
-   approval. Recheck actual HEAD at the next startup.
+1. Review the five uncommitted Lesson 11 harness/documentation files;
+   commit/push requires human approval. No Lesson 11 commit is asserted.
+2. Recheck actual HEAD and working tree at the next startup; preserve
+   the user-reported Lesson 10 fresh-agent acceptance evidence separately.
 3. Reconcile local code and live GitHub main when remote access is authorized;
    preserve existing local changes.
 4. Obtain explicit authorization for M3.1 — Workflow Definition Models.
+   First run `python3 scripts/task_preflight.py --task M3.1`; an eligible
+   result requires human approval and does not authorize implementation.
    Acceptance: models compile and tests demonstrate two distinct definitions
    without business-specific engine fields. Keep M3.1 pending until authorized.
 5. Follow feature_list.json and docs/ROADMAP.md section 13 in their existing
