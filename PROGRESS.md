@@ -29,7 +29,7 @@
 - AGENTS.md: implemented and committed
 - AGENTS.md context-routing rules: implemented
 - PROGRESS.md: implemented and committed
-- init.sh: not implemented
+- init.sh: implemented; local initialization checks passed
 - feature_list.json: not implemented
 - scripts/verify.sh: not implemented
 - Automated agent execution: not yet verified
