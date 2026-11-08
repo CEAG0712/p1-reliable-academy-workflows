@@ -4,7 +4,7 @@ import "time"
 
 // WorkflowDefinition describes configuration, separately from execution state.
 // Step IDs are the keys in Steps; an empty successor denotes the end of a path.
-// Definitions do not validate graphs or execute handlers.
+// Validate checks configuration; definitions do not execute handlers.
 type WorkflowDefinition struct {
 	ID        string
 	Trigger   TriggerDefinition
@@ -28,7 +28,7 @@ const (
 // StepDefinition describes one configured step. Action and Condition are handler
 // names, not implementations. Action and wait steps use Next; conditions use
 // OnTrue and OnFalse. Delay is configuration, not a runtime resume deadline.
-// Type-specific constraints are left to definition validation.
+// Validate checks type-specific constraints.
 type StepDefinition struct {
 	Type      StepType
 	Action    string

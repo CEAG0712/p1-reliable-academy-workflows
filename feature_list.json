@@ -50,7 +50,7 @@
       "id": "M3.2",
       "title": "Definition Validation",
       "objective": "Reject missing IDs, invalid start steps, unsupported step types, broken links, missing handler references, invalid branching, and unsupported graph cycles.",
-      "status": "pending",
+      "status": "verified",
       "depends_on": [
         "M3.1"
       ],
@@ -59,10 +59,19 @@
         "Malformed definitions produce deterministic validation errors."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "93c9861b93091f270d4d9a78a0edc8e19376fd65 + uncommitted M3.2 working-tree changes (2026-11-08)",
+        "commands": [
+          "bash init.sh",
+          "python3 -B scripts/validate_features.py feature_list.json",
+          "python3 -B scripts/task_preflight.py --task M3.2",
+          "go test -count=1 -run '^TestWorkflowDefinitionValidate' ./...",
+          "go test -count=1 -run '^TestWorkflowDefinitionValidate' -v ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check"
+        ],
+        "result": "RED: focused command exited 1 because WorkflowDefinition.Validate was undefined. GREEN: focused command and verbose rerun exited 0; four test functions cover eight valid graphs, 31 malformed cases, five cycle cases, and 200 deterministic/read-only iterations. Full verifier initially exited 1 at race detection from sandbox Go build-cache denial after tracker, 44 Python tests and Go unit tests passed. Permission-enabled rerun exited 0: tracker, 44 Python tests, Go unit tests, Go race tests, go vet, and both Git whitespace checks PASS. Agent review confirms valid definitions accepted and malformed definitions return deterministic errors; M1/M2, Exercise 82 and M3.1 regression tests pass. M3.2 remains in_progress pending engineering acceptance; clear active_task_id when accepted. No M3.3 work. Checkpoint document reconciliation deferred to the user-requested post-commit checkpoint; no implementation commit exists. Human engineering acceptance (2026-11-08): the user accepted M3.2 against both approved acceptance criteria, reported no blocking functional defect and assessed it 10/10. This supersedes the earlier pending-acceptance statement; M3.2 is now verified and active_task_id is null. Historical RED/GREEN and verification evidence above is preserved. Acceptance-finalization verification: tracker validation exited 0; bash scripts/verify.sh initially exited 1 at go vet from sandbox Go-cache denial after tracker, 44 Python tests and Go unit/race tests passed. Permission-enabled rerun exited 0 with all six verification checks PASS. Only this evidence text was appended afterward, followed by successful tracker validation and both Git whitespace checks.",
+        "reviewed_by": "Codex: source and acceptance evidence reviewed; human engineering review pending; subsequently accepted by the human engineering reviewer (user), 2026-11-08, final assessment 10/10"
       },
       "blocker": null
     },
