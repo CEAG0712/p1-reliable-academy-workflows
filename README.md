@@ -1,5 +1,5 @@
-
 # Reliable Academy Workflows
+
 ### Reusable Workflow Automation Platform — P1
 
 A Go-based backend engineering portfolio project focused on
@@ -34,6 +34,7 @@ triggers, conditions, actions, delays, retries, and integrations.
 ## Technology Stack
 
 ### Implemented
+
 - Go
 - Go standard library testing
 - Goroutines and channels
@@ -42,6 +43,7 @@ triggers, conditions, actions, delays, retries, and integrations.
 - In-memory repositories
 
 ### Planned
+
 - Gin
 - AWS Lambda
 - DynamoDB
@@ -77,17 +79,26 @@ go test -race -count=1 -v ./...
 
 ## Current Development Status
 
-Stage 3 — Exercise 60 completed.
+Stage 3 — M1 and M2 accepted, including the
+Exercise 82 failure-reason correction.
 
-The current implementation is a local engineering prototype.
+The implemented platform remains an in-memory
+Go engineering prototype.
 
-Cloud infrastructure, complete orchestration, and distributed
-recovery are not yet implemented.
+M3 has not yet been accepted as implemented.
+Cloud infrastructure, complete orchestration,
+and distributed recovery remain planned.
+
+See PROGRESS.md for the current checkpoint and
+docs/ROADMAP.md for approved scope.
 
 ## Next Milestone
 
-Implement conditional claims at the repository level,
-then progress toward DynamoDB-backed execution ownership.
+M3 — Reusable Workflow Definition and Execution Engine.
+
+First bounded task: M3.1 — Workflow Definition Models.
+Implementation requires baseline reconciliation
+and explicit authorization
 
 ## Business Objectives
 

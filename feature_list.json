@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "project": "P1 Reliable Academy Workflows",
+  "milestone": "M3 Reusable Workflow Definition and Execution Engine",
+  "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
+  "work_in_progress_limit": 1,
+  "active_task_id": null,
+  "status_meanings": {
+    "pending": "Not started or not established as implemented",
+    "in_progress": "One approved bounded task is currently being worked on",
+    "blocked": "Work cannot continue; document exact blocker",
+    "verified": "Acceptance evidence reviewed; task accepted"
+  },
+  "rules": [
+    "Do not start implementation solely because a task is listed.",
+    "Before activating a task, reconcile local repository state with current source, Git and tests.",
+    "At most one task may have status in_progress at a time; active_task_id must identify that task or be null.",
+    "Do not bypass dependency order or expand an active task into later features.",
+    "Use RED -> GREEN -> regression verification for implementation tasks.",
+    "Only mark verified after acceptance criteria, actual commands, outcomes and revision are recorded.",
+    "Do not silently change roadmap scope or mark planned work implemented.",
+    "Do not commit, push, deploy, or alter production resources without authorization."
+  ],
+  "tasks": [
+    {
+      "id": "M3.1",
+      "title": "Workflow Definition Models",
+      "objective": "Define reusable workflow, trigger, and step models without enrollment-specific fields.",
+      "status": "pending",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "Models compile in Go.",
+        "Tests demonstrate two distinct workflow definitions without business-specific engine fields."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.2",
+      "title": "Definition Validation",
+      "objective": "Reject missing IDs, invalid start steps, unsupported step types, broken links, missing handler references, invalid branching, and unsupported graph cycles.",
+      "status": "pending",
+      "depends_on": [
+        "M3.1"
+      ],
+      "acceptance_criteria": [
+        "Valid definitions are accepted.",
+        "Malformed definitions produce deterministic validation errors."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.3",
+      "title": "Trigger Matching",
+      "objective": "Match incoming events to eligible workflow definitions without launching nonmatching workflows.",
+      "status": "pending",
+      "depends_on": [
+        "M3.2"
+      ],
+      "acceptance_criteria": [
+        "Matching events activate eligible workflows.",
+        "Nonmatching events cause no execution side effects."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.4",
+      "title": "Handler Registration",
+      "objective": "Register action handlers and condition predicates by name without tying engine core to business integrations.",
+      "status": "pending",
+      "depends_on": [
+        "M3.3"
+      ],
+      "acceptance_criteria": [
+        "Multiple implementations can be registered and invoked by name.",
+        "Unknown handlers are rejected."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.5",
+      "title": "Conditions and Branching",
+      "objective": "Evaluate predicates and select configured true/false successor steps.",
+      "status": "pending",
+      "depends_on": [
+        "M3.4"
+      ],
+      "acceptance_criteria": [
+        "Both branches are tested.",
+        "Condition errors are handled and tested."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.6",
+      "title": "Sequential Action Execution",
+      "objective": "Execute configured actions in order and advance progress only after successful steps.",
+      "status": "pending",
+      "depends_on": [
+        "M3.5"
+      ],
+      "acceptance_criteria": [
+        "Actions run in required order.",
+        "A failed action stops the normal path and returns an error outcome."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.7",
+      "title": "Wait and Resume",
+      "objective": "Represent delays with resume deadlines and retain an in-memory execution cursor, without sleeping a worker for the entire wait.",
+      "status": "pending",
+      "depends_on": [
+        "M3.6"
+      ],
+      "acceptance_criteria": [
+        "Early resume does not advance incorrectly.",
+        "Eligible resume continues from the correct step without replaying earlier completed actions in the tested in-memory scenario.",
+        "No durable restart guarantee is claimed."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.8",
+      "title": "M2 Lifecycle Integration",
+      "objective": "Use repository TryClaim for ownership and Complete/Fail for terminal runner outcomes.",
+      "status": "pending",
+      "depends_on": [
+        "M3.7"
+      ],
+      "acceptance_criteria": [
+        "Success and failure preserve M2 status, version, and history invariants.",
+        "Failures use Fail with a nonempty reason; SaveIfVersion is not used to mark FAILED."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.9",
+      "title": "Concurrency and Failure Verification",
+      "objective": "Test competing execution attempts, invalid ownership, action errors, and duplicate invocations.",
+      "status": "pending",
+      "depends_on": [
+        "M3.8"
+      ],
+      "acceptance_criteria": [
+        "No duplicate action execution in the tested single-process concurrent scenario.",
+        "Failure reasons and lifecycle state remain correct.",
+        "No distributed exactly-once guarantee is claimed."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M3.10",
+      "title": "Reusability and Milestone Acceptance",
+      "objective": "Run two genuinely different workflows through the same engine and execute full regression verification.",
+      "status": "pending",
+      "depends_on": [
+        "M3.9"
+      ],
+      "acceptance_criteria": [
+        "Both workflows run without modifying the engine core.",
+        "Existing M1/M2 tests and race checks pass.",
+        "Known limitations are documented."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    }
+  ]
+}

@@ -30,7 +30,6 @@ Information map - Load context when relevant
   read when changing enrollment business rules.
 - Do not load unrelated future infrastructure
   documentation unless the task requires it.
-
 - docs/ROADMAP.md: planned milestones, architecture
   boundaries, requirements, and acceptance criteria.
   Consult for scope; verify implementation in code.
@@ -40,6 +39,15 @@ Information map - Load context when relevant
   conduct NO-CHEAT MODE when requested.
 - Do not treat interview answers or planned designs
   as proof of implemented engineering behavior.
+
+- feature_list.json: approved M3 task sequence,
+  dependencies, acceptance criteria, and evidence.
+  Read before selecting implementation work.
+- Work on at most one in_progress task at a time.
+- Do not mark a task verified without reviewed
+  acceptance evidence and actual test results.
+- Do not change task scope or activate a new task
+  without authorization.
 
 Existing correctness constraints
 
@@ -62,5 +70,9 @@ Existing correctness constraints
   Handoff
 - Report the files changed, behavior implemented, commands run, failures, and next action.
 - Do not claim the feature is complete without evidence satisfying its acceptance criteria.
-  Next harness increments
-  A dedicated initialization script, machine-readable feature tracker, persistent progress file, and verification script will be added after the current repository baseline is reconciled.
+
+Next harness increment
+
+- scripts/verify.sh is planned.
+- Reconcile the tracker, PROGRESS.md, source code,
+  and current Git state before implementation.
