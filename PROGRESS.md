@@ -34,6 +34,11 @@
 - PROGRESS.md: implemented and committed
 - init.sh: implemented; local execution verified
 - feature_list.json: implemented; initial JSON validation passed
+- scripts/validate_features.py: implemented; G1-G7 tracker validation PASS
+  with `python3 scripts/validate_features.py feature_list.json`
+- scripts/test_validate_features.py: 27 unittest tests PASS with
+  `python3 -m unittest discover -s scripts -p "test_*.py" -v`
+  (bytecode writes disabled); original feature_list.json remains unchanged
 - scripts/verify.sh: not yet implemented
 - Codex local execution: verified at commit a20b8d1
 - Fresh-agent context reconstruction: passed

@@ -43,6 +43,9 @@ Information map - Load context when relevant
 - feature_list.json: approved M3 task sequence,
   dependencies, acceptance criteria, and evidence.
   Read before selecting implementation work.
+- Run `python3 scripts/validate_features.py feature_list.json`
+  before task activation and after tracker changes; resolve any
+  validation failures before proceeding.
 - Work on at most one in_progress task at a time.
 - Do not mark a task verified without reviewed
   acceptance evidence and actual test results.
