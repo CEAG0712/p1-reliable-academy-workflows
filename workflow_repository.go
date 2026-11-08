@@ -129,10 +129,13 @@ func (r *InMemoryWorkflowRepository) SaveIfVersion(
 		return false
 	}
 
-	if snapshot.Status != "COMPLETED" &&
-		snapshot.Status != "FAILED" {
-		return false
-	}
+
+    // Failure transitions must use Fail(), which requires
+    // a nonempty reason and validates worker ownership.
+    if snapshot.Status != "COMPLETED" {
+        return false
+    }
+
 
 	// Preserve repository-owned metadata, not caller-supplied history.
 	snapshot.Attempts = stored.Attempts

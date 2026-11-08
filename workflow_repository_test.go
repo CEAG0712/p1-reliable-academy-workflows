@@ -872,3 +872,114 @@ func TestRepositoryCannotCompleteMissingWorkflow(t *testing.T) {
 		t.Fatal("missing workflow must not fail")
 	}
 }
+
+func TestRepositorySaveIfVersionCannotBypassFail(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	if !repo.TryClaim("workflow-001", "worker-A") {
+		t.Fatal("expected worker-A to claim workflow")
+	}
+
+	snapshot, exists := repo.Get("workflow-001")
+
+	if !exists {
+		t.Fatal("expected workflow to exist")
+	}
+
+	// Attempt to fail the workflow without using Fail().
+	snapshot.Status = "FAILED"
+
+	updated := repo.SaveIfVersion(
+		snapshot,
+		snapshot.Version,
+	)
+
+	if updated {
+		t.Fatal("expected SaveIfVersion to reject FAILED transition")
+	}
+
+	stored, exists := repo.Get("workflow-001")
+
+	if !exists {
+		t.Fatal("expected workflow to remain stored")
+	}
+
+	if stored.Status != "RUNNING" {
+		t.Fatalf("expected RUNNING, got %s", stored.Status)
+	}
+
+	if stored.Version != 2 {
+		t.Fatalf("expected version 2, got %d", stored.Version)
+	}
+
+	if stored.LastError != "" {
+		t.Fatalf("expected no failure reason, got %s", stored.LastError)
+	}
+
+	if stored.ClaimOwner != "worker-A" {
+		t.Fatalf("expected worker-A, got %s", stored.ClaimOwner)
+	}
+
+	if len(stored.History) != 1 {
+		t.Fatalf(
+			"expected 1 history entry, got %d",
+			len(stored.History),
+		)
+	}
+}
+
+func TestRepositoryFailPreservesReasonInStateAndHistory(t *testing.T) {
+	repo := NewInMemoryWorkflowRepository()
+
+	repo.Save(NewWorkflowExecution("workflow-001"))
+
+	if !repo.TryClaim("workflow-001", "worker-A") {
+		t.Fatal("expected claim to succeed")
+	}
+
+	reason := "provider timeout"
+
+	if !repo.Fail("workflow-001", "worker-A", 2, reason) {
+		t.Fatal("expected Fail to succeed")
+	}
+
+	stored, exists := repo.Get("workflow-001")
+
+	if !exists {
+		t.Fatal("expected stored workflow")
+	}
+
+	if stored.Status != "FAILED" {
+		t.Fatalf("expected FAILED, got %s", stored.Status)
+	}
+
+	if stored.LastError != reason {
+		t.Fatalf(
+			"expected LastError %q, got %q",
+			reason,
+			stored.LastError,
+		)
+	}
+
+	if stored.Version != 3 {
+		t.Fatalf("expected version 3, got %d", stored.Version)
+	}
+
+	if len(stored.History) != 2 {
+		t.Fatalf(
+			"expected 2 history entries, got %d",
+			len(stored.History),
+		)
+	}
+
+	failure := stored.History[1]
+
+	if failure.To != "FAILED" ||
+		failure.Reason != reason ||
+		failure.WorkerID != "worker-A" ||
+		failure.Version != 3 {
+		t.Fatal("failure history does not match stored state")
+	}
+}
