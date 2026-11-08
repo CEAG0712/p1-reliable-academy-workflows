@@ -33,6 +33,10 @@
 - feature_list.json: not implemented
 - scripts/verify.sh: not implemented
 - Automated agent execution: not yet verified
+- docs/ROADMAP.md: added as a dated engineering handoff;
+  implementation claims require source-code verification
+- docs/INTERVIEW_DEFENSE.md: interview procedure defined;
+  cold-start invocation not yet tested
 
 ## Current Engineering Milestone
 M3 - Reusable Workflow Definition and Execution Engine

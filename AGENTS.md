@@ -23,6 +23,17 @@ Information map - Load context when relevant
   read when changing enrollment business rules.
 - Do not load unrelated future infrastructure
   documentation unless the task requires it.
+
+- docs/ROADMAP.md: planned milestones, architecture
+  boundaries, requirements, and acceptance criteria.
+  Consult for scope; verify implementation in code.
+- docs/INTERVIEW_DEFENSE.md: project-defense
+  procedure for Backend, AI, and FDE interviews.
+  Use CHEAT MODE for learning during implementation;
+  conduct NO-CHEAT MODE when requested.
+- Do not treat interview answers or planned designs
+  as proof of implemented engineering behavior.
+
 Existing correctness constraints
 - Preserve single-winner workflow claims and owner-aware transitions.
 - Preserve version checks; never silently overwrite stale workflow state.
