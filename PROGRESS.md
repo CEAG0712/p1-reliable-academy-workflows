@@ -23,7 +23,7 @@ No fetch performed; live synchronization remains unverified. Source/tests
 support implemented M1, M2, and Exercise 82. No Go source/test differences
 exist between 2538574 and this HEAD; fresh checks are recorded below.
 
-Current Lesson 11 starting checkpoint (2026-11-08): clean main at
+Historical Lesson 11 starting checkpoint (2026-11-08): clean main at
 01ef1e37f288459276d3025335b7cdcde669f733, matching the expected Lesson 10
 commit and cached origin/main. Local Git history confirms the Lesson 10
 documentation commit. No fetch or live remote verification was performed.
@@ -99,13 +99,14 @@ documentation commit. No fetch or live remote verification was performed.
   and working-tree/index whitespace checks passed. This evidence is
   separate from the historical Lesson 9 checks above.
 - Current M3 active task: none
-- Next planned task: M3.1, pending authorization
+- M3.1 model implementation verified locally; M3.2 pending authorization
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
-- Uncommitted harness-only changes: scripts/task_preflight.py,
+- Historical pre-commit harness-only changes: scripts/task_preflight.py,
   scripts/test_task_preflight.py, AGENTS.md, PROGRESS.md, docs/HANDOFF.md.
-  Starting/current observed HEAD is 01ef1e37f288459276d3025335b7cdcde669f733.
+  Lesson 11 starting HEAD was 01ef1e37f288459276d3025335b7cdcde669f733.
+  These five files were subsequently committed in a5b345d99075debfe652d0182f0374466b7ff8bc.
 - Standard-library CLI reuses validate_tracker contract checks; rejects
   unreadable/malformed/invalid trackers, unknown IDs, non-pending tasks,
   unverified dependencies, and another in_progress task. Default tracker
@@ -139,7 +140,7 @@ documentation commit. No fetch or live remote verification was performed.
   all ten tasks pending, active_task_id null, WIP 1; exactly five authorized
   files changed. No Go application/test files changed; no M3 task activated
   or implemented. M3.1 remains pending and unauthorized.
-- Next action: human review of Lesson 11; wait before committing or pushing.
+- Historical next action was human review of Lesson 11; its commit is now observed in local history.
 
 ## Current Engineering Milestone
 
@@ -156,33 +157,67 @@ Planned capabilities:
 
 Status:
 
-- M3 requirements identified
-- M3 is not implemented in the inspected local source
-- All ten tracker tasks remain pending; active_task_id is null; WIP = 1
-- Live local-to-remote synchronization remains unverified
+- M3.1 reusable definition, trigger and step models are implemented and locally verified.
+- M3.2 through M3.10 remain pending; no runner or definition validation exists.
+- active_task_id is null; WIP limit remains 1.
+- Local HEAD remains a5b345d99075debfe652d0182f0374466b7ff8bc; M3.1 work is uncommitted.
+- Read-only preparation queried live GitHub main through the connector and observed
+  the same revision. No fetch/push was performed; this is an observation at that time.
 
-## Current Blocker
+## M3.1 — Workflow Definition Models (2026-11-08)
 
-Before M3 implementation, reconcile live local-to-remote state and obtain
-explicit authorization. No local M3 engine was found. Initialization and
-verification harnesses are implemented; they are not the remaining blocker.
-The Lesson 10 fresh-agent acceptance test is reported successful by the user.
+- User explicitly authorized activation and implementation of the bounded proposal,
+  plus tracker/checkpoint updates; no commit, push, deployment or M3.2 authorization.
+- Previous checkpoint: Lesson 11 starting revision 01ef1e37f288459276d3025335b7cdcde669f733.
+  Current observed HEAD: a5b345d99075debfe652d0182f0374466b7ff8bc. Started clean on main;
+  the Lesson 11 preflight files are committed at HEAD, not still uncommitted.
+- Acceptance criteria: models compile in Go; tests demonstrate two distinct workflow
+  definitions without business-specific engine fields.
+- Created workflow_definition.go and workflow_definition_test.go. Definitions describe
+  IDs, an event-type trigger, a starting step, and steps keyed by ID. Action/condition
+  names, next/true/false links, and time.Duration delays are configuration only.
+- Tests describe enrollment branching and customer follow-up with an action/wait/action
+  graph using the same types. No handlers, matching, validation, execution or resume logic.
+- Updated scripts/test_task_preflight.py and scripts/test_validate_features.py because
+  their fixtures assumed the published tracker remained entirely pending. Behavioral
+  fixtures now establish their own states; default-path CLI checks compare against the
+  explicit current tracker. Production validator/preflight scripts are unchanged.
+- Startup: bash init.sh, python3 -B scripts/validate_features.py feature_list.json,
+  and python3 -B scripts/task_preflight.py --task M3.1 all exited 0. Initialization
+  reported cached origin/main only; preflight required human approval. The user's
+  explicit authorization, not eligibility, permitted activation. Activation validation passed.
+- RED: go test -count=1 -run '^TestWorkflowDefinition' ./... exited 1 with undefined
+  WorkflowDefinition, TriggerDefinition, StepDefinition and step constants.
+- GREEN: the same focused command exited 0 after adding models and running gofmt.
+- bash scripts/verify.sh initially exited 1 at Python tests: four validator fixture
+  failures after the preflight fixtures were corrected. After correcting validator
+  fixtures, rerun passed all 44 Python tests but exited 1 at Go unit tests because
+  sandbox access to a Go build-cache file was denied. Permission-enabled rerun
+  exited 0: tracker, 44 Python tests, go test -count=1 ./..., go test -race -count=1
+  ./..., go vet ./..., git diff --check, and git diff --cached --check passed.
+- Codex reviewed the models and test evidence against both acceptance criteria;
+  M3.1 is marked verified with the uncommitted revision explicitly recorded. This
+  records agent review, not human acceptance or completion of the whole M3 milestone.
+- Seven changed/untracked files: workflow_definition.go, workflow_definition_test.go,
+  scripts/test_task_preflight.py, scripts/test_validate_features.py, feature_list.json,
+  PROGRESS.md, docs/HANDOFF.md. Existing lifecycle/business Go files are unchanged.
 
-## Next Actions
+Final verification after tracker/checkpoint updates: sandbox run exited 1 at
+go vet after tracker, all 44 Python tests, Go unit and race tests passed.
+Permission-enabled final rerun of `bash scripts/verify.sh` exited 0 with
+all six checks PASS. Final scope assertions confirmed M3.2-M3.10 unchanged,
+WIP 1, active_task_id null and existing lifecycle/business Go files unchanged.
+Only this evidence text was added afterward; tracker validation and both
+Git whitespace checks were rerun successfully.
 
-1. Review the five uncommitted Lesson 11 harness/documentation files;
-   commit/push requires human approval. No Lesson 11 commit is asserted.
-2. Recheck actual HEAD and working tree at the next startup; preserve
-   the user-reported Lesson 10 fresh-agent acceptance evidence separately.
-3. Reconcile local code and live GitHub main when remote access is authorized;
-   preserve existing local changes.
-4. Obtain explicit authorization for M3.1 — Workflow Definition Models.
-   First run `python3 scripts/task_preflight.py --task M3.1`; an eligible
-   result requires human approval and does not authorize implementation.
-   Acceptance: models compile and tests demonstrate two distinct definitions
-   without business-specific engine fields. Keep M3.1 pending until authorized.
-5. Follow feature_list.json and docs/ROADMAP.md section 13 in their existing
-   ten-task order, with WIP = 1 and reviewed acceptance evidence.
+## Current Blocker and Next Action
+
+No technical blocker remains for M3.1. Human review of the uncommitted result is next.
+Do not commit, push, deploy or start M3.2 without explicit authorization. If M3.2 is
+requested, recheck the repository, validate the tracker, and run its preflight first.
+Historical roadmap harness/revision claims remain stale; its Section 13 scope is
+unchanged. README's milestone acceptance wording remains consistent: M3 as a whole
+has not been accepted as implemented. No cloud or distributed execution claim is made.
 
 ## Session Handoff Rules
 

@@ -23,6 +23,11 @@ class FeatureValidationTests(unittest.TestCase):
 
     def setUp(self):
         self.tracker = copy.deepcopy(self.published)
+        # Contract cases describe explicit states, independent of project progress.
+        self.tracker["active_task_id"] = None
+        for task in self.tracker["tasks"]:
+            task.update(status="pending", blocker=None, evidence=dict(
+                revision=None, commands=[], result=None, reviewed_by=None))
         self.first, self.second = self.tracker["tasks"][:2]
 
     def reject(self, text):

@@ -26,17 +26,23 @@
       "id": "M3.1",
       "title": "Workflow Definition Models",
       "objective": "Define reusable workflow, trigger, and step models without enrollment-specific fields.",
-      "status": "pending",
+      "status": "verified",
       "depends_on": [],
       "acceptance_criteria": [
         "Models compile in Go.",
         "Tests demonstrate two distinct workflow definitions without business-specific engine fields."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "a5b345d99075debfe652d0182f0374466b7ff8bc + uncommitted M3.1 working-tree changes (2026-11-08)",
+        "commands": [
+          "bash init.sh",
+          "python3 -B scripts/validate_features.py feature_list.json",
+          "python3 -B scripts/task_preflight.py --task M3.1",
+          "go test -count=1 -run '^TestWorkflowDefinition' ./...",
+          "bash scripts/verify.sh"
+        ],
+        "result": "RED: focused tests exited 1 with undefined model types. GREEN: focused tests exited 0. Unified verifier initially exited 1 with four validator fixture failures; after fixture corrections, exited 1 at Go unit tests from sandbox cache denial; permission-enabled rerun exited 0: tracker, 44 Python tests, Go unit/race tests, go vet, and both whitespace checks PASS. Review confirms two distinct declarative workflows and no business-specific model fields. M3.2-M3.10 remain pending; no runner or validation implemented. Final verification after tracker/checkpoint updates passed tracker, 44 Python tests, Go unit and race tests, then exited 1 at go vet from sandbox cache denial; permission-enabled final rerun exited 0 with all six checks PASS.",
+        "reviewed_by": "Codex: acceptance criteria and source/test evidence reviewed; no human acceptance claimed"
       },
       "blocker": null
     },

@@ -18,6 +18,11 @@ class TaskPreflightTests(unittest.TestCase):
     def setUp(self):
         self.original = TRACKER.read_bytes()
         self.tracker = json.loads(self.original)
+        # Behavioral fixtures must remain stable as real tasks progress.
+        self.tracker["active_task_id"] = None
+        for task in self.tracker["tasks"]:
+            task.update(status="pending", blocker=None, evidence=dict(
+                revision=None, commands=[], result=None, reviewed_by=None))
         self.first, self.second = self.tracker["tasks"][:2]
 
     def tearDown(self):
@@ -52,8 +57,8 @@ class TaskPreflightTests(unittest.TestCase):
             revision="fixture-revision", commands=["fixture check"],
             result="PASS", reviewed_by="fixture reviewer"))
 
-    def test_current_first_is_eligible_but_requires_approval(self):
-        result = self.run_cli()
+    def test_pending_first_is_eligible_but_requires_approval(self):
+        result = self.fixture_cli()
         self.assertEqual(result.returncode, 0)
         self.assertIn("ELIGIBLE — M3.1 meets task-state prerequisites", result.stdout)
         self.assertIn("HUMAN APPROVAL REQUIRED", result.stdout)
@@ -61,8 +66,8 @@ class TaskPreflightTests(unittest.TestCase):
         self.assertNotIn("AUTHORIZED", result.stdout.upper())
         self.assertEqual(result.stderr, "")
 
-    def test_current_second_has_unverified_dependency(self):
-        self.assert_rejected(self.run_cli("M3.2"), "M3.2", "depends on unverified M3.1")
+    def test_pending_second_has_unverified_dependency(self):
+        self.assert_rejected(self.fixture_cli("M3.2"), "M3.2", "depends on unverified M3.1")
 
     def test_unknown_task(self):
         self.assert_rejected(self.run_cli("M3.999"), "M3.999", "unknown task ID")
@@ -120,13 +125,17 @@ class TaskPreflightTests(unittest.TestCase):
         self.assert_rejected(self.fixture_cli(), "invalid tracker", "multiple in_progress tasks")
 
     def test_cli_default_from_nested_directory(self):
+        expected = self.run_cli(path=TRACKER)
         result = self.run_cli(cwd=ROOT / "docs")
-        self.assertEqual(result.returncode, 0)
-        self.assertIn("ELIGIBLE — M3.1", result.stdout)
+        self.assertEqual((result.returncode, result.stdout, result.stderr),
+                         (expected.returncode, expected.stdout, expected.stderr))
 
     def test_cli_default_from_unrelated_directory(self):
+        expected = self.run_cli(path=TRACKER)
         with tempfile.TemporaryDirectory() as directory:
-            self.assertEqual(self.run_cli(cwd=directory).returncode, 0)
+            result = self.run_cli(cwd=directory)
+        self.assertEqual((result.returncode, result.stdout, result.stderr),
+                         (expected.returncode, expected.stdout, expected.stderr))
 
     def test_input_unchanged_after_success_and_failure(self):
         self.assertEqual(self.fixture_cli().returncode, 0)
@@ -135,10 +144,11 @@ class TaskPreflightTests(unittest.TestCase):
         self.assertEqual(self.fixture_cli().returncode, 1)
 
     def test_success_does_not_activate(self):
-        self.assertEqual(self.fixture_cli().returncode, 0)
+        result = self.fixture_cli()
+        self.assertEqual(result.returncode, 0)
         self.assertTrue(all(task["status"] == "pending" for task in self.tracker["tasks"]))
         self.assertIsNone(self.tracker["active_task_id"])
-        self.assertIn("No task activated", self.run_cli().stdout)
+        self.assertIn("No task activated", result.stdout)
 
     def test_no_approval_cli_flag(self):
         result = self.run_cli(extra=("--approve",))
