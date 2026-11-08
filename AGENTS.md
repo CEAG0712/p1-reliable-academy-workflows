@@ -6,6 +6,9 @@ Confirm the current state first
 - Read PROGRESS.md before starting work. Treat its status
   as a checkpoint that must be reconciled with the
   current source code, Git history, and test results.
+- Read docs/HANDOFF.md during session initialization. Cross-check it
+  against PROGRESS.md, feature_list.json, Git history, and actual
+  source/tests; do not treat a handoff as proof of current state.
 - Read README.md, go.mod, workflow.go, workflow_repository.go, and relevant tests before changing code.
 - Check the working tree (git status) and the current implementation. README milestone notes may lag local work.
 - Ask for clarification or stop with a blocker rather than inventing missing M3 requirements.
@@ -21,6 +24,8 @@ Information map - Load context when relevant
   and documented commands.
 - PROGRESS.md: current milestone, blockers,
   and next actions. Read at session start.
+- docs/HANDOFF.md: durable session checkpoint, evidence, boundaries,
+  and fresh-agent startup procedure. Read at session start.
 - workflow.go and workflow_repository.go:
   read when changing workflow state, ownership,
   version checks, or execution persistence.
@@ -51,6 +56,7 @@ Information map - Load context when relevant
   acceptance evidence and actual test results.
 - Do not change task scope or activate a new task
   without authorization.
+- Never begin implementation solely because a task is described as next.
 
 Existing correctness constraints
 
@@ -84,6 +90,11 @@ Existing correctness constraints
   Handoff
 - Report the files changed, behavior implemented, commands run, failures, and next action.
 - Do not claim the feature is complete without evidence satisfying its acceptance criteria.
+- After an authorized engineering session, update docs/HANDOFF.md when
+  relevant state or evidence changes. Record the previous checkpoint
+  revision separately from the current observed HEAD and working-tree
+  changes. Never invent a future commit hash or imply uncommitted work
+  is committed; recheck the revision at the next startup.
 
 Harness checkpoint
 
