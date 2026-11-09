@@ -99,7 +99,7 @@ documentation commit. No fetch or live remote verification was performed.
   and working-tree/index whitespace checks passed. This evidence is
   separate from the historical Lesson 9 checks above.
 - Current M3 active task: none
-- M3.1 and M3.2 verified; M3.3 is next, requiring separate authorization
+- M3.1, M3.2 and M3.3 verified; M3.4 is next, requiring separate authorization
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -160,10 +160,13 @@ Status:
 - M3.1 definition, trigger and step models are verified, committed as
   93c9861b93091f270d4d9a78a0edc8e19376fd65.
 - M3.2 Definition Validation is verified and human-accepted at 10/10, committed as
-  4fb635168f61125842be7cf88241c25738c6f265, the current observed HEAD on main.
-- M3.3 through M3.10 remain pending; active_task_id is null; WIP limit is 1.
-- The reusable runner, trigger matching and later execution behavior remain planned.
-- The M3.2 implementation commit has not yet been confirmed pushed to GitHub.
+  4fb635168f61125842be7cf88241c25738c6f265.
+- M3.3 Trigger Matching is verified and human-accepted at 10/10, committed locally
+  as 1a5ad1413c80b7024cb82291bdb7843ff23e857a, the current observed HEAD on main.
+- M3.4 through M3.10 remain pending; active_task_id is null; WIP limit is 1.
+- Event eligibility matching is implemented. Handler registration, the reusable
+  runner and later execution behavior remain planned.
+- GitHub publication of the M3.3 implementation commit is not yet confirmed.
   Initialization reports HEAD differs from cached origin/main. No fetch or live
   remote verification was performed in this documentation session.
 - Only PROGRESS.md and docs/HANDOFF.md are being reconciled; these documentation
@@ -256,7 +259,7 @@ Git whitespace checks were rerun successfully.
   workflow_definition_validation_test.go. Models were not redesigned; M1/M2 and
   Exercise 82 source and regression tests are unchanged and remain passing.
 
-## Post-Commit Documentation Reconciliation (2026-11-08)
+## Historical M3.2 Post-Commit Documentation Reconciliation (2026-11-08)
 
 - `git rev-parse HEAD` returned 4fb635168f61125842be7cf88241c25738c6f265;
   `git status --short` was empty; `git show --stat --oneline HEAD` and
@@ -287,19 +290,106 @@ Fresh documentation-session verification (2026-11-08), at HEAD
   commit, push, deployment or M3.3 work was performed. These documentation
   changes remain uncommitted and await human review.
 
+## M3.3 — Accepted Implementation Checkpoint (2026-11-09)
+
+- Human engineering acceptance on 2026-11-09: **10/10** against both approved
+  bounded acceptance criteria. CHEAT MODE was chosen during implementation;
+  no NO-CHEAT assessment is required for this checkpoint.
+- Actual local implementation commit:
+  `1a5ad1413c80b7024cb82291bdb7843ff23e857a`. Commit inspection confirms exactly
+  feature_list.json, workflow_trigger.go and workflow_trigger_test.go.
+- Acceptance criterion 1: "Matching events activate eligible workflows."
+  `WorkflowDefinition.MatchesEvent(Event) (bool, error)` returns true/nil for a
+  valid definition and an exact event-type match. TestWorkflowDefinitionMatchesEventTypes
+  demonstrates document archive and sensor alert workflows using the same API.
+  Activation means observable eligibility for a future runner, not actual execution.
+- Acceptance criterion 2: "Nonmatching events cause no execution side effects."
+  Valid mismatches return false/nil. The API has no repository, handlers, callbacks
+  or execution-state access; source inspection establishes this boundary.
+  TestWorkflowDefinitionMatchesEventIsDeterministicAndReadOnly checks the entire
+  definition against an independent copy, and the event, over 600 evaluations.
+- Blank incoming event types return an event error first; invalid definitions
+  return existing Validate errors even on a mismatch. Tests cover missing IDs,
+  blank triggers and broken graphs. Nonblank names are opaque; comparison is
+  exact and case-sensitive without trimming or case folding.
+- Historical RED, at 74ab066 plus then-uncommitted tests:
+  `go test -count=1 -run '^TestWorkflowDefinitionMatchesEvent' ./...` exited 1:
+  MatchesEvent was undefined and Event was undefined. No implementation existed yet.
+- Historical GREEN: `go test -count=1 -run '^TestWorkflowDefinitionMatchesEvent' -v ./...`
+  exited 0: four test functions, three invalid-definition subtests, and 600 repeated
+  deterministic/read-only evaluations passed after the minimal implementation.
+- Historical implementation verification: baseline verifier initially exited 1 at
+  unit tests from sandbox Go-cache denial; permission-enabled rerun passed all six
+  checks. Post-change verifier exited 1 at go vet from sandbox cache denial after
+  tracker, 44 Python tests and Go unit/race tests passed; permission-enabled rerun
+  exited 0 with all six checks PASS.
+- Historical acceptance-finalization verification (2026-11-09), at 74ab066 plus
+  the three then-uncommitted M3.3 files: tracker validation exited 0. Initial
+  `bash scripts/verify.sh` exited 1 at Go unit tests because sandbox cache trimming
+  (trim.txt) was denied after tests reported ok; tracker and 44 Python tests passed,
+  later checks were not reached. Permission-enabled rerun exited 0: tracker,
+  44 Python tests, Go unit tests, race detection, go vet and both Git whitespace
+  checks PASS. Separate whitespace/status checks passed; both then-untracked Go
+  files were fully inspected, passed explicit no-index whitespace checks and
+  required no gofmt changes. Final evidence-only updates passed tracker/whitespace
+  and scope checks. These are preserved pre-commit results, not fresh checks here.
+- The tracker's historical revision `74ab066fc22554384a9337588513f1298a7fe0e9`
+  plus uncommitted M3.3 work now maps to implementation commit 1a5ad14 above.
+  Historical "pending review" and "no implementation commit" statements are
+  superseded by human acceptance and the observed local commit, respectively.
+  The tracker is preserved unchanged by this documentation session.
+
+## M3.3 Post-Commit Documentation Reconciliation (2026-11-09)
+
+- Previous documentation checkpoint revision: 74ab066fc22554384a9337588513f1298a7fe0e9,
+  which reconciled M3.2 at 4fb6351; its claims about uncommitted documentation are
+  historical. M3.3 acceptance testing also used 74ab066 plus uncommitted M3.3 files.
+- Current observed HEAD: 1a5ad1413c80b7024cb82291bdb7843ff23e857a on main.
+  `git rev-parse HEAD`, `git branch --show-current`, `git status --short`,
+  `git show --stat --oneline HEAD` and `git diff-tree --no-commit-id --name-only -r HEAD`
+  exited 0. Startup tree was clean and the three approved commit files matched.
+- `bash init.sh` exited 0, warning that HEAD differs from cached origin/main;
+  no remote was fetched or verified. This does not prove whether a push occurred.
+- Startup tracker validation exited 0. Only PROGRESS.md and docs/HANDOFF.md are
+  being reconciled; these documentation edits are uncommitted. No documentation
+  commit SHA exists for this work. Fresh verification results are recorded below.
+
+Fresh M3.3 post-commit documentation-session verification (2026-11-09), at
+HEAD 1a5ad1413c80b7024cb82291bdb7843ff23e857a plus these two documentation edits:
+
+- Initial `bash scripts/verify.sh` exited 1 at go vet because sandbox access to
+  a Go build-cache file was denied. Tracker validation, all 44 Python tests,
+  `go test -count=1 ./...` and `go test -race -count=1 ./...` passed first.
+  The verifier did not reach whitespace checks or print a final PASS.
+- Permission-enabled rerun of `bash scripts/verify.sh` exited 0: tracker
+  validation, 44 Python tests, Go unit tests, race detection, go vet and both
+  working-tree/index whitespace checks passed. M1, M2, Exercise 82, M3.1,
+  M3.2 and M3.3 regression tests remain passing. These are fresh local results;
+  they establish no cloud integration or production guarantees.
+- Separate `git diff --check`, `git status --short` and
+  `git diff -- PROGRESS.md docs/HANDOFF.md` exited 0; the diff was reviewed.
+  Only PROGRESS.md and docs/HANDOFF.md were modified, with no untracked files.
+- Only this verification record and documentation wording clarifications were
+  added after the successful unified check. Final whitespace and scope checks
+  cover these documentation-only additions. feature_list.json, Go source/tests,
+  roadmap and scripts remain unchanged. No commit, push, deployment or M3.4 work
+  occurred. These two documentation edits await human review; HEAD is unchanged.
+
 ## Current Blocker and Next Action
 
-No blocking M3.2 functional defect was found in the accepted source review.
+No blocking M3.3 functional defect was found in the accepted human source review.
 Human review of these two uncommitted documentation changes is next. Commit and
-push require separate authorization. M3.3 — Trigger Matching is the next planned
-engineering task, requiring separate authorization, state reconciliation, tracker
-validation and its preflight before activation. Do not begin M3.3 now.
+push require separate authorization. M3.4 — Handler Registration is the next
+planned engineering task and requires separate authorization, state reconciliation,
+tracker validation and its preflight before activation. Do not begin M3.4 now.
 
-Historical roadmap harness/revision claims remain stale and are outside this edit.
-feature_list.json retains historical pre-commit evidence references; this checkpoint
-maps them to the actual implementation commits without rewriting that evidence.
-README's whole-M3 acceptance status remains consistent: the runner is not implemented.
-No cloud, distributed execution or full M3 acceptance claim is made.
+Historical roadmap and README next-task descriptions remain stale and outside
+this documentation scope. feature_list.json retains historical pre-commit evidence;
+this checkpoint maps it to actual implementation commits without rewriting history.
+M3.1, M3.2 and M3.3 are verified; the whole M3 milestone is not accepted as complete.
+No handler registration, workflow runner/execution, cloud deployment, distributed
+idempotency or production reliability is claimed. M1/M2 lifecycle operations remain
+existing behavior; M3.3 adds eligibility only. GitHub publication is unconfirmed.
 
 ## Session Handoff Rules
 
