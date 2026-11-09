@@ -79,7 +79,7 @@
       "id": "M3.3",
       "title": "Trigger Matching",
       "objective": "Match incoming events to eligible workflow definitions without launching nonmatching workflows.",
-      "status": "pending",
+      "status": "verified",
       "depends_on": [
         "M3.2"
       ],
@@ -88,10 +88,23 @@
         "Nonmatching events cause no execution side effects."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "74ab066fc22554384a9337588513f1298a7fe0e9 + uncommitted M3.3 changes (2026-11-08)",
+        "commands": [
+          "bash init.sh",
+          "python3 scripts/validate_features.py feature_list.json",
+          "python3 scripts/task_preflight.py --task M3.3",
+          "go test -count=1 -run '^TestWorkflowDefinitionMatchesEvent' ./...",
+          "go test -count=1 -run '^TestWorkflowDefinitionMatchesEvent' -v ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "git status --short",
+          "git diff --no-index --check /dev/null workflow_trigger.go",
+          "git diff --no-index --check /dev/null workflow_trigger_test.go",
+          "gofmt -l workflow_trigger.go workflow_trigger_test.go"
+        ],
+        "result": "Explicit user authorization: M3.3 only. Clean starting main/HEAD and cached origin/main matched 74ab066; live GitHub main matched. Preflight and tracker validation passed. Baseline verifier hit sandbox Go-cache denial at unit tests; permission-enabled rerun passed all six checks (44 Python tests). RED: focused tests exited 1 because MatchesEvent and Event were undefined. GREEN: verbose focused tests exited 0 (four test functions, three invalid-definition subtests, 600 repeated read-only evaluations). Contract: one definition per call, blank event types error first, full Validate before exact case-sensitive comparison; nonblank names are opaque. True is eligibility only. No repository, handler or execution access; M3.4-M3.10 remain pending. Post-change verifier exited 1 at go vet from sandbox Go-cache denial after tracker, 44 Python tests, Go unit and race tests passed. Permission-enabled rerun exited 0: all six checks PASS, including go vet and both Git whitespace checks. Only this evidence text was updated afterward; final tracker validation, whitespace and scope checks passed. Engineering acceptance remains pending human review. Human engineering acceptance (2026-11-09): the user accepted M3.3 at 10/10 against its approved bounded contract. This supersedes the earlier pending-review statement. M3.3 is verified and active_task_id is null; WIP remains 1. CHEAT MODE was chosen during implementation; no NO-CHEAT assessment is required for this checkpoint. Existing RED/GREEN evidence and revision references are preserved. Acceptance-finalization verification (2026-11-09), HEAD 74ab066 plus the three uncommitted M3.3 files: tracker validation exited 0. Initial bash scripts/verify.sh exited 1 at Go unit tests because sandbox cache trimming was denied (trim.txt), after tracker and 44 Python tests passed and Go tests reported ok; race/vet/whitespace were not reached. Permission-enabled rerun exited 0: tracker, 44 Python tests, Go unit tests, Go race tests, go vet and both Git whitespace checks PASS. Separate working-tree/index whitespace checks and git status exited 0. Both untracked Go files were inspected in full; explicit no-index whitespace checks passed and gofmt -l returned no files. No source or test changes were made during acceptance finalization. Only this evidence update followed the successful verifier; final tracker validation, whitespace and scope checks passed. No implementation commit exists.",
+        "reviewed_by": "Human engineering reviewer (user), 2026-11-09: accepted at 10/10 against the approved bounded contract; CHEAT MODE, no NO-CHEAT assessment required."
       },
       "blocker": null
     },
