@@ -28,15 +28,24 @@ generic engine. This is an in-memory engineering portfolio prototype.
   which reconciled M3.2 at 4fb6351. Earlier text describing those documentation
   edits as uncommitted is historical; they are committed at 74ab066.
 - M3.3 implementation/acceptance used 74ab066 plus then-uncommitted M3.3 work.
-- Current observed HEAD (2026-11-09): 1a5ad1413c80b7024cb82291bdb7843ff23e857a,
+- Historical observed HEAD (2026-11-09): 1a5ad1413c80b7024cb82291bdb7843ff23e857a,
   on main, the confirmed local M3.3 implementation commit. Startup tree was clean.
   Commit inspection confirmed exactly feature_list.json, workflow_trigger.go and
   workflow_trigger_test.go, matching the reported revision and file set.
-- This reconciliation changes only PROGRESS.md and docs/HANDOFF.md. These edits
-  are uncommitted; no documentation commit SHA exists for this work.
-- GitHub publication of 1a5ad14 is not yet confirmed. Initialization warned that
-  HEAD differs from cached origin/main; no fetch or live remote check was performed.
+- That M3.3 reconciliation was committed as d0784d8; the subsequent defense
+  protocol upgrade is committed as 701c3e748c4f61093175b171d5038199f4326921.
+- At that historical checkpoint, GitHub publication of 1a5ad14 was unconfirmed.
+  Initialization warned HEAD differed from cached origin/main; no fetch or live
+  remote check was performed.
   Cached refs do not prove publication or absence of a push.
+
+- Current observed HEAD (2026-11-10): 1e34b5d0108949be651e9e3b96ac4cef4d3c5100
+  on main, the expected M3.4 implementation commit; startup tree was clean.
+  It changes exactly feature_list.json, workflow_handlers.go and workflow_handlers_test.go.
+- Previous documentation checkpoint revision is d0784d8, not current HEAD.
+  This session changes only PROGRESS.md and docs/HANDOFF.md; these edits are uncommitted.
+- Cached origin/main is 701c3e748c4f61093175b171d5038199f4326921, differing from HEAD.
+  No fetch or live remote check was performed here; M3.4 publication is unverified.
 
 ## 3. Confirmed implemented milestones
 
@@ -52,7 +61,9 @@ Source/tests inspected at the starting revision support:
   locally idempotent grants are implemented separately.
 - Initialization, tracker validation, Python harness tests, and unified
   verification scripts exist. M3.1 models, M3.2 validation and M3.3 event eligibility
-  matching are verified and committed locally; the runner is not implemented.
+  matching are verified and committed locally. M3.4 named handler registration is
+  implemented and committed; human engineering acceptance remains pending.
+  The runner is not implemented.
 
 Evidence: workflow.go, workflow_repository.go, their tests, enrollment.go,
 and enrollment_test.go. Preserve ownership, versions, diagnostics, and history.
@@ -62,9 +73,11 @@ and enrollment_test.go. Preserve ownership, versions, diagnostics, and history.
 M3.1, M3.2 and M3.3 are verified. Human engineering review accepted M3.2 and
 M3.3 at 10/10 against their approved bounded contracts. M3.3 acceptance covers
 observable event eligibility and side-effect-free mismatches, not execution.
-M3.4 through M3.10 remain pending; active_task_id is null and
-work_in_progress_limit is 1. The tracker is unchanged by this documentation
-session. Its historical pre-commit evidence is mapped to actual commits here.
+M3.4 is in_progress pending human engineering acceptance; active_task_id is M3.4.
+M3.5-M3.10 remain pending; work_in_progress_limit is 1. The tracker is unchanged
+by this documentation session. Its historical M3.4 evidence at 701c3e7 plus
+uncommitted changes now maps to commit 1e34b5d. No acceptance or tracker change
+is inferred from the implementation commit or this documentation authorization.
 
 ## 5. Verification evidence and commands
 
@@ -194,14 +207,31 @@ M3.3 implementation and acceptance evidence (2026-11-08/09):
   superseded by human acceptance and the observed local commit, respectively.
   The tracker is preserved unchanged by this documentation session.
 
+M3.4 historical implementation evidence (2026-11-10; 701c3e7 plus then-uncommitted work):
+
+- RED: go test -count=1 -run '^TestHandlerRegistry' ./... exited 1 with undefined
+  NewHandlerRegistry, ActionHandler and ConditionHandler.
+- GREEN: go test -count=1 -run '^TestHandlerRegistry' -v ./... exited 0;
+  all six registry test functions passed after implementation and gofmt.
+- Baseline bash scripts/verify.sh passed. Post-change sandbox run exited 1 at
+  Go unit-test setup from denied build-cache access after tracker and 44 Python
+  tests passed. Permission-enabled rerun exited 0: tracker, 44 Python tests,
+  Go unit/race tests, go vet and both Git whitespace checks passed. Earlier
+  M1/M2, Exercise 82 and M3.1-M3.3 regressions passed. These are preserved
+  session-report/tracker results, not freshly executed RED/GREEN checks here.
+
 These local checks establish no cloud integration or production outcome.
 
 ## 6. Unresolved blockers and limitations
 
-M3.1, M3.2 and M3.3 are verified; no blocking M3.3 functional defect was found
-in human source review. GitHub publication of 1a5ad14 is unconfirmed. M3.4 requires
-separate authorization. Historical roadmap and README next-task descriptions
-remain stale and outside this reconciliation.
+M3.1-M3.3 are verified; M3.4 implementation is committed with acceptance pending.
+No blocking source mismatch was found. M3.4 live publication is unverified here.
+Registry registration must not overlap registry operations across goroutines;
+callback safety belongs to callers. Populated registries must not be copied.
+Predicate errors must be checked before using results. No panic recovery, retries,
+cancellation, idempotency, runner, branch selection or lifecycle integration exists
+in this registry. No cloud deployment or production integration is established.
+Historical roadmap and README next-task descriptions remain outside this reconciliation.
 The user reports the Lesson 10 fresh-agent acceptance test succeeded.
 This is historical user-reported evidence, not a newly executed test here.
 docs/ROADMAP.md contains historical repository/harness snapshots; use its
@@ -221,22 +251,34 @@ supported step types, handler names, successor references, compatible fields,
 positive WAIT durations and cycles (including disconnected components). Sorted
 step IDs and fixed traversal order produce deterministic errors. Empty successors
 remain path endings. M3.3 adds Event and MatchesEvent for generic, read-only
-eligibility decisions. Handler registration and runner execution remain planned.
-M1/M2/Exercise 82 source and tests are unchanged and remain passing.
+eligibility decisions. M3.4 adds ActionHandler, ConditionHandler and HandlerRegistry,
+with a constructor and usable zero value. RegisterAction/RegisterCondition reject
+blank names, nil callbacks and duplicates without replacing originals. InvokeAction
+and EvaluateCondition dispatch exact, case-sensitive names through separate maps;
+callback outputs/errors pass through unchanged. No business integration is imported.
+
+Approved criterion 1: "Multiple implementations can be registered and invoked by name."
+TestHandlerRegistryNamedInvocation checks two actions, two predicates and the exact
+call sequence. Approved criterion 2: "Unknown handlers are rejected."
+TestHandlerRegistryRejectsUnknownNames checks missing/blank/mismatched names and
+wrong namespaces without callback side effects. Additional tests cover invalid
+registration, duplicate preservation, error identity, zero-value use and isolation.
+The committed files match the implementation shown in the previous session.
 
 Next: human review of the two uncommitted documentation files, followed by any
-separately authorized commit/push. M3.4 — Handler Registration is next planned
-and requires separate authorization; reconcile state, validate the tracker and run
-its preflight before requesting activation. Preserve the ten-task sequence and WIP limit.
+separately authorized commit/push. M3.4 acceptance remains pending in the tracker.
+M3.5 — Conditions and Branching is next planned, NOT authorized. Its activation
+requires verified prerequisites, reconciliation, validation, preflight and separate
+human authorization. Preserve the ten-task sequence and WIP limit.
 
 ## 8. Authorization boundaries and reconciliation checks
 
 This session authorizes checkpoint documentation only: PROGRESS.md and
 docs/HANDOFF.md. No application code, tests, feature_list.json or roadmap edits.
-Do not commit, push, deploy, begin M3.4, access production or expose credentials.
-M3.3 human acceptance is established; it does not authorize a later task.
+Do not commit, push, deploy, start M3.5, access production or expose credentials.
+M3.4 implementation completion does not imply acceptance or authorize a later task.
 
-Current startup (2026-11-09): git rev-parse HEAD, git branch --show-current,
+Historical startup (2026-11-09): git rev-parse HEAD, git branch --show-current,
 git status --short (empty), git show --stat --oneline HEAD and
 git diff-tree --no-commit-id --name-only -r HEAD all exited 0. HEAD matched
 1a5ad1413c80b7024cb82291bdb7843ff23e857a on main with exactly the three approved
@@ -291,6 +333,34 @@ HEAD 1a5ad1413c80b7024cb82291bdb7843ff23e857a plus these two documentation edits
   cover these documentation-only additions. feature_list.json, Go source/tests,
   roadmap and scripts remain unchanged. No commit, push, deployment or M3.4 work
   occurred. These two documentation edits await human review; HEAD is unchanged.
+
+Current documentation-session startup (2026-11-10): branch main, clean tree and
+HEAD 1e34b5d0108949be651e9e3b96ac4cef4d3c5100 confirmed with Git. Commit inspection
+found only the three M3.4 files. bash init.sh exited 0 and warned of cached-ref
+mismatch; no live remote verification was performed. Tracker validation exited 0.
+Previous checkpoint d0784d8 and defense upgrade 701c3e7 are committed, superseding
+historical uncommitted-documentation statements. Only the two documentation files
+are being edited now; no new documentation commit exists.
+
+Fresh documentation-session verification (2026-11-10), at HEAD
+1e34b5d0108949be651e9e3b96ac4cef4d3c5100 plus these two documentation edits:
+
+- python3 scripts/validate_features.py feature_list.json exited 0.
+- Initial bash scripts/verify.sh exited 1 at go vet because sandbox access to
+  a Go build-cache file was denied. Tracker, all 44 Python tests, Go unit tests
+  and race detection passed first; whitespace checks were not reached.
+- Permission-enabled rerun of bash scripts/verify.sh exited 0: tracker,
+  44 Python tests, go test -count=1 ./..., go test -race -count=1 ./...,
+  go vet ./... and working-tree/index whitespace checks passed. Existing
+  M1/M2, Exercise 82 and M3.1-M3.4 tests pass locally; this proves no cloud outcome.
+- Only this verification record and documentation wording were added afterward.
+  Final git diff --check, git diff -- PROGRESS.md docs/HANDOFF.md and git status
+  --short passed; the diff was reviewed. Scope checks confirmed only the two
+  authorized documentation files changed, with no untracked or staged files;
+  feature_list.json and Go source/tests remain byte-for-byte equal to HEAD.
+- Ending HEAD remains 1e34b5d0108949be651e9e3b96ac4cef4d3c5100. These documentation
+  edits are uncommitted and await human review. No commit, push, deployment,
+  live remote verification or M3.5 work occurred.
 
 ## 9. Fresh-agent startup procedure
 

@@ -98,8 +98,8 @@ documentation commit. No fetch or live remote verification was performed.
   exited 0: tracker, 27 Python tests, Go unit tests, race checks, go vet,
   and working-tree/index whitespace checks passed. This evidence is
   separate from the historical Lesson 9 checks above.
-- Current M3 active task: none
-- M3.1, M3.2 and M3.3 verified; M3.4 is next, requiring separate authorization
+- Current M3 active task: M3.4, implementation committed; human acceptance pending
+- M3.1-M3.3 verified; M3.5 is next planned, not authorized
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -146,7 +146,7 @@ documentation commit. No fetch or live remote verification was performed.
 
 M3 - Reusable Workflow Definition and Execution Engine
 
-Planned capabilities:
+Milestone capabilities (implementation status below):
 
 - Reusable workflow definitions
 - Triggers
@@ -161,16 +161,20 @@ Status:
   93c9861b93091f270d4d9a78a0edc8e19376fd65.
 - M3.2 Definition Validation is verified and human-accepted at 10/10, committed as
   4fb635168f61125842be7cf88241c25738c6f265.
-- M3.3 Trigger Matching is verified and human-accepted at 10/10, committed locally
-  as 1a5ad1413c80b7024cb82291bdb7843ff23e857a, the current observed HEAD on main.
-- M3.4 through M3.10 remain pending; active_task_id is null; WIP limit is 1.
-- Event eligibility matching is implemented. Handler registration, the reusable
-  runner and later execution behavior remain planned.
-- GitHub publication of the M3.3 implementation commit is not yet confirmed.
-  Initialization reports HEAD differs from cached origin/main. No fetch or live
-  remote verification was performed in this documentation session.
-- Only PROGRESS.md and docs/HANDOFF.md are being reconciled; these documentation
-  changes are uncommitted and are not part of the implementation commit above.
+- M3.3 Trigger Matching is verified and human-accepted at 10/10, committed as
+  1a5ad1413c80b7024cb82291bdb7843ff23e857a.
+- M3.4 Handler Registration implementation is completed and committed locally as
+  1e34b5d0108949be651e9e3b96ac4cef4d3c5100, the observed HEAD on main (2026-11-10).
+  Tracker status remains in_progress pending human engineering acceptance;
+  active_task_id is M3.4 and WIP limit is 1. This reconciliation changes no tracker data.
+- Models, validation, event eligibility and named callback dispatch are implemented.
+  M3.5-M3.10 remain pending; branch selection, runner and lifecycle integration are planned.
+- M3.5 is the next planned task, not authorized by this documentation session.
+- Startup tree was clean. Cached origin/main is 701c3e748c4f61093175b171d5038199f4326921,
+  differing from HEAD. No fetch or live remote check was performed here;
+  publication of the M3.4 implementation commit is unverified.
+- Only PROGRESS.md and docs/HANDOFF.md are being reconciled. These documentation
+  edits are uncommitted and are not part of the implementation commit above.
 
 ## Historical M3.1 — Workflow Definition Models (2026-11-08)
 
@@ -339,7 +343,7 @@ Fresh documentation-session verification (2026-11-08), at HEAD
   superseded by human acceptance and the observed local commit, respectively.
   The tracker is preserved unchanged by this documentation session.
 
-## M3.3 Post-Commit Documentation Reconciliation (2026-11-09)
+## Historical M3.3 Post-Commit Documentation Reconciliation (2026-11-09)
 
 - Previous documentation checkpoint revision: 74ab066fc22554384a9337588513f1298a7fe0e9,
   which reconciled M3.2 at 4fb6351; its claims about uncommitted documentation are
@@ -375,21 +379,88 @@ HEAD 1a5ad1413c80b7024cb82291bdb7843ff23e857a plus these two documentation edits
   roadmap and scripts remain unchanged. No commit, push, deployment or M3.4 work
   occurred. These two documentation edits await human review; HEAD is unchanged.
 
+## M3.4 — Committed Implementation Checkpoint (2026-11-10)
+
+- Previous documentation checkpoint: d0784d8, which reconciled M3.3; the defense
+  protocol upgrade is committed at 701c3e748c4f61093175b171d5038199f4326921.
+  Earlier statements describing the M3.3 documentation edits as uncommitted are historical.
+- Actual M3.4 implementation commit: 1e34b5d0108949be651e9e3b96ac4cef4d3c5100.
+  Inspection confirms exactly feature_list.json, workflow_handlers.go and
+  workflow_handlers_test.go; no unrelated files changed. The committed registry
+  and six tests match the implementation presented in the prior session.
+- Acceptance criterion 1: "Multiple implementations can be registered and invoked by name."
+  TestHandlerRegistryNamedInvocation registers two actions and two predicates,
+  checks true/false results and the exact callback sequence. Registration invokes nothing.
+- Acceptance criterion 2: "Unknown handlers are rejected."
+  TestHandlerRegistryRejectsUnknownNames covers missing and blank names,
+  case/padding mismatches and wrong namespaces without invoking callbacks.
+- ActionHandler is func() error; ConditionHandler is func() (bool, error).
+  NewHandlerRegistry and the usable zero value support RegisterAction,
+  RegisterCondition, InvokeAction and EvaluateCondition. Separate maps store
+  exact, case-sensitive nonblank names without trimming them.
+- TestHandlerRegistryRejectsInvalidRegistration covers blank names and nil functions.
+  TestHandlerRegistryDuplicatesPreserveOriginal checks rejection without replacement,
+  including the same name in separate action/condition namespaces.
+  TestHandlerRegistryPropagatesErrors checks original error identity and unchanged
+  predicate results with errors. TestHandlerRegistryZeroValueAndIsolation checks
+  zero-value use, separate instances and distinct opaque names.
+- Historical RED at 701c3e7 plus then-uncommitted tests:
+  go test -count=1 -run '^TestHandlerRegistry' ./... exited 1 with undefined
+  NewHandlerRegistry, ActionHandler and ConditionHandler.
+- Historical GREEN: go test -count=1 -run '^TestHandlerRegistry' -v ./...
+  exited 0 with all six test functions passing after implementation and gofmt.
+- Historical implementation verification, preserved from the session report and tracker:
+  baseline bash scripts/verify.sh passed all six checks. Post-change sandbox run
+  exited 1 at Go unit-test setup from denied build-cache access after tracker and
+  44 Python tests passed. Permission-enabled rerun exited 0: tracker, 44 Python
+  tests, Go unit/race tests, go vet and working-tree/index whitespace checks passed.
+  Existing M1/M2, Exercise 82 and M3.1-M3.3 regressions passed. These results apply
+  to 701c3e7 plus the then-uncommitted M3.4 files, not a fresh run of the later commit.
+- Implementation completion is distinct from task acceptance: feature_list.json
+  still records M3.4 in_progress and human engineering acceptance pending.
+  Its historical revision now maps to the actual commit above; no tracker edit is required here.
+- Limitations: no concurrent registration guarantee; registration must not overlap
+  registry operations across goroutines. Callback safety belongs to callers.
+  Populated registries must not be copied. Errors/results pass through unchanged;
+  callers must check predicate errors before using booleans. No panic recovery,
+  retries, cancellation, idempotency, branch selection, runner or lifecycle integration.
+  No cloud deployment, production integration or measured business outcome is established.
+
+## M3.4 Documentation Reconciliation (2026-11-10)
+
+Starting HEAD is 1e34b5d0108949be651e9e3b96ac4cef4d3c5100 on main with a clean tree.
+Git branch/HEAD/status/history and commit file-set inspection passed; bash init.sh
+exited 0 and warned HEAD differs from cached origin/main. Live remote publication
+was not checked. Startup tracker validation exited 0. Fresh verification is
+recorded below separately from historical implementation results.
+
+Fresh documentation-session verification (2026-11-10), at HEAD
+1e34b5d0108949be651e9e3b96ac4cef4d3c5100 plus these two documentation edits:
+
+- python3 scripts/validate_features.py feature_list.json exited 0.
+- Initial bash scripts/verify.sh exited 1 at go vet because sandbox access to
+  a Go build-cache file was denied. Tracker, all 44 Python tests, Go unit tests
+  and race detection passed first; whitespace checks were not reached.
+- Permission-enabled rerun of bash scripts/verify.sh exited 0: tracker,
+  44 Python tests, go test -count=1 ./..., go test -race -count=1 ./...,
+  go vet ./... and working-tree/index whitespace checks passed. Existing
+  M1/M2, Exercise 82 and M3.1-M3.4 tests pass locally; this proves no cloud outcome.
+- Only this verification record and documentation wording were added afterward.
+  Final git diff --check, git diff -- PROGRESS.md docs/HANDOFF.md and git status
+  --short passed; the diff was reviewed. Scope checks confirmed only the two
+  authorized documentation files changed, with no untracked or staged files;
+  feature_list.json and Go source/tests remain byte-for-byte equal to HEAD.
+- Ending HEAD remains 1e34b5d0108949be651e9e3b96ac4cef4d3c5100. These documentation
+  edits are uncommitted and await human review. No commit, push, deployment,
+  live remote verification or M3.5 work occurred.
+
 ## Current Blocker and Next Action
 
-No blocking M3.3 functional defect was found in the accepted human source review.
-Human review of these two uncommitted documentation changes is next. Commit and
-push require separate authorization. M3.4 — Handler Registration is the next
-planned engineering task and requires separate authorization, state reconciliation,
-tracker validation and its preflight before activation. Do not begin M3.4 now.
-
-Historical roadmap and README next-task descriptions remain stale and outside
-this documentation scope. feature_list.json retains historical pre-commit evidence;
-this checkpoint maps it to actual implementation commits without rewriting history.
-M3.1, M3.2 and M3.3 are verified; the whole M3 milestone is not accepted as complete.
-No handler registration, workflow runner/execution, cloud deployment, distributed
-idempotency or production reliability is claimed. M1/M2 lifecycle operations remain
-existing behavior; M3.3 adds eligibility only. GitHub publication is unconfirmed.
+Review the two uncommitted documentation files. M3.4 implementation is committed;
+its tracker acceptance remains pending. M3.5 — Conditions and Branching is the
+next planned task, not authorized. No commit, push, deployment or further
+implementation is authorized by this session. README/roadmap historical status
+snapshots remain outside this edit scope. The whole M3 milestone is not complete.
 
 ## Session Handoff Rules
 
