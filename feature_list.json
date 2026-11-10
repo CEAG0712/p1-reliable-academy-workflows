@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": null,
+  "active_task_id": "M3.4",
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -112,7 +112,7 @@
       "id": "M3.4",
       "title": "Handler Registration",
       "objective": "Register action handlers and condition predicates by name without tying engine core to business integrations.",
-      "status": "pending",
+      "status": "in_progress",
       "depends_on": [
         "M3.3"
       ],
@@ -121,10 +121,17 @@
         "Unknown handlers are rejected."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "701c3e748c4f61093175b171d5038199f4326921 + uncommitted M3.4 changes (2026-11-10)",
+        "commands": [
+          "bash init.sh",
+          "python3 scripts/validate_features.py feature_list.json",
+          "python3 scripts/task_preflight.py --task M3.4",
+          "go test -count=1 -run '^TestHandlerRegistry' ./...",
+          "go test -count=1 -run '^TestHandlerRegistry' -v ./...",
+          "bash scripts/verify.sh"
+        ],
+        "result": "Clean main at expected HEAD; cached origin/main and live GitHub main matched. Tracker validation, preflight and baseline verifier passed. RED: focused tests exited 1 with undefined NewHandlerRegistry, ActionHandler and ConditionHandler. GREEN: verbose focused tests exited 0, six test functions passed. Registry uses independent action/condition maps, exact names, blank/nil/duplicate rejection, original callback preservation and unchanged callback results/errors; zero value usable. Source review confirms no business integrations or runner/lifecycle changes. Post-change verifier exited 1 at Go unit-test setup from sandbox build-cache denial after tracker and 44 Python tests passed; permission-enabled rerun exited 0: all six checks PASS, including Go unit/race tests, go vet and both whitespace checks. Existing M1/M2, Exercise 82 and M3.1-M3.3 regression tests pass. Only this evidence record was added afterward. M3.4 remains in_progress pending human engineering review; M3.5-M3.10 remain pending. No commit, push or deployment.",
+        "reviewed_by": "Codex: source and test evidence inspected against M3.4 criteria; human engineering acceptance pending"
       },
       "blocker": null
     },
