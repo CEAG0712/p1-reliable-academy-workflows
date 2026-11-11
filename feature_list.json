@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.6",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -169,7 +169,7 @@
       "id": "M3.6",
       "title": "Sequential Action Execution",
       "objective": "Execute configured actions in order and advance progress only after successful steps.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.5"
       ],
@@ -178,10 +178,20 @@
         "A failed action stops the normal path and returns an error outcome."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "f189ce6be261e2269b8bd266584f123c11a4ce06",
+        "commands": [
+          "bash init.sh",
+          "python3 scripts/validate_features.py feature_list.json",
+          "python3 scripts/task_preflight.py --task M3.6",
+          "go test -count=1 -run '^TestHandlerRegistryExecuteActions' ./...",
+          "go test -count=1 -run '^TestHandlerRegistryExecuteActions' -v ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "mcp__codex_apps__github_fetch({\"url\":\"https://api.github.com/repos/CEAG0712/p1-reliable-academy-workflows/branches/main\"})"
+        ],
+        "result": "Historical implementation evidence (2026-11-11), at 395239d11a17a46eaf6097b8f798585833cdda93 plus then-uncommitted M3.6 changes, as recorded in committed PROGRESS.md and docs/HANDOFF.md: tracker validation and M3.6 preflight passed before activation. Preflight is historical pre-activation evidence only and was not rerun for this already active task; human authorization, not eligibility, permitted implementation. The focused nonverbose command initially exited 1 from sandbox Go-cache denial; its permission-enabled RED rerun exited 1 because ExecuteActions was undefined at test lines 50, 108, 135, 142, 168, 197 and 216. The verbose GREEN command exited 0 after implementation/gofmt: six test functions and 18 subtests passed. Pre-implementation and post-change unified verifiers encountered sandbox Go-cache denial at Go unit-test setup after tracker and 44 Python tests passed; permission-enabled reruns exited 0 with all six checks PASS. The documentation session separately recorded sandbox cache denial at go vet followed by a permission-enabled all-six-checks PASS. Cache failures were environmental; the undefined-method failure was intentional historical RED, not a newly performed failing test. Approved criterion 1, Actions run in required order: ExecuteActions follows configured Next links; TestHandlerRegistryExecuteActionsOrderAndReadOnly asserts exact load -> transform -> store callback order across four map insertion orders and two traversal attempts per case. Unreached actions remain uncalled during traversal; the local cursor advances only after success. Approved criterion 2, A failed action stops the normal path and returns an error outcome: TestHandlerRegistryExecuteActionsFailure covers first, middle and final failures, with exact callback-prefix assertions, failed-step cursor, underlying error wrapped through %w and preserved by errors.Is, and no subsequent action invocation; each case runs twice. Supporting source/tests cover unknown handler rejection, invalid cursors and malformed definitions, whole-definition validation before callbacks (including an invalid unreached step), unexecuted condition and WAIT boundaries, valid supplied starting cursor, and no executor mutation of definitions or registered handler mappings. Published implementation: f189ce6be261e2269b8bd266584f123c11a4ce06; published documentation: 020e37acdab851ab4e71230e939ad1f9120569d7. Fresh acceptance reconciliation (2026-11-11) started on clean main at 020e37acdab851ab4e71230e939ad1f9120569d7. Initialization and tracker validation exited 0; branch, HEAD, history, implementation/documentation commit file sets and tracker baseline assertions passed. Initialization warned that cached origin/main is not live evidence; the GitHub fetch tool call listed in commands succeeded and independently confirmed live main at 020e37acdab851ab4e71230e939ad1f9120569d7. Both focused Go commands initially exited 1 from denied sandbox build-cache access; permission-enabled reruns exited 0, including all six test functions and 18 subtests in the verbose run. Historical results were reviewed from committed checkpoints, not freshly reexecuted or personally executed by the human approver. Limitations: cursor progress is local, not persisted; repeated invocations may replay actions. No automatic retry, idempotency, rollback, timeout, cancellation, panic recovery or concurrent execution ownership guarantee. No condition evaluation within ExecuteActions, WAIT/resume functionality or M2 TryClaim/Complete/Fail lifecycle integration. Callers/callbacks must not mutate definitions during traversal and must respect registry concurrency constraints; nil registry pointers are unsupported. No cloud deployment, production integration, measured business outcomes or distributed exactly-once guarantee is established. M3.1-M3.5 records/evidence are preserved; M3.7-M3.10 remain unchanged and pending. WIP remains 1; active_task_id is null. Only feature_list.json is changed, uncommitted, for human engineering review. Fresh post-edit acceptance verification: python3 scripts/validate_features.py feature_list.json exited 0. Sandbox bash scripts/verify.sh exited 1 at go vet from denied Go build-cache access after tracker, all 44 Python tests, Go unit tests and race detection passed; whitespace checks were not reached. Permission-enabled rerun exited 0 with all six checks PASS: tracker, 44 Python tests, go test -count=1 ./..., go test -race -count=1 ./..., go vet ./... and both Git whitespace checks. Only this outcome record was appended afterward; final tracker validation, whitespace, diff review and preservation/scope assertions cover this evidence-only addition.",
+        "reviewed_by": "Human-authorized acceptance following ChatGPT source review and Codex-reported verification, 2026-11-11. Human authorization permits this tracker reconciliation; it does not claim the human personally executed tests. ChatGPT source review is distinct from Codex cross-checking committed source/tests and historical evidence and executing the fresh checks explicitly identified in result."
       },
       "blocker": null
     },
