@@ -98,8 +98,10 @@ documentation commit. No fetch or live remote verification was performed.
   exited 0: tracker, 27 Python tests, Go unit tests, race checks, go vet,
   and working-tree/index whitespace checks passed. This evidence is
   separate from the historical Lesson 9 checks above.
-- Current M3 active task: M3.5, implementation committed; final tracker acceptance pending
-- M3.1-M3.4 verified; M3.6 is next planned, not authorized
+- Historical M3.5 checkpoint: implementation committed; final tracker acceptance pending
+  then, with M3.1-M3.4 verified and M3.6 not yet authorized. Superseded below.
+- Current M3 active task: M3.6, implementation committed; human acceptance pending.
+  M3.1-M3.5 are verified; M3.7-M3.10 remain pending and unauthorized.
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -155,7 +157,7 @@ Milestone capabilities (implementation status below):
 - Action handlers
 - Wait/delay steps
 
-Status:
+Historical status at the M3.5 documentation checkpoint (superseded by M3.6 below):
 
 - M3.1 definition, trigger and step models are verified, committed as
   93c9861b93091f270d4d9a78a0edc8e19376fd65.
@@ -455,7 +457,7 @@ Fresh documentation-session verification (2026-11-10), at HEAD
   edits are uncommitted and await human review. No commit, push, deployment,
   live remote verification or M3.5 work occurred.
 
-## M3.5 — Local Implementation and Documentation Checkpoint (2026-11-11)
+## Historical M3.5 — Local Implementation and Documentation Checkpoint (2026-11-11)
 
 - Previous documentation checkpoint: dd35ce009d4bfc36a183671c6fbef7f48e4ed3a8,
   reconciling M3.4 at 1e34b5d. Its pending-acceptance statements are historical:
@@ -536,7 +538,7 @@ e0e73da376d55cd22c86fdda8d6011af022a9b0a plus these two documentation edits:
   deployment, live remote check, M3.6 work or M3.5 tracker acceptance occurred.
   These documentation edits await human engineering review; no unresolved blocker.
 
-## Current Blocker and Next Action
+## Historical M3.5 Blocker and Next Action
 
 Human engineering review of these two uncommitted documentation files is next.
 M3.5 implementation is committed locally but remains in_progress pending final
@@ -544,6 +546,115 @@ tracker acceptance. M3.6 — Sequential Action Execution is next planned and NOT
 authorized. No commit, push, deployment or additional functionality is authorized.
 README/roadmap historical status snapshots remain outside this edit scope.
 The whole M3 milestone is not complete.
+
+## M3.6 — Sequential Action Execution Checkpoint (2026-11-11)
+
+- Current observed HEAD: `f189ce6be261e2269b8bd266584f123c11a4ce06` on main.
+  Startup tree and index were clean. The implementation commit contains exactly
+  feature_list.json, workflow_actions.go and workflow_actions_test.go.
+- Previous documentation checkpoint: `959186046ff3dfd3a86c350027bf7afcd2f509cc`.
+  Its documentation is committed; earlier uncommitted-documentation statements
+  describe historical sessions. Subsequent M3.5 acceptance baseline:
+  `395239d11a17a46eaf6097b8f798585833cdda93`, also the M3.6 implementation parent.
+- Tracker: M3.1-M3.5 verified; M3.6 in_progress, active_task_id M3.6, WIP 1;
+  M3.7-M3.10 pending. Implementation is committed; M3.6 acceptance is pending.
+  Only PROGRESS.md and docs/HANDOFF.md are edited here, still uncommitted.
+- `bash init.sh` exited 0; cached origin/main remains at 395239d and differs
+  from HEAD. No fetch or live remote check occurred in this documentation session;
+  current M3.6 publication is unverified. Cached references do not establish it.
+
+### Committed behavior and acceptance evidence
+
+`HandlerRegistry.ExecuteActions(WorkflowDefinition, string) (string, error)`
+validates the complete definition before callbacks, rejects unknown starting IDs,
+and follows configured Next links through InvokeAction(). Each reached action is
+invoked once per traversal attempt. The local cursor advances only after success.
+An action error immediately returns the failed cursor and wraps the original cause
+with %w. Empty cursor/nil means an action path ended; nonempty cursor/nil hands off
+an unexecuted condition or WAIT. Invalid input returns the starting cursor/error.
+The method does not mutate definitions or handler mappings; callbacks own their
+side effects and must not mutate the definition during traversal.
+
+All six committed tests are in workflow_actions_test.go:
+
+- TestHandlerRegistryExecuteActionsOrderAndReadOnly: approved criterion 1,
+  "Actions execute in the required order." Checks load -> transform -> store
+  across four map insertion orders and two attempts each, terminal empty cursor,
+  unreached actions, unchanged definition and registered mappings/dispatch.
+- TestHandlerRegistryExecuteActionsFailure: approved criterion 2,
+  "A failed action stops the normal path and produces an error outcome."
+  First, middle and final failures return the failed cursor and preserve the
+  underlying cause via errors.Is; exact callback prefixes exclude later actions.
+  Each case repeats twice, establishing once per reached action per attempt.
+- TestHandlerRegistryExecuteActionsUnknownHandler: missing/case/padding mismatches
+  and zero-value registry return errors; an unknown middle handler stops traversal.
+- TestHandlerRegistryExecuteActionsRejectsInvalidInput: unknown/empty/blank cursors,
+  broken successor, invalid configured start, unsupported type, cycle and missing
+  identity are rejected before callbacks.
+- TestHandlerRegistryExecuteActionsBoundary: condition and 24-hour WAIT handoffs,
+  both entered directly and reached after an action; no predicate evaluation,
+  sleeping or successor action execution occurs.
+- TestHandlerRegistryExecuteActionsStartsAtSuppliedStep: a valid last-step cursor
+  succeeds without invoking or requiring registration of preceding actions.
+
+### Historical implementation-session evidence (not rerun here)
+
+At 395239d plus then-uncommitted M3.6 changes, now committed as f189ce6:
+
+- Tracker validation and `python3 scripts/task_preflight.py --task M3.6` exited 0
+  before activation. Explicit user approval authorized work; eligibility did not.
+- RED: `go test -count=1 -run '^TestHandlerRegistryExecuteActions' ./...` first
+  exited 1 from sandbox Go-cache denial. Permission-enabled rerun exited 1 with
+  ExecuteActions undefined at test lines 50, 108, 135, 142, 168, 197 and 216.
+- GREEN: `go test -count=1 -run '^TestHandlerRegistryExecuteActions' -v ./...`
+  exited 0: six test functions and 18 subtests passed after implementation/gofmt.
+- Pre-implementation and post-change `bash scripts/verify.sh` sandbox runs exited 1
+  at Go unit-test setup from cache denial after tracker and 44 Python tests passed.
+  Their permission-enabled reruns exited 0: tracker, 44 Python tests, Go unit/race
+  tests, go vet and both Git whitespace checks passed. These environment failures
+  are separate from the intentional missing-method RED failure.
+- Final gofmt -l returned no files. Tracker, whitespace and scope checks passed;
+  no-index whitespace checks of new files had no diagnostics (exit 1 for differences).
+  These results are preserved from the implementation-session tool outputs/report,
+  not newly executed RED/GREEN or preflight checks of the committed revision.
+
+### Limitations and next action
+
+Local cursor only; no persisted progress, automatic retries, idempotency or rollback
+of completed external side effects. Repeated attempts can replay actions. No timeout,
+cancellation, panic recovery or concurrent execution ownership guarantee exists in
+ExecuteActions. It evaluates no conditions, schedules no WAIT/resume and integrates
+with none of M2 TryClaim/Complete/Fail. Registry concurrency constraints still apply;
+nil registry pointers are unsupported. No production deployment, provider integration,
+measured business results or distributed exactly-once behavior is established.
+
+Next: human review of these two documentation edits and the M3.6 engineering evidence.
+M3.6 remains in_progress; M3.7-M3.10 remain pending, and M3.7 is unauthorized.
+No source/test/tracker changes, commit, push, deployment or new functionality are
+permitted in this documentation session. Fresh verification is recorded separately.
+
+### Fresh documentation-session verification (2026-11-11)
+
+At HEAD f189ce6be261e2269b8bd266584f123c11a4ce06 plus these two documentation edits:
+
+- `bash init.sh` and `python3 scripts/validate_features.py feature_list.json`
+  exited 0; branch/HEAD/clean-start/history/commit-scope checks passed.
+- Initial `bash scripts/verify.sh` exited 1 at go vet from denied sandbox Go-cache
+  access, after tracker, all 44 Python tests, Go unit tests and race tests passed.
+  The verifier did not reach whitespace checks or print final PASS.
+- Permission-enabled `bash scripts/verify.sh` rerun exited 0: tracker, 44 Python
+  tests, `go test -count=1 ./...`, `go test -race -count=1 ./...`, `go vet ./...`
+  and working-tree/index whitespace checks all passed. Existing M1/M2,
+  Exercise 82 and M3.1-M3.6 regression tests pass locally.
+- Final whitespace review found an extra blank line at HANDOFF.md EOF; removed.
+- Only documentation wording and this evidence record were added afterward.
+  Final tracker validation, `git diff --check`, `git diff --cached --check`, full
+  documentation diff review and status/scope assertions passed. Only PROGRESS.md
+  and docs/HANDOFF.md changed; no staged or untracked files. Source, tests,
+  feature_list.json and all other tracked files remain byte-for-byte equal to HEAD.
+- Ending HEAD remains f189ce6be261e2269b8bd266584f123c11a4ce06. No commit, push,
+  deployment, live remote check, tracker acceptance or M3.7 work occurred.
+  These two uncommitted documentation files await human engineering review.
 
 ## Session Handoff Rules
 

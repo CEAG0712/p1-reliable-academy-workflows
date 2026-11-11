@@ -47,7 +47,7 @@ generic engine. This is an in-memory engineering portfolio prototype.
 - At that historical checkpoint, cached origin/main was 701c3e748c4f61093175b171d5038199f4326921.
   No live remote check occurred then; publication was unverified at that time.
 
-## 3. Confirmed implemented milestones
+## 3. Historical confirmed milestones at the M3.5 checkpoint
 
 Source/tests inspected at the starting revision support:
 
@@ -69,7 +69,7 @@ Source/tests inspected at the starting revision support:
 Evidence: workflow.go, workflow_repository.go, their tests, enrollment.go,
 and enrollment_test.go. Preserve ownership, versions, diagnostics, and history.
 
-## 4. Current tracker state
+## 4. Historical M3.5 tracker state (superseded by section 11)
 
 M3.1-M3.4 are verified. M3.4 acceptance is committed as
 88fe6ed924efd351cb2a10d5cd8f11f326b81006, superseding the historical pending
@@ -79,7 +79,7 @@ The tracker is unchanged here; M3.5 evidence fields remain empty.
 Historical human reviews accepted M3.2 and M3.3 at 10/10 against their bounded
 contracts. M3.3 acceptance establishes eligibility, not execution.
 
-Current observed HEAD (2026-11-11): e0e73da376d55cd22c86fdda8d6011af022a9b0a
+Historical observed HEAD (2026-11-11): e0e73da376d55cd22c86fdda8d6011af022a9b0a
 on main, matching the expected implementation commit; startup tree was clean.
 Commit inspection confirms exactly feature_list.json, workflow_branch.go and
 workflow_branch_test.go. Previous documentation checkpoint is
@@ -231,7 +231,7 @@ M3.4 historical implementation evidence (2026-11-10; 701c3e7 plus then-uncommitt
 
 These local checks establish no cloud integration or production outcome.
 
-## 6. Unresolved blockers and limitations
+## 6. Historical M3.5 blockers and limitations (current limits in section 11)
 
 M3.1-M3.4 are verified; M3.5 implementation is committed with final acceptance pending.
 No blocking source mismatch was found. M3.5 live publication is unverified here.
@@ -253,7 +253,7 @@ Preflight checks a tracker snapshot only: it does not authenticate approval,
 reserve eligibility, or enforce authorization. Later state changes require
 another check; an eligible result never grants implementation authority.
 
-## 7. Current result and next bounded task
+## 7. Historical M3.5 result and next bounded task
 
 M3.1 generic definition, trigger and step models describe enrollment branching and
 customer follow-up. M3.2 adds WorkflowDefinition.Validate() error: required fields,
@@ -309,7 +309,8 @@ lifecycle integration remain future work requiring separate authorization.
 
 ## 8. Authorization boundaries and reconciliation checks
 
-This session authorizes M3.5 documentation reconciliation only: PROGRESS.md and
+Historical M3.5 session authorization (superseded for this session by section 11):
+M3.5 documentation reconciliation only: PROGRESS.md and
 docs/HANDOFF.md. No application code, tests, feature_list.json or roadmap edits.
 Do not commit, push, deploy, start M3.6 or mark M3.5 verified.
 Implementation completion does not imply acceptance or authorize a later task.
@@ -449,3 +450,108 @@ task verified without reviewed acceptance evidence and actual tests.
 Never invent a future SHA, claim a clean tree after edits without observing
 it, or call pending work committed. A handoff update creates a new working
 state before its commit exists; verify its actual revision at next startup.
+
+## 11. Current M3.6 documentation reconciliation (2026-11-11)
+
+Previous documentation checkpoint: `959186046ff3dfd3a86c350027bf7afcd2f509cc`;
+M3.5 acceptance and M3.6 parent baseline: `395239d11a17a46eaf6097b8f798585833cdda93`.
+Current observed HEAD: `f189ce6be261e2269b8bd266584f123c11a4ce06` on main.
+Startup tree/index were clean. Git inspection confirms exactly feature_list.json,
+workflow_actions.go and workflow_actions_test.go in the implementation commit.
+Earlier pending-M3.5/uncommitted-documentation statements are historical; M3.5
+acceptance is committed at 395239d. M3.1-M3.5 are verified. M3.6 is in_progress,
+active_task_id M3.6, WIP 1; M3.7-M3.10 remain pending. Tracker evidence fields for
+M3.6 remain empty and unchanged; implementation completion is not acceptance.
+
+Initialization exited 0, warning HEAD differs from cached origin/main at 395239d.
+No fetch or live remote check occurred here; M3.6 publication is unverified in this
+session. These documentation changes are uncommitted and have no new commit SHA.
+Only PROGRESS.md and docs/HANDOFF.md are authorized; no source, tests, tracker,
+roadmap, commit, push, deployment, M3.6 verified status or M3.7 work is authorized.
+
+### Committed capability and acceptance mapping
+
+`HandlerRegistry.ExecuteActions(WorkflowDefinition, string) (string, error)` validates
+the entire definition before callbacks and rejects unknown starting IDs. It follows
+Next through InvokeAction(), invoking each reached action once per attempt and
+advancing its local cursor only after nil error. An error stops immediately and
+returns the failed cursor with the underlying cause wrapped by %w. Empty cursor/nil
+ends the action path; nonempty cursor/nil hands off an unexecuted condition or WAIT.
+Definitions and handler mappings are not mutated by the method. Invalid input
+returns the supplied starting cursor/error; callers must check errors first.
+
+The six committed workflow_actions_test.go functions establish:
+
+- TestHandlerRegistryExecuteActionsOrderAndReadOnly: criterion 1, "Actions execute
+  in the required order"; four insertion orders, two attempts each, exact callback
+  sequence, terminal path, unreached actions and configuration/registry preservation.
+- TestHandlerRegistryExecuteActionsFailure: criterion 2, "A failed action stops the
+  normal path and produces an error outcome"; first/middle/final errors, exact
+  reached prefixes, failed cursor, errors.Is cause preservation and repeated attempts.
+- TestHandlerRegistryExecuteActionsUnknownHandler: unknown/case/padding mismatches
+  and zero-value registry fail; later actions do not run after the missing handler.
+- TestHandlerRegistryExecuteActionsRejectsInvalidInput: invalid starting cursors and
+  malformed definitions, including broken links, unsupported types and cycles,
+  fail before callbacks.
+- TestHandlerRegistryExecuteActionsBoundary: direct and action-to-condition/WAIT
+  handoffs, including a 24-hour delay, without evaluation, sleeping or crossing.
+- TestHandlerRegistryExecuteActionsStartsAtSuppliedStep: valid supplied last-step
+  entry without replaying preceding steps in that explicitly chosen traversal.
+
+### Historical implementation evidence, separate from fresh verification
+
+Preserved from the prior implementation-session tool outputs/report, at 395239d
+plus then-uncommitted work, now committed as f189ce6; not rerun as historical checks:
+
+- Pre-activation tracker validation and M3.6 preflight passed. Human authorization,
+  not eligibility, permitted activation. Preflight is not rerun for this active task.
+- `go test -count=1 -run '^TestHandlerRegistryExecuteActions' ./...`: sandbox exit 1
+  from Go-cache denial; permission-enabled RED exit 1 with ExecuteActions undefined
+  at lines 50, 108, 135, 142, 168, 197 and 216 of the test file.
+- Its `-v` GREEN command exited 0: six test functions and 18 subtests passed.
+- Pre-implementation and post-change unified verifiers hit sandbox cache denial at
+  Go unit-test setup after tracker and 44 Python tests passed. Permission-enabled
+  reruns exited 0: tracker, 44 Python tests, Go unit tests, race detection, go vet
+  and both Git whitespace checks passed. Cache failures were environmental;
+  the undefined-method failure was intentional RED evidence.
+- gofmt, final tracker/whitespace and scope checks passed; new-file no-index checks
+  emitted no whitespace diagnostics (exit 1 means files differ from /dev/null).
+
+### Current limitations and next action
+
+Cursor progress is local, with no persistence, automatic retries, idempotency or
+rollback of earlier external side effects; repeated attempts may replay actions.
+No timeout, cancellation, panic recovery or concurrent execution ownership guarantee.
+No condition evaluation inside ExecuteActions, WAIT scheduling/resume or M2
+TryClaim/Complete/Fail integration. Callers/callbacks must not mutate definitions
+during traversal and must respect registry concurrency constraints; nil registry
+pointers are unsupported. No production deployment, provider integration, measured
+business results, durable recovery or distributed exactly-once guarantee is shown.
+
+Next: human engineering review of the two uncommitted documentation files and M3.6
+evidence. M3.6 remains in_progress. M3.7-M3.10 remain pending; M3.7 is unauthorized.
+Fresh documentation-session checks are recorded below separately from historical
+implementation evidence. No unresolved source/tracker discrepancy was found.
+
+### Fresh documentation-session verification (2026-11-11)
+
+At HEAD f189ce6be261e2269b8bd266584f123c11a4ce06 plus these two documentation edits:
+
+- `bash init.sh` and `python3 scripts/validate_features.py feature_list.json`
+  exited 0; branch/HEAD/clean-start/history/commit-scope checks passed.
+- Initial `bash scripts/verify.sh` exited 1 at go vet from denied sandbox Go-cache
+  access, after tracker, all 44 Python tests, Go unit tests and race tests passed.
+  The verifier did not reach whitespace checks or print final PASS.
+- Permission-enabled `bash scripts/verify.sh` rerun exited 0: tracker, 44 Python
+  tests, `go test -count=1 ./...`, `go test -race -count=1 ./...`, `go vet ./...`
+  and working-tree/index whitespace checks all passed. Existing M1/M2,
+  Exercise 82 and M3.1-M3.6 regression tests pass locally.
+- Final whitespace review found an extra blank line at HANDOFF.md EOF; removed.
+- Only documentation wording and this evidence record were added afterward.
+  Final tracker validation, `git diff --check`, `git diff --cached --check`, full
+  documentation diff review and status/scope assertions passed. Only PROGRESS.md
+  and docs/HANDOFF.md changed; no staged or untracked files. Source, tests,
+  feature_list.json and all other tracked files remain byte-for-byte equal to HEAD.
+- Ending HEAD remains f189ce6be261e2269b8bd266584f123c11a4ce06. No commit, push,
+  deployment, live remote check, tracker acceptance or M3.7 work occurred.
+  These two uncommitted documentation files await human engineering review.
