@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.4",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -112,7 +112,7 @@
       "id": "M3.4",
       "title": "Handler Registration",
       "objective": "Register action handlers and condition predicates by name without tying engine core to business integrations.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.3"
       ],
@@ -121,7 +121,7 @@
         "Unknown handlers are rejected."
       ],
       "evidence": {
-        "revision": "701c3e748c4f61093175b171d5038199f4326921 + uncommitted M3.4 changes (2026-11-10)",
+        "revision": "1e34b5d0108949be651e9e3b96ac4cef4d3c5100",
         "commands": [
           "bash init.sh",
           "python3 scripts/validate_features.py feature_list.json",
@@ -130,8 +130,8 @@
           "go test -count=1 -run '^TestHandlerRegistry' -v ./...",
           "bash scripts/verify.sh"
         ],
-        "result": "Clean main at expected HEAD; cached origin/main and live GitHub main matched. Tracker validation, preflight and baseline verifier passed. RED: focused tests exited 1 with undefined NewHandlerRegistry, ActionHandler and ConditionHandler. GREEN: verbose focused tests exited 0, six test functions passed. Registry uses independent action/condition maps, exact names, blank/nil/duplicate rejection, original callback preservation and unchanged callback results/errors; zero value usable. Source review confirms no business integrations or runner/lifecycle changes. Post-change verifier exited 1 at Go unit-test setup from sandbox build-cache denial after tracker and 44 Python tests passed; permission-enabled rerun exited 0: all six checks PASS, including Go unit/race tests, go vet and both whitespace checks. Existing M1/M2, Exercise 82 and M3.1-M3.3 regression tests pass. Only this evidence record was added afterward. M3.4 remains in_progress pending human engineering review; M3.5-M3.10 remain pending. No commit, push or deployment.",
-        "reviewed_by": "Codex: source and test evidence inspected against M3.4 criteria; human engineering acceptance pending"
+        "result": "Historical implementation session (2026-11-10), at 701c3e748c4f61093175b171d5038199f4326921 plus then-uncommitted M3.4 files: tracker validation, preflight and baseline verifier passed. RED: focused tests exited 1 with undefined NewHandlerRegistry, ActionHandler and ConditionHandler. GREEN: verbose focused tests exited 0; six test functions passed. Post-change verifier exited 1 at Go unit-test setup from sandbox build-cache denial after tracker and 44 Python tests passed; permission-enabled rerun exited 0 with all six checks PASS: tracker, 44 Python tests, Go unit/race tests, go vet and both whitespace checks. Prior M1/M2, Exercise 82 and M3.1-M3.3 regressions passed. Published implementation: 1e34b5d0108949be651e9e3b96ac4cef4d3c5100; published documentation checkpoint: dd35ce009d4bfc36a183671c6fbef7f48e4ed3a8, confirmed by live GitHub main lookup during this reconciliation. The documentation session separately recorded a sandbox go vet cache denial followed by a permission-enabled all-six-checks PASS. Human engineering acceptance (2026-11-10), explicitly authorized by the user for both unchanged criteria: TestHandlerRegistryNamedInvocation demonstrates multiple named action/condition implementations and independent dispatch; TestHandlerRegistryRejectsUnknownNames demonstrates rejection without callback invocation. Other committed tests cover blank/nil rejection, duplicate rejection preserving originals, unchanged callback results/errors and zero-value isolation. This acceptance supersedes pending-review statements; M3.4 is verified, active_task_id is null and WIP remains 1. Limitations: registration must not overlap registry operations across goroutines; callback concurrency safety belongs to callers and populated registries must not be copied. Callers must check predicate errors before using results. No branch selection, runner, lifecycle integration, retries, panic recovery or exactly-once guarantee is implemented by the registry. No cloud deployment, production integration or production reliability is established. M3.5-M3.10 remain pending and unchanged; M3.5 is not authorized. This tracker reconciliation is uncommitted. Fresh acceptance-reconciliation verification at dd35ce009d4bfc36a183671c6fbef7f48e4ed3a8 plus this tracker edit: validation passed; sandbox verifier exited 1 during Go unit-test cache trimming (trim.txt denied) after 44 Python tests passed and Go tests reported ok. Permission-enabled rerun exited 0 with all six checks PASS. Only this evidence sentence was appended afterward, followed by final tracker validation, whitespace and scope checks.",
+        "reviewed_by": "Human engineering reviewer (user), 2026-11-10: explicitly authorized final M3.4 acceptance reconciliation against both approved criteria; Codex cross-checked committed source, tests and verification evidence."
       },
       "blocker": null
     },
