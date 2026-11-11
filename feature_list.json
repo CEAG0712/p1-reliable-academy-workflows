@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.5",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -139,7 +139,7 @@
       "id": "M3.5",
       "title": "Conditions and Branching",
       "objective": "Evaluate predicates and select configured true/false successor steps.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.4"
       ],
@@ -148,10 +148,20 @@
         "Condition errors are handled and tested."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "e0e73da376d55cd22c86fdda8d6011af022a9b0a",
+        "commands": [
+          "bash init.sh",
+          "python3 scripts/validate_features.py feature_list.json",
+          "python3 scripts/task_preflight.py --task M3.5",
+          "go test -count=1 -run '^TestHandlerRegistrySelectConditionSuccessor' ./...",
+          "go test -count=1 -run '^TestHandlerRegistrySelectConditionSuccessor' -v ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "git ls-remote origin refs/heads/main"
+        ],
+        "result": "Historical implementation evidence (2026-11-11), at 88fe6ed924efd351cb2a10d5cd8f11f326b81006 plus then-uncommitted M3.5 changes, as recorded in the committed PROGRESS.md and docs/HANDOFF.md checkpoint: initialization, tracker validation, pre-activation M3.5 preflight and baseline verifier passed. Preflight is historical and was not rerun for acceptance of the already active task. RED: focused tests exited 1 because SelectConditionSuccessor was undefined at test lines 41, 73, 78 and 93. GREEN: verbose focused tests exited 0 after implementation/gofmt; three test functions and eight subtests passed. Historical post-change verifier exited 1 at race-test setup from sandbox Go-cache denial after tracker, 44 Python tests and Go unit tests passed; Codex reported a permission-enabled rerun exiting 0 with all six checks PASS. The documentation session separately reported Go unit-test setup cache denial followed by a permission-enabled all-six-checks PASS. These historical results were not personally reexecuted by the human approver. Committed test review supports both unchanged acceptance criteria: TRUE selects OnTrue and FALSE selects OnFalse; TRUE/error and FALSE/error return the original error and no successor. Four empty-successor cases establish valid terminal paths with nil error. Each of eight cases runs twice and asserts one predicate invocation per selection attempt, unchanged step/registration counts and duplicate-registration rejection. Unknown handlers (missing, blank, case/padding mismatches and zero-value registry) return no successor/error; ACTION, WAIT, empty and unsupported step types are rejected before predicate invocation. Published implementation: e0e73da376d55cd22c86fdda8d6011af022a9b0a; published documentation checkpoint: 959186046ff3dfd3a86c350027bf7afcd2f509cc. Fresh acceptance reconciliation (2026-11-11) started on clean main at the documentation checkpoint; initialization and tracker validation passed. Live git ls-remote initially exited 128 from sandbox DNS failure; permission-enabled rerun exited 0 confirming published main at 959186046ff3dfd3a86c350027bf7afcd2f509cc. Both focused Go commands initially exited 1 from sandbox build-cache denial; permission-enabled reruns exited 0, including all three test functions and eight subtests. Limitations: callers must validate definitions/successor references and check errors first. Selection returns an ID only; it does not traverse the graph, execute actions, advance a cursor, wait/resume or call repository TryClaim/Complete/Fail. Each attempt reevaluates the predicate; no deduplication, retries, persistence, panic recovery or exactly-once guarantee. Callback side effects and concurrency safety belong to callers; registration must not overlap registry operations across goroutines, populated registries must not be copied, and nil registry pointers are unsupported. No production deployment, cloud integration or end-to-end workflow runner is established. M3.6-M3.10 (sequential actions, wait/resume, lifecycle integration, concurrency/failure verification and milestone acceptance) remain pending and unchanged; M3.6 is not activated. M3.1-M3.4 evidence is preserved; WIP remains 1 and active_task_id is null. Only feature_list.json is changed, uncommitted, for human review. Fresh post-edit acceptance verification: tracker validation exited 0. Sandbox bash scripts/verify.sh exited 1 at go vet from denied Go build-cache access after tracker, all 44 Python tests and Go unit/race tests passed; whitespace checks were not reached. Permission-enabled rerun exited 0 with all six checks PASS, including go vet and both Git whitespace checks. Only this outcome sentence was appended afterward; final tracker validation, working-tree/index whitespace and scope checks cover the evidence-only addition.",
+        "reviewed_by": "Human-authorized acceptance following ChatGPT source review and Codex-reported verification, 2026-11-11. Human approval authorizes this checkpoint; it does not claim the approver personally executed code review or tests. Codex cross-checked committed source/tests and historical evidence and executed the fresh checks explicitly identified in result."
       },
       "blocker": null
     },
