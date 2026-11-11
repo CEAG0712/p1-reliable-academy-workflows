@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": null,
+  "active_task_id": "M3.5",
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -139,7 +139,7 @@
       "id": "M3.5",
       "title": "Conditions and Branching",
       "objective": "Evaluate predicates and select configured true/false successor steps.",
-      "status": "pending",
+      "status": "in_progress",
       "depends_on": [
         "M3.4"
       ],
