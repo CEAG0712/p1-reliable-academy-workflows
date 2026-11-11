@@ -100,8 +100,8 @@ documentation commit. No fetch or live remote verification was performed.
   separate from the historical Lesson 9 checks above.
 - Historical M3.5 checkpoint: implementation committed; final tracker acceptance pending
   then, with M3.1-M3.4 verified and M3.6 not yet authorized. Superseded below.
-- Current M3 active task: M3.6, implementation committed; human acceptance pending.
-  M3.1-M3.5 are verified; M3.7-M3.10 remain pending and unauthorized.
+- Current M3 active task: M3.7, implementation committed; human acceptance pending.
+  M3.1-M3.6 are verified; M3.8-M3.10 remain pending and unauthorized.
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -547,7 +547,9 @@ authorized. No commit, push, deployment or additional functionality is authorize
 README/roadmap historical status snapshots remain outside this edit scope.
 The whole M3 milestone is not complete.
 
-## M3.6 — Sequential Action Execution Checkpoint (2026-11-11)
+## Historical M3.6 — Sequential Action Execution Checkpoint (2026-11-11)
+
+Superseded by the M3.7 checkpoint below. Original evidence and status are retained.
 
 - Current observed HEAD: `f189ce6be261e2269b8bd266584f123c11a4ce06` on main.
   Startup tree and index were clean. The implementation commit contains exactly
@@ -655,6 +657,129 @@ At HEAD f189ce6be261e2269b8bd266584f123c11a4ce06 plus these two documentation ed
 - Ending HEAD remains f189ce6be261e2269b8bd266584f123c11a4ce06. No commit, push,
   deployment, live remote check, tracker acceptance or M3.7 work occurred.
   These two uncommitted documentation files await human engineering review.
+
+## M3.7 — Wait and Resume Checkpoint (2026-11-11)
+
+- Starting observed HEAD: `10a270486f5df4b591852db90b6264b5e6d5ab2c` on main.
+  Startup tree/index were clean. Git history and commit inspection confirm exactly
+  feature_list.json, workflow_wait.go and workflow_wait_test.go in this commit.
+- Previous documentation checkpoint: `020e37acdab851ab4e71230e939ad1f9120569d7`.
+  M3.6 acceptance/implementation-parent baseline: `ec0331523dec72ed1c6f8b7a12681458fd3dcacd`,
+  identified by the user as the previous published baseline. Local history confirms
+  both commits; historical pending-M3.6/uncommitted-documentation statements are superseded.
+- Tracker: M3.1-M3.6 verified; M3.7 in_progress, active_task_id M3.7, WIP limit 1;
+  M3.8-M3.10 pending and unauthorized. M3.7 evidence fields remain empty and unchanged.
+  Committed implementation is not final acceptance or completion of the M3 milestone.
+- `bash init.sh` exited 0, warning HEAD differs from cached origin/main.
+  No fetch/live remote check occurred; publication of M3.7 is unverified here.
+  README/roadmap historical status snapshots remain outside this edit scope.
+
+### Committed interfaces and behavior
+
+workflow_wait.go adds ErrWaitNotReady, ErrWaitConsumed, WaitSnapshot and WaitState,
+plus `PrepareWait(WorkflowDefinition, string, time.Time) (*WaitState, error)`,
+`(*WaitState).Snapshot() WaitSnapshot` and
+`(*HandlerRegistry).ResumeWait(*WaitState, time.Time) (string, error)`.
+WaitSnapshot contains WaitID, Cursor, ResumeAt and Consumed.
+
+PrepareWait validates the entire definition and requested WAIT ID/type, copies the
+configured Steps map, and calculates an absolute deadline once with now.Add(step.Delay).
+Preparation invokes no callbacks and does not sleep. The caller retains the returned
+in-memory WaitState pointer. Snapshot returns observable progress by value.
+
+ResumeWait rejects strictly early attempts with ErrWaitNotReady, preserving progress,
+cursor, deadline and consumption state. Equality at the deadline and later attempts
+are eligible if unconsumed. Eligible resume consumes the wait before downstream actions,
+then starts at the saved WAIT successor through ExecuteActions. Previously completed
+actions are not replayed in the tested sequential scenario. Consumed attempts return
+ErrWaitConsumed without replay. A terminal WAIT returns empty cursor/nil error;
+subsequent condition or WAIT boundaries are handed off unexecuted. Downstream action
+errors preserve the failed cursor and underlying cause; the wait stays consumed.
+Callers must check errors before interpreting the cursor. Nil/zero wait states are rejected.
+
+### Acceptance mapping and committed tests
+
+All three existing M3.7 tracker criteria are mapped without changing the tracker:
+
+1. "Early resume does not advance incorrectly."
+   TestWaitPreparationAndEarlyResume checks the initial snapshot and three early
+   attempts, including one nanosecond before the deadline, with no progress change.
+2. "Eligible resume continues from the correct step without replaying earlier completed actions in the tested in-memory scenario."
+   TestWaitResumeWithoutReplay covers exact-deadline and late resume, the exact
+   before/after callback sequence, and duplicate rejection without replay.
+   TestWaitResumeBoundaries covers terminal, condition and second-WAIT handoffs,
+   directly and via an action. TestWaitFailureConsumesWithoutRetry covers first/later
+   downstream failures and an unknown handler, cause preservation and consumed retries.
+3. "No durable restart guarantee is claimed."
+   Process-local WaitState retains a private definition/progress snapshot only;
+   inspected source and the limitations below establish this boundary. Passing
+   tests do not demonstrate restart recovery.
+
+TestWaitRejectsInvalidInput covers invalid WAIT IDs/types, malformed definitions and
+nil/zero state. TestWaitDefinitionSnapshot checks that later caller definition/map
+changes cannot redirect the saved continuation. These are six test functions with
+11 subtests (two resume, six boundary, three failure cases), matching the supplied
+implementation-session report and inspected committed tests.
+
+### Historical implementation-session evidence (not freshly rerun here)
+
+Preserved from the user's supplied implementation-session report, at ec03315 plus
+then-uncommitted M3.7 work, now committed as 10a2704:
+
+- M3.7 preflight passed before activation. Explicit human authorization, not
+  preflight eligibility, authorized implementation. No preflight rerun for this active task.
+- Focused RED tests failed because the new wait/resume API was undefined.
+  Focused GREEN tests passed after implementation: six test functions and 11 subtests.
+- Permission-enabled full verification reruns passed: tracker validation, 44 Python
+  harness tests, Go unit and race tests, go vet, and working-tree/index whitespace.
+- Sandbox Go-cache permission failures were environmental, separate from the
+  intentional undefined-API RED compilation failure. These historical observations
+  are not newly executed failing tests or historical preflight checks in this session.
+
+### Known limitations and next action
+
+- In-memory state only; no durability across process restarts, automatic scheduling,
+  background polling, cloud integration, database or external storage.
+- WaitState requires single-caller use, retaining its pointer without copying it.
+  Concurrent ResumeWait or Snapshot access is unsupported; definitions must not be
+  mutated concurrently with PrepareWait. Handler registry constraints still apply.
+- PrepareWait validates configuration, not proof that earlier actions executed.
+  Repeated PrepareWait calls create independent states; no deduplication.
+- Consumption before downstream execution prevents ordinary sequential replay,
+  without guaranteeing exactly-once external effects. Downstream failures leave the
+  wait consumed and require a separately defined recovery/reconciliation mechanism.
+- Callback panics are not recovered; the saved cursor may not identify the exact
+  failed action after a panic. Callbacks can block; no cancellation or timeout added.
+- Handler registrations and captured callback inputs are not snapshotted.
+- No M2 TryClaim/Complete/Fail integration, production deployment, measured business
+  outcome or distributed correctness guarantee is established.
+
+Next: human engineering review of these two uncommitted documentation files and
+M3.7 evidence. Only PROGRESS.md and docs/HANDOFF.md are authorized for editing.
+No source/test/tracker changes, commit, push, deployment or M3.8 work is authorized.
+
+### Fresh M3.7 documentation-session verification (2026-11-11)
+
+At HEAD 10a270486f5df4b591852db90b6264b5e6d5ab2c plus these two documentation edits:
+
+- `python3 scripts/validate_features.py feature_list.json` exited 0 before editing
+  and again before the unified verifier. Startup Git/commit-scope checks passed.
+- Initial `bash scripts/verify.sh` exited 1 at Go unit-test setup because sandbox
+  Go build-cache access was denied. Tracker and all 44 Python tests passed first;
+  race, vet and whitespace checks were not reached. No final PASS was printed.
+- Permission-enabled `bash scripts/verify.sh` rerun exited 0: tracker, 44 Python
+  tests, `go test -count=1 ./...`, `go test -race -count=1 ./...`, `go vet ./...`,
+  `git diff --check` and `git diff --cached --check` passed. These are fresh local
+  regression results covering M1/M2, Exercise 82 and M3.1-M3.7, not production evidence.
+- Only this verification record and its handoff counterpart were added afterward.
+  Final tracker validation, both whitespace checks, complete documentation diff
+  review and status/scope assertions passed. Exactly PROGRESS.md and docs/HANDOFF.md
+  are modified; no staged or untracked files. All other tracked files, including
+  source, tests and feature_list.json, remain byte-for-byte equal to HEAD.
+- Ending HEAD remains 10a270486f5df4b591852db90b6264b5e6d5ab2c. M3.7 remains
+  in_progress/active with WIP 1; M3.8-M3.10 remain pending. No commit, push,
+  deployment, live remote check, tracker acceptance or M3.8 work occurred.
+  These uncommitted documentation changes await human engineering review.
 
 ## Session Handoff Rules
 
