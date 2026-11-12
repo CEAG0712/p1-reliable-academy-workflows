@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.10",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -298,7 +298,7 @@
       "id": "M3.10",
       "title": "Reusability and Milestone Acceptance",
       "objective": "Run two genuinely different workflows through the same engine and execute full regression verification.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.9"
       ],
@@ -308,10 +308,31 @@
         "Known limitations are documented."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "ae17f66b6c91a394050eb4fc60c33087e064e6a3",
+        "commands": [
+          "bash init.sh",
+          "git branch --show-current",
+          "git rev-parse HEAD",
+          "git status --short",
+          "git diff --cached --name-only",
+          "git show --format=fuller --stat HEAD",
+          "git diff HEAD^ HEAD --name-only",
+          "python3 scripts/validate_features.py feature_list.json",
+          "go test -count=1 -run '^TestRunnerReusability' -v ./...",
+          "go test -count=1 -run '^TestLifecycleRunner' -v ./...",
+          "go test -count=1 -run '^TestRunnerConcurrency' -v ./...",
+          "go test -race -count=1 -run '^TestRunnerConcurrency' ./...",
+          "go test -race -count=20 -run '^TestRunnerConcurrency' ./...",
+          "go test -count=1 -v ./...",
+          "go test -race -count=1 ./...",
+          "go vet ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "git diff -- feature_list.json"
+        ],
+        "result": "Human-authorized final M3.10 acceptance and Stage 3 closure preparation only (2026-11-12). Clean starting main at ae17f66b6c91a394050eb4fc60c33087e064e6a3, implementation commit \"test: verify M3 workflow engine reusability\"; index empty. Local inspection confirmed exactly workflow_runner_reusability_test.go, feature_list.json, PROGRESS.md and docs/HANDOFF.md in the implementation commit, with no production engine-core changes. Live GitHub connector fetch_commit(main) independently resolved remote main to this same implementation SHA; cached origin/main was not used as live proof. Criterion 1: TestRunnerReusabilityWorkflows runs enrollment-fulfillment (purchase.confirmed; enrollment.validate -> enrollment.prepare -> enrollment.record) and learning-analytics (report.requested; analytics.collect -> analytics.aggregate -> analytics.render -> analytics.publish) in both orders. The three- and four-action definitions have distinct step IDs, handler structures, inputs, execution IDs, workers and local outputs: prepared:student-17:go-basics versus published:learning activity: 10. Both use WorkflowDefinition, one initialized HandlerRegistry, existing RunActions/ExecuteActions and a shared InMemoryWorkflowRepository. Tests assert exact callbacks without cross-workflow contamination, independent snapshots/outputs, correct owner, one attempt, READY -> RUNNING -> COMPLETED, versions 1 -> 2 -> 3, exact history and empty terminal cursor. TestRunnerReusabilityActionShapes independently checks both lengths through ExecuteActions. TestRunnerReusabilityIndependentFailure preserves the analytics sentinel via errors.Is at aggregate-activity, nonempty matching LastError/failure-history reason and FAILED lifecycle, stops later callbacks, leaves enrollment untouched and then permits enrollment completion without changing the failed analytics execution. Trigger fields are configuration; direct runner tests do not establish event-dispatch integration. No real entitlement or external report is produced. Historical implementation BASELINE GREEN is preserved as historical evidence, separate from these fresh acceptance runs; no artificial RED or source correction. Criterion 2: all seven initial standalone Go commands (focused reusability/lifecycle/concurrency, focused race, verbose full suite, full race and vet) exited 1 from sandbox Go-cache denial; test setup failed, not behavioral RED. Permission-enabled reruns each exited 0. Fresh verbose selections: reusability three functions/four subtests; lifecycle six functions/24 subtests; concurrency five functions/two subtests. Full verbose regression ran 100 functions/122 subtests, including enrollment rules, execution state/version, owner-aware repository lifecycle, stale-update rejection, Exercise 82 failure safeguards and every M3 definition/validation/trigger/registry/condition/action/wait/lifecycle/concurrency/reusability family; all passed. Focused concurrency race, full race and go vet passed. Additional concurrency race count=20 exited 0, without proving all possible schedules. Two fresh bash scripts/verify.sh invocations each exited 0: tracker, 44 Python harness tests, Go unit tests, full race detection, vet and both Git whitespace checks PASS. Criterion 3: reviewed PROGRESS.md M3.10 and docs/HANDOFF.md section 15 against source/tests; no missing material limitation or correction required. This is an in-memory prototype, with no cross-process coordination, durable execution or WAIT/condition recovery, lifecycle-aware resume framework, automatic retries/compensation, crash-safe effects, exactly-once provider effects, guaranteed safe replay, panic recovery, production scheduler/deployment or measured business outcomes. Definitions must remain immutable, registration must precede concurrent use and mutable callbacks need synchronization. New business fixtures are sequential; concurrency guarantees cover only tested shared in-memory repository scenarios. Callbacks can succeed before a rejected terminal write; ambiguous external effects/timeouts require reconciliation. Lost handoffs or panics can leave RUNNING. No production-readiness claim. The user reports prior human engineering review and publication of the implementation; source-level diff review and Codex fresh command execution are distinct evidence. Only active_task_id and M3.10 status/evidence are edited. M3.1-M3.9 records/evidence, M3.10 title/objective/dependencies/criteria, WIP limit 1 and all unrelated metadata are preserved. All ten Stage 3 tasks are now verified locally with active_task_id null. Final tracker review and publication remain pending; this preparation is uncommitted and does not claim a future acceptance revision. Post-edit tracker validation, working-tree/index whitespace and complete preservation comparison passed: only feature_list.json changed, no staged/untracked files and unchanged HEAD. No source, tests, documentation, scripts or configuration outside the authorized tracker fields changed. No staging, commit, push, deployment or Stage 4 work occurred.",
+        "reviewed_by": "Human explicitly authorized final M3.10 tracker acceptance and Stage 3 closure preparation and reports prior human engineering review of the published implementation. ChatGPT source-level review of the provided implementation diff is source-review evidence, not local test execution. Codex independently inspected source/tests, verified live main and executed the fresh checks recorded here on 2026-11-12. Human engineering review of this final tracker acceptance edit and its publication remain pending; neither ChatGPT nor the human reviewer is claimed to have executed the Codex commands."
       },
       "blocker": null
     }
