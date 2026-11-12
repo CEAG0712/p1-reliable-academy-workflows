@@ -8,7 +8,7 @@ generic engine. This is an in-memory engineering portfolio prototype.
 
 ## 2. Repository identity and checkpoint revision
 
-Current checkpoint: section 13 (M3.8). Earlier revisions/status below are historical.
+Current checkpoint: section 14 (M3.9). Earlier revisions/status below are historical.
 
 - Repository: CEAG0712/p1-reliable-academy-workflows; branch: main.
 - Module: example.com/p1-reliable-academy-workflows; Go: 1.24.5.
@@ -655,7 +655,7 @@ At HEAD 10a270486f5df4b591852db90b6264b5e6d5ab2c plus the two documentation edit
   deployment, live remote check or acceptance occurred. Stop for human engineering
   review of these uncommitted documentation changes; no unresolved blocker found.
 
-## 13. Current M3.8 implementation checkpoint (2026-11-12)
+## 13. Historical M3.8 implementation checkpoint (2026-11-12)
 
 Previous documentation checkpoint: `9c57598597a1d081cc6fbc60da1c683a976a3478`.
 M3.7 acceptance commit: `4545eef`, inspected in local history, superseding section 12.
@@ -721,3 +721,82 @@ Nonnil initialized dependencies and existing registry/definition concurrency rul
 are required. No exactly-once external-side-effect or production guarantee is claimed.
 Next action: human engineering review of the uncommitted implementation and evidence.
 M3.8 must remain in_progress; no commit/push/deployment or later task is authorized.
+
+
+## 14. Current M3.9 verification checkpoint (2026-11-12)
+
+Previous implementation/documentation checkpoint revision:
+`8a049e88b1d63db73e15e120b17c750179f51868`, which recorded its own start at
+`842000fabc0b203a75481b1dcc42d6cb1a9b4eb8`. M3.8 acceptance commit and this
+session's observed starting/ending HEAD on main:
+`7811e9d08f8a10a4d18da6a74d4209570971daa9`. Startup tree/index were clean.
+Initialization passed: cached origin/main matched; no fetch/live remote check.
+Local history, source/tests and tracker supersede section 13's pending M3.8 status.
+
+The human explicitly authorized M3.9 activation and implementation only. Pre-activation
+tracker validation and M3.9 preflight exited 0; eligibility was not authorization.
+M3.9 status is now in_progress and active_task_id M3.9, WIP 1. Acceptance criteria
+and evidence fields are unchanged. M3.1-M3.8 remain verified. M3.10 remains pending
+and unauthorized. No verified status, staging, commit, push or deployment occurred.
+
+Uncommitted/unstaged files: workflow_runner_concurrency_test.go (new),
+feature_list.json (activation only), PROGRESS.md and docs/HANDOFF.md. No production
+source, existing tests, scripts, roadmap, README or AGENTS.md changed. No production
+defect was found; no fix or architecture expansion was needed.
+
+### Test mapping and evidence
+
+- A/B: TestRunnerConcurrencySuccessfulExecutions and TestRunnerConcurrencyFailedExecutions
+  launch ten distinct workers against one repository/initialized registry/immutable
+  definition using a start barrier. Exactly one action path, nine claim rejections,
+  exact callback order without replay, winning owner and terminal lifecycle are
+  asserted. Failure wraps a sentinel recognized by errors.Is and stops subsequent
+  actions. Final version 3, attempts 1, exact claim/terminal history and matching
+  diagnostic reason are checked; no completion is recorded on action failure.
+- C: TestRunnerConcurrencyDuplicateAfterCompletion rejects same-owner and other-owner
+  duplicates without new callbacks or any snapshot changes.
+- D: TestRunnerConcurrencyInvalidOwnership rejects non-owner Complete and Fail
+  against the actual lifecycle contract without mutation, then permits owner completion.
+- E: reuse unchanged TestLifecycleRunnerTerminalRejection: four rejected/stale terminal
+  scenarios check cause preservation, visible rejection, original owner/version,
+  exact operation sequence without refresh/retry/fallback and accepted stored state.
+- F: TestRunnerConcurrencyBlockedCallback checks a rejected contender while the winner
+  is blocked RUNNING, then normal completion. Channels, atomic counters, five-second
+  deadlines and cleanup release/join avoid sleeps and unbounded test synchronization.
+- Together these map to M3.9's no-duplicate-action and correct failure/lifecycle criteria.
+  The no-distributed-exactly-once criterion is preserved in the limitations below.
+  Implementation evidence is separate from human acceptance.
+
+Fresh commands at HEAD plus these uncommitted changes:
+
+- `bash init.sh`, branch/HEAD/status/history checks, tracker validation before/after
+  activation and `python3 scripts/task_preflight.py --task M3.9`: exit 0.
+- First `go test -count=1 -run '^TestRunnerConcurrency' -v ./...`: exit 0,
+  five test functions and two subtests. Baseline GREEN; existing M3.8 behavior already
+  satisfies the added verification. No behavioral RED or production fix occurred.
+- Initial `go test -count=1 -run '^TestLifecycleRunner' -v ./...` and
+  `go test -race -count=1 -run '^TestRunnerConcurrency' ./...`: exit 1 at setup,
+  sandbox Go-cache access denied. Permission-enabled reruns exited 0: lifecycle's
+  six functions/24 subtests and new concurrency tests passed. Environmental failures
+  are distinct from test failures.
+- `go test -race -count=20 -run '^TestRunnerConcurrency' ./...`: exit 0.
+- `bash scripts/verify.sh`: first invocation exited 0; tracker, 44 Python tests,
+  Go unit tests, full race checks, go vet and both Git whitespace checks PASS.
+  Only documentation changed afterward; final standalone tracker, formatting,
+  whitespace (including the untracked Go file), scope/preservation and status checks
+  passed. Exactly the four authorized files changed; the index is empty and HEAD
+  unchanged. Production source and existing tests remain byte-for-byte equal to HEAD.
+
+Limits: one shared process-local in-memory repository and only exercised scenarios.
+No exactly-once distributed execution, exactly-once external provider effects, safe
+retry after every timeout, durable recovery, cross-process exclusivity or production
+readiness. Definitions must remain immutable, registration must precede concurrent
+registry use, and captured callback data needs its own synchronization. No scheduler,
+lease, retries, persistence, cloud/provider integration or panic recovery added.
+A lost handoff or panic may leave RUNNING. Ambiguous side effects before a rejected
+terminal update require reconciliation rather than blind replay.
+
+Next action: stop for human engineering review of the complete uncommitted diff.
+Keep M3.9 in_progress and M3.10 pending. Do not stage, commit, push, deploy, mark
+verified or begin M3.10. Detailed acceptance mapping and command outcomes are also
+recorded in PROGRESS.md's M3.9 checkpoint. No current behavioral blocker found.

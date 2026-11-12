@@ -100,9 +100,9 @@ documentation commit. No fetch or live remote verification was performed.
   separate from the historical Lesson 9 checks above.
 - Historical M3.5 checkpoint: implementation committed; final tracker acceptance pending
   then, with M3.1-M3.4 verified and M3.6 not yet authorized. Superseded below.
-- Current M3 active task: M3.8, implementation uncommitted; human review pending.
-  M3.1-M3.7 are verified; M3.9-M3.10 remain pending and unauthorized.
-  See the M3.8 checkpoint below for fresh evidence and boundaries.
+- Current M3 active task: M3.9, test implementation uncommitted; human review pending.
+  M3.1-M3.8 are verified; M3.10 remains pending and unauthorized.
+  See the M3.9 checkpoint below for fresh evidence and boundaries.
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -799,7 +799,7 @@ Update docs/HANDOFF.md when relevant state or evidence changes. Distinguish
 the previous checkpoint from current HEAD and uncommitted work. A task
 listed as next does not authorize implementation.
 
-## M3.8 — M2 Lifecycle Integration (2026-11-12)
+## Historical M3.8 — M2 Lifecycle Integration (2026-11-12)
 
 - Previous documentation checkpoint: `9c57598597a1d081cc6fbc60da1c683a976a3478`.
   M3.7 acceptance is committed as `4545eef`; historical pending-M3.7 statements
@@ -878,3 +878,95 @@ is required. Registry/definition concurrency constraints remain applicable. No
 exactly-once external effects, production outcomes or M3.9/M3.10 acceptance claimed.
 Next: human engineering review. Do not mark verified, commit, push, deploy or begin
 M3.9 without separate explicit authorization.
+
+
+## M3.9 — Concurrency and Failure Verification (2026-11-12)
+
+Previous implementation/documentation checkpoint revision:
+`8a049e88b1d63db73e15e120b17c750179f51868` (its recorded starting HEAD was
+`842000fabc0b203a75481b1dcc42d6cb1a9b4eb8`). M3.8 acceptance is committed at
+`7811e9d08f8a10a4d18da6a74d4209570971daa9`, the observed starting and ending
+HEAD on main for this session. Startup tree/index were clean; cached origin/main
+matched HEAD. No fetch or live remote verification occurred. Git/source/tracker
+inspection supersedes the historical M3.8 uncommitted/in_progress statements.
+
+Explicit human authorization covered activation and implementation of M3.9 ONLY,
+with a preference for tests only. Initialization, tracker validation and pre-activation
+`python3 scripts/task_preflight.py --task M3.9` exited 0. Preflight established
+eligibility, not authorization. Only M3.9 status changed to in_progress and
+active_task_id to M3.9; WIP remains 1. Acceptance criteria and all evidence fields
+are preserved. M3.1-M3.8 remain verified; M3.10 remains pending and unauthorized.
+
+Added workflow_runner_concurrency_test.go: five test functions, two ownership
+subtests. No production changes or defects found. The existing RunActions,
+TryClaim, Complete and Fail implementation satisfies the exercised invariants.
+Other changed files: feature_list.json, PROGRESS.md and docs/HANDOFF.md only.
+All four files are unstaged/uncommitted; no acceptance is recorded.
+
+### Acceptance criteria and requested scenarios
+
+- No duplicate action execution: TestRunnerConcurrencySuccessfulExecutions (A)
+  and TestRunnerConcurrencyFailedExecutions (B) each launch ten distinct workers
+  through a readiness/start barrier against one repository, fully registered shared
+  registry and immutable definition. Buffered result channels and a mutex-protected
+  callback trace establish exactly one action path and nine claim rejections.
+  Success executes load/transform/store once; failure stops at transform and
+  preserves the sentinel via errors.Is. Exact terminal status, version 3, attempts 1,
+  winning owner, two history entries and diagnostic reason are asserted without
+  choosing a specific winner. No completion transition is accepted on action failure.
+- Correct failure reasons and lifecycle state: A/B above plus
+  TestRunnerConcurrencyDuplicateAfterCompletion (C) check same-owner and different-owner
+  duplicates, unchanged full snapshots and no callbacks. TestRunnerConcurrencyInvalidOwnership
+  (D) directly rejects non-owner Complete/Fail at the real lifecycle boundary,
+  compares full snapshots, then proves owner completion still works.
+- Action error plus terminal rejection (E): reuse unchanged
+  TestLifecycleRunnerTerminalRejection, four rejected/stale Complete/Fail subtests.
+  It checks error cause, visible rejection, exact claim/get/terminal operation order,
+  version captured before callbacks, no refresh/retry/fallback and stored state
+  matching accepted transitions. Ambiguous external effects require reconciliation.
+- TestRunnerConcurrencyBlockedCallback (F) holds the winner RUNNING on a channel,
+  rejects a second runner without callbacks or snapshot changes, then releases
+  the winner to one claim and one completion. Atomic callback counters, five-second
+  deadlines, buffered results and cleanup release/join bound synchronization.
+  No sleeps are used to arrange contention.
+- No distributed exactly-once guarantee: the limitations below apply to every test.
+  Passing tests provide implementation evidence; human acceptance remains pending.
+
+### Actual commands and outcomes
+
+- `bash init.sh`, branch/HEAD/status/history checks, pre-activation tracker validation
+  and preflight exited 0. Initialization warned cached refs are not live remote proof.
+  Tracker validation after activation exited 0.
+- First `go test -count=1 -run '^TestRunnerConcurrency' -v ./...`: exit 0, five
+  functions and two subtests. Baseline GREEN on unchanged production code; no RED
+  defect or artificial failing test was introduced.
+- `go test -count=1 -run '^TestLifecycleRunner' -v ./...` and
+  `go test -race -count=1 -run '^TestRunnerConcurrency' ./...` initially exited 1
+  at setup from sandbox Go-cache denial. Permission-enabled reruns exited 0:
+  six lifecycle functions/24 subtests and all new concurrency tests passed.
+  Cache errors are environmental, not behavioral RED results.
+- `go test -race -count=20 -run '^TestRunnerConcurrency' ./...`: exit 0.
+- `bash scripts/verify.sh`: exit 0 on its first session invocation. Tracker, all 44
+  Python harness tests, `go test -count=1 ./...`, `go test -race -count=1 ./...`,
+  `go vet ./...`, `git diff --check` and `git diff --cached --check` passed.
+- Only checkpoint documentation changed afterward. Final standalone tracker,
+  whitespace (including the untracked Go file), formatting, scope/preservation
+  checks and status inspection passed. Only the four authorized files changed;
+  production source and existing tests are byte-for-byte equal to HEAD. The index
+  is empty and HEAD is unchanged. Complete diffs are supplied for human review.
+
+### Limits and next action
+
+Guarantees apply only to one shared in-memory repository and the actual scenarios
+exercised. No exactly-once distributed execution or exactly-once external provider
+effects, safe retry after every timeout, durable recovery, cross-process exclusivity
+or production readiness is established. Registration must finish before concurrent
+registry use; callbacks must synchronize their own mutable data and definitions
+must remain immutable. No leases, automatic retry, scheduler, recovery model,
+provider integration, cancellation or panic recovery was added. A callback panic
+or lost condition/WAIT handoff can leave RUNNING. Side effects preceding a rejected
+terminal transition require reconciliation rather than blind replay.
+
+Next action: human engineering review of these uncommitted tests, tracker activation
+and checkpoints. M3.9 remains in_progress, not verified; M3.10 remains pending.
+Nothing was staged, committed, pushed or deployed. Do not begin M3.10.
