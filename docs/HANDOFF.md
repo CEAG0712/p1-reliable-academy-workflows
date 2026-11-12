@@ -8,7 +8,7 @@ generic engine. This is an in-memory engineering portfolio prototype.
 
 ## 2. Repository identity and checkpoint revision
 
-Current checkpoint: section 14 (M3.9). Earlier revisions/status below are historical.
+Current checkpoint: section 15 (M3.10). Earlier revisions/status below are historical.
 
 - Repository: CEAG0712/p1-reliable-academy-workflows; branch: main.
 - Module: example.com/p1-reliable-academy-workflows; Go: 1.24.5.
@@ -723,7 +723,7 @@ Next action: human engineering review of the uncommitted implementation and evid
 M3.8 must remain in_progress; no commit/push/deployment or later task is authorized.
 
 
-## 14. Current M3.9 verification checkpoint (2026-11-12)
+## 14. Historical M3.9 verification checkpoint (2026-11-12)
 
 Previous implementation/documentation checkpoint revision:
 `8a049e88b1d63db73e15e120b17c750179f51868`, which recorded its own start at
@@ -800,3 +800,116 @@ Next action: stop for human engineering review of the complete uncommitted diff.
 Keep M3.9 in_progress and M3.10 pending. Do not stage, commit, push, deploy, mark
 verified or begin M3.10. Detailed acceptance mapping and command outcomes are also
 recorded in PROGRESS.md's M3.9 checkpoint. No current behavioral blocker found.
+
+
+## 15. Current M3.10 implementation checkpoint (2026-11-12)
+
+Previous implementation/documentation checkpoint revision:
+`5909abf099c888536f1bda88ca2d4614a45a4508`; it recorded its own start at
+`7811e9d08f8a10a4d18da6a74d4209570971daa9`. Current observed starting/ending
+HEAD on main: `e15efdf2da602bd67de54adb5bd8ddf7f8dc3f2f`, the required baseline
+and locally inspected M3.9 acceptance commit. Startup tree/index were clean.
+M3.9 implementation is committed at 5909abf; its acceptance at e15efdf supersedes
+section 14's pending status. Initialization exited 0, cached origin/main matched;
+no fetch/live remote verification occurred. README/roadmap status notes lag source,
+tests, history and the accepted M3.1-M3.9 tracker; section 13 remains approved scope.
+
+The human explicitly authorized M3.10 activation and implementation ONLY. Tracker
+validation and pending-task preflight exited 0 before activation. Preflight establishes
+eligibility, not permission. Tracker changes only active_task_id null -> M3.10 and
+M3.10 pending -> in_progress. WIP 1, all earlier records/evidence, M3.10 criteria,
+objective/dependencies/evidence and unrelated metadata are preserved.
+
+### Shared engine and executable evidence
+
+New `workflow_runner_reusability_test.go` configures two valid WorkflowDefinitions
+in one initialized HandlerRegistry and runs independent identities through one
+actual InMemoryWorkflowRepository using unchanged RunActions/ExecuteActions code.
+All handlers and simulated business effects are deterministic and local to tests.
+
+- Enrollment fulfillment (`enrollment-fulfillment`, purchase.confirmed):
+  validate-purchase/enrollment.validate -> prepare-access/enrollment.prepare ->
+  record-fulfillment/enrollment.record -> empty terminal cursor. Three actions
+  validate student/course/paid inputs, prepare student-17:go-basics and record
+  prepared:student-17:go-basics. No provider access is granted.
+- Learning analytics (`learning-analytics`, report.requested):
+  collect-activity/analytics.collect -> aggregate-activity/analytics.aggregate ->
+  render-report/analytics.render -> record-publication/analytics.publish -> empty
+  terminal cursor. Four actions collect [2,3,5], sum 10, render and record
+  published:learning activity: 10 in memory. No report service is contacted.
+
+Different lengths, handler structures, step names, inputs, outputs, execution IDs
+and worker IDs demonstrate more than renamed copies. Trigger fields are configuration;
+the new tests call the runner directly, without claiming event-dispatch integration.
+
+Acceptance mapping:
+
+1. Both workflows run without engine-core changes: TestRunnerReusabilityWorkflows
+   (enrollment-first/analytics-first) checks both orders, exact callbacks, business
+   outputs, isolated snapshots, READY -> RUNNING -> COMPLETED, versions 1/2/3,
+   owner, attempts and exact history. TestRunnerReusabilityActionShapes checks the
+   three-/four-action paths independently via ExecuteActions and empty terminal
+   cursors. TestRunnerReusabilityIndependentFailure checks analytics errors.Is,
+   failed cursor/cause/diagnostics, FAILED history, no later actions, untouched
+   enrollment, then enrollment success without changing the failed execution.
+   Source and diff review show no production Go or existing test modifications.
+2. M1/M2 tests/race checks: verbose full Go regression was inspected for actual
+   enrollment, execution, repository (including Exercise 82) and all M3 test groups;
+   all passed. Full race and canonical verification passed.
+3. Limitations: documented below and in PROGRESS.md's M3.10 section.
+
+### Fresh commands and outcomes
+
+All startup branch/HEAD/status/index/history checks, bash init.sh, tracker validation
+before/after activation and `python3 scripts/task_preflight.py --task M3.10` exited 0.
+`gofmt -w workflow_runner_reusability_test.go` exited 0. First focused
+`go test -count=1 -run '^TestRunnerReusability' -v ./...` exited 0: three functions,
+four subtests. **BASELINE GREEN** against unchanged production code; no artificial
+RED or production fix was necessary.
+
+Initial standalone commands below each exited 1 from sandbox Go-cache denial
+(test setup failures); permission-enabled reruns each exited 0:
+
+- `go test -count=1 -run '^TestLifecycleRunner' -v ./...`: six functions/24 subtests.
+- `go test -count=1 -run '^TestRunnerConcurrency' -v ./...`: five functions/two subtests.
+- `go test -race -count=1 -run '^TestRunnerConcurrency' ./...`.
+- `go test -count=1 -v ./...` (all M1/M2/M3 suites actually selected).
+- `go test -race -count=1 ./...`.
+- `go vet ./...`.
+
+`bash scripts/verify.sh` exited 0 on its first invocation: tracker, all 44 Python
+harness tests, Go unit tests, full race checks, vet and both Git whitespace checks
+PASS. Its Go unit command is `go test -count=1 ./...`; Python runs with bytecode
+writes disabled. Environment failures are separate from behavioral test outcomes.
+Only checkpoint docs changed after the verifier. Final audit evidence and complete
+patches are available at `/private/tmp/p1-m3.10-review/` outside the repository.
+
+### Stage 3 limitations and review boundary
+
+This is an in-memory engineering prototype. Reusability of tested configurations
+and callbacks through unchanged engine code is demonstrated; production readiness
+is not. No cross-process coordination, durable execution persistence, durable WAIT/
+condition cursor recovery, automatic retries or compensation, crash-safe external
+side effects, exactly-once provider effects, guaranteed callback-panic recovery,
+production-grade scheduler, deployment or measured business results are claimed.
+
+Definitions must remain immutable during execution. Registration must finish before
+concurrent registry use; do not copy populated registries. Mutable callback state
+needs synchronization. These new domain fixtures use sequential execution. Verified
+concurrency guarantees apply only to the tested shared in-memory repository behavior
+within one process. Ambiguous external effects need reconciliation. A lost handoff
+or panic can leave RUNNING; condition/WAIT helpers do not automatically resume and
+finalize lifecycle state. Callers associate execution identities with definitions.
+No distributed infrastructure, external integrations or Stage 4 work was introduced.
+
+Final repository changes, all unstaged/uncommitted: workflow_runner_reusability_test.go
+(new), feature_list.json (activation only), PROGRESS.md and docs/HANDOFF.md.
+M3.10 remains in_progress, active_task_id M3.10; M3.1-M3.9 remain verified; WIP 1.
+No M3.10 acceptance commit exists. Nothing was staged, committed, pushed or deployed.
+Next action: STOP for human engineering review of the complete diff. No final verified
+status, commit, publication or Stage 3 acceptance without separate human authorization.
+At next startup, reread AGENTS.md/PROGRESS.md/this checkpoint, run init.sh, inspect
+actual HEAD/tree/index/history, validate tracker and reconcile code/tests/evidence.
+Do not mistake the previous checkpoint revision or these uncommitted changes for
+an implementation commit. Do not rerun pending-task preflight as if M3.10 were
+still pending; it is now active and no other task is authorized.

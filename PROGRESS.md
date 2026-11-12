@@ -100,9 +100,9 @@ documentation commit. No fetch or live remote verification was performed.
   separate from the historical Lesson 9 checks above.
 - Historical M3.5 checkpoint: implementation committed; final tracker acceptance pending
   then, with M3.1-M3.4 verified and M3.6 not yet authorized. Superseded below.
-- Current M3 active task: M3.9, test implementation uncommitted; human review pending.
-  M3.1-M3.8 are verified; M3.10 remains pending and unauthorized.
-  See the M3.9 checkpoint below for fresh evidence and boundaries.
+- Current M3 active task: M3.10, test implementation uncommitted; human review pending.
+  M3.1-M3.9 are verified; Stage 3 final acceptance remains pending.
+  See the M3.10 checkpoint below for fresh evidence and boundaries.
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -880,7 +880,7 @@ Next: human engineering review. Do not mark verified, commit, push, deploy or be
 M3.9 without separate explicit authorization.
 
 
-## M3.9 — Concurrency and Failure Verification (2026-11-12)
+## Historical M3.9 — Concurrency and Failure Verification (2026-11-12)
 
 Previous implementation/documentation checkpoint revision:
 `8a049e88b1d63db73e15e120b17c750179f51868` (its recorded starting HEAD was
@@ -970,3 +970,160 @@ terminal transition require reconciliation rather than blind replay.
 Next action: human engineering review of these uncommitted tests, tracker activation
 and checkpoints. M3.9 remains in_progress, not verified; M3.10 remains pending.
 Nothing was staged, committed, pushed or deployed. Do not begin M3.10.
+
+
+## M3.10 — Reusability implementation checkpoint (2026-11-12)
+
+### Revision, authority and reconciliation
+
+Previous implementation/documentation checkpoint revision:
+`5909abf099c888536f1bda88ca2d4614a45a4508`. That checkpoint recorded its own
+starting HEAD `7811e9d08f8a10a4d18da6a74d4209570971daa9` and pending M3.9 review.
+Current observed starting/ending HEAD on main:
+`e15efdf2da602bd67de54adb5bd8ddf7f8dc3f2f`, the required user-supplied baseline.
+Local history confirms M3.9 implementation at 5909abf and acceptance at e15efdf;
+these supersede earlier pending-M3.9 statements without changing historical evidence.
+Startup tree/index were clean; initialization exited 0 with cached origin/main
+matching HEAD. No fetch or live remote verification occurred in this session.
+README and roadmap implementation-status notes lag the actual accepted M3.1-M3.9
+source/tests and tracker; roadmap section 13 still defines this task's scope.
+
+The human explicitly authorized activation and implementation of M3.10 ONLY in the
+attached request. Pre-activation tracker validation and M3.10 preflight exited 0;
+eligibility was not authorization. Tracker activation changes only active_task_id
+from null to M3.10 and M3.10 status from pending to in_progress. WIP remains 1.
+M3.1-M3.9 records/evidence, M3.10 objective/dependencies/criteria/evidence and all
+other metadata are preserved. No final milestone acceptance is claimed.
+
+### Contract, workflow shapes and test evidence
+
+New file: `workflow_runner_reusability_test.go`. All business inputs, deterministic
+handlers and simulated outputs are test-local. Both definitions validate through
+WorkflowDefinition.Validate. No payment, course-access or analytics service is called.
+
+- Enrollment fulfillment: definition `enrollment-fulfillment`, configured trigger
+  `purchase.confirmed`; three actions:
+  `validate-purchase` (enrollment.validate) -> `prepare-access` (enrollment.prepare)
+  -> `record-fulfillment` (enrollment.record) -> terminal empty cursor.
+  Handlers validate a paid purchase with student/course inputs, prepare
+  `student-17:go-basics`, then record `prepared:student-17:go-basics`.
+  This records a prepared request, not an actual provider entitlement.
+- Learning analytics: definition `learning-analytics`, configured trigger
+  `report.requested`; four actions:
+  `collect-activity` (analytics.collect) -> `aggregate-activity` (analytics.aggregate)
+  -> `render-report` (analytics.render) -> `record-publication` (analytics.publish)
+  -> terminal empty cursor. Handlers collect [2,3,5], sum 10, render, then record
+  `published:learning activity: 10` in local memory only.
+
+These differ in chain length, step IDs, handler sets and structure (validation/request
+preparation versus collection/aggregation/rendering), inputs and business output.
+Each has a separate execution ID and worker. A single initialized HandlerRegistry
+contains both handler sets, and the lifecycle tests share one actual
+InMemoryWorkflowRepository. No registration overlaps execution. Definitions are
+immutable while running; callbacks execute sequentially in these new tests.
+Both use RunActions -> ExecuteActions -> named action dispatch with the existing
+TryClaim/Get/Complete/Fail repository boundary. Trigger fields are configuration;
+these tests invoke the runner directly and do not claim event dispatch integration.
+
+Three test functions / four subtests:
+
+- `TestRunnerReusabilityWorkflows/enrollment-first` and `/analytics-first` run both
+  definitions in either order through RunActions. Exact callback sequences exclude
+  foreign actions. Each execution starts READY/version 1/no owner/zero attempts,
+  is checked RUNNING/version 2/expected owner/one attempt inside every callback,
+  and ends COMPLETED/version 3/one attempt/empty LastError. Exact claim/terminal
+  histories, terminal cursors, business outputs and unchanged other execution
+  snapshots are asserted. The first run cannot populate the other's output.
+- `TestRunnerReusabilityActionShapes/three-action-enrollment` and
+  `/four-action-analytics` independently call the same ExecuteActions API on
+  three- and four-step definitions, checking exact order and terminal empty cursor.
+  This detects assumptions about fixed step names or action counts.
+- `TestRunnerReusabilityIndependentFailure` fails analytics aggregation with an
+  injected sentinel, checks errors.Is, failed cursor `aggregate-activity`, diagnostic
+  execution/step/cause, matching nonempty LastError/failure-history reason, owner,
+  attempts/version/history and no render/publication continuation. Enrollment's
+  READY snapshot and business outputs remain unchanged. Enrollment then completes
+  successfully without modifying the failed analytics snapshot or publishing a report.
+
+Initial focused execution was **BASELINE GREEN** (exit 0), using unchanged production
+code. No artificial RED, production correction or architectural capability was added.
+Source inspection and final diff review establish all production Go files and prior
+Go tests remain byte-for-byte equal to HEAD.
+
+### Acceptance mapping (evidence prepared, human acceptance pending)
+
+| Unchanged M3.10 acceptance criterion | Supporting evidence |
+| --- | --- |
+| Both workflows run without modifying the engine core. | TestRunnerReusabilityWorkflows, TestRunnerReusabilityActionShapes and TestRunnerReusabilityIndependentFailure; preservation comparison against HEAD and full diff review. |
+| Existing M1/M2 tests and race checks pass. | Verbose full Go regression includes enrollment_test.go, workflow_test.go and workflow_repository_test.go plus every existing M3 suite; full race check and canonical verifier passed. |
+| Known limitations are documented. | Stage 3 limitations below and docs/HANDOFF.md section 15. |
+
+### Fresh executed verification and actual exit codes
+
+- `bash init.sh`, `git branch --show-current`, `git rev-parse HEAD`,
+  `git status --short`, `git diff --cached --name-only`, local history inspection,
+  `python3 scripts/validate_features.py feature_list.json`, and pre-activation
+  `python3 scripts/task_preflight.py --task M3.10`: exit 0.
+  Tracker validation after activation also exited 0.
+- `gofmt -w workflow_runner_reusability_test.go`: exit 0.
+- `go test -count=1 -run '^TestRunnerReusability' -v ./...`: exit 0;
+  three functions/four subtests, BASELINE GREEN.
+- Initial standalone lifecycle, concurrency, concurrency-race, verbose full Go,
+  full-race and vet commands below each exited 1 due to denied sandbox Go-cache
+  access (test commands failed at setup). These are environmental failures,
+  not behavioral RED; they do not count as passing tests.
+- Permission-enabled reruns all exited 0:
+  `go test -count=1 -run '^TestLifecycleRunner' -v ./...` (six functions/24 subtests),
+  `go test -count=1 -run '^TestRunnerConcurrency' -v ./...` (five functions/two subtests),
+  `go test -race -count=1 -run '^TestRunnerConcurrency' ./...`,
+  `go test -count=1 -v ./...`, `go test -race -count=1 ./...`, `go vet ./...`.
+  Verbose output was inspected: all enrollment, repository, execution and M3
+  definition/validation/trigger/registry/branch/action/wait/lifecycle/concurrency/
+  reusability test groups actually ran and passed, including Exercise 82 tests
+  TestRepositorySaveIfVersionCannotBypassFail and
+  TestRepositoryFailPreservesReasonInStateAndHistory.
+- `bash scripts/verify.sh`: exit 0 on its first invocation in this session.
+  All six checks PASS: tracker, 44 Python harness tests, `go test -count=1 ./...`,
+  `go test -race -count=1 ./...`, `go vet ./...` and working-tree/index whitespace.
+  Python command executed by the verifier:
+  `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p "test_*.py" -v`.
+- Only checkpoint documentation changed after the passing verifier. Final tracker,
+  formatting, tracked/index/untracked whitespace and preservation/status audits
+  are recorded in the review artifacts; no new behavioral changes followed tests.
+
+### Stage 3 limitations
+
+Stage 3 is an in-memory engineering prototype. Demonstrated reusability means
+configurations and registered callbacks drive two different tested business paths
+through unchanged generic code. This does not establish production readiness.
+
+No cross-process workflow coordination, durable execution persistence, durable
+WAIT/condition cursor recovery, automatic retries, automatic compensation,
+crash-safe external side-effect execution, exactly-once provider effects, guaranteed
+recovery after callback panic, production-grade scheduler, production deployment
+or measured business outcomes are demonstrated. No distributed infrastructure or
+external provider integration was added.
+
+Definitions must remain immutable during execution. Handler registration must
+complete before concurrent registry use; populated registries must not be copied.
+Mutable callback state requires appropriate synchronization. The new business
+fixtures are sequential examples, not concurrent business-adapter implementations.
+Verified concurrency guarantees apply only to tested behavior of one shared
+in-memory repository within a single process. Ambiguous external effects require
+reconciliation; successful callbacks may precede a rejected terminal write.
+A lost handoff or panic can leave an execution RUNNING. RunActions stops at an
+unexecuted condition/WAIT; caller-held cursors and separate helpers do not provide
+a lifecycle-aware resume/finalization framework. Execution-to-definition association
+is the caller's responsibility. No Stage 4 work occurred.
+
+### Review boundary and changed files
+
+Exactly four repository files are changed, all unstaged/uncommitted:
+`workflow_runner_reusability_test.go` (new), `feature_list.json` (activation only),
+`PROGRESS.md` and `docs/HANDOFF.md` (checkpoint reconciliation).
+Complete test, activation and documentation patches are provided outside the
+repository under `/private/tmp/p1-m3.10-review/` for human engineering review.
+M3.10 remains in_progress, active_task_id M3.10; M3.1-M3.9 remain verified; WIP 1.
+No M3.10 acceptance commit exists. Nothing was staged, committed, pushed or deployed.
+Stop for human engineering review; separate authorization is required for the
+implementation commit, publication, final verification status and Stage 3 acceptance.
