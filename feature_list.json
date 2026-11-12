@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.8",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -230,7 +230,7 @@
       "id": "M3.8",
       "title": "M2 Lifecycle Integration",
       "objective": "Use repository TryClaim for ownership and Complete/Fail for terminal runner outcomes.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.7"
       ],
@@ -239,10 +239,21 @@
         "Failures use Fail with a nonempty reason; SaveIfVersion is not used to mark FAILED."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "8a049e88b1d63db73e15e120b17c750179f51868",
+        "commands": [
+          "bash init.sh",
+          "git branch --show-current",
+          "git rev-parse HEAD",
+          "git status --short",
+          "python3 scripts/validate_features.py feature_list.json",
+          "go test -count=1 -run '^TestLifecycleRunner' -v ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "git diff -- feature_list.json"
+        ],
+        "result": "Human-authorized final tracker acceptance (2026-11-12). Clean starting main matched the user-supplied published implementation SHA; cached origin/main matched, with no live remote verification. PROGRESS.md and docs/HANDOFF.md retain historical pre-commit statements at 842000f; Git history confirms their implementation checkpoint and runner files are committed at this evidence revision. Criterion 1: TestLifecycleRunnerTerminalOutcomes (4 subtests) asserts TryClaim/Get before callbacks, ordered successful actions using Complete, first/middle/final execution errors using Fail, READY -> RUNNING -> COMPLETED/FAILED, versions 1 -> 2 -> 3, retained owner, attempts 1, exact transition history, and LastError/history diagnostics. TestLifecycleRunnerRejectedClaim (5) asserts no callbacks, no further repository operations and unchanged state for missing execution, empty owner and RUNNING/COMPLETED/FAILED executions. TestLifecycleRunnerTerminalRejection (4) covers rejected/stale Complete and Fail, captured owner/version, reconciliation errors, no version refresh/retry/fallback, preserved stored state and original errors.Is cause even when Fail is rejected. TestLifecycleRunnerInvalidClaimSnapshot (5) prevents callbacks and terminal writes for missing/nil/wrong-owner/wrong-status/wrong-identity snapshots. TestLifecycleRunnerHandoffs (4) covers direct and action-to-WAIT/condition boundaries: unexecuted cursor returned, RUNNING retained at version 2, attempts 1 and claim-only history, without terminal completion or boundary execution. Criterion 2: TerminalOutcomes and TestLifecycleRunnerExecutionValidationFailure (2) verify Fail with nonempty reasons, including unknown-handler and invalid-definition errors; WorkflowLifecycleRepository and the test probe expose no SaveIfVersion. Original action errors remain discoverable through errors.Is. Six focused test functions and 24 subtests in total. Historical evidence in the committed checkpoints, not freshly rerun RED: focused tests exited 1 with RunActions undefined at lines 89, 149, 183, 224, 275 and 295, then verbose GREEN exited 0 with all six functions/24 subtests. Historical full verifier first exited 1 at Go unit-test setup from sandbox Go-cache denial after tracker and 44 Python tests passed; permission-enabled rerun exited 0 with tracker, 44 Python tests, Go unit/race tests, go vet and both whitespace checks PASS. Limitations: synchronous, process-local integration; no durable cursor or recovery, lifecycle-aware continuation after WAIT/condition handoff, automatic retry, compensation or scheduler. Lost handoffs, unusable claim snapshots or panics can leave RUNNING. Side effects may precede rejected terminal writes and require reconciliation; no distributed exactly-once side-effect guarantee, production deployment or measured business outcomes. M3.1-M3.7 evidence and M3.9-M3.10 pending statuses are preserved; active_task_id is null and WIP limit remains 1. Only feature_list.json is changed; no commit, push, deployment or M3.9 work is authorized. Fresh acceptance verification by Codex at this implementation revision plus the tracker edit: tracker validation exited 0; verbose focused tests exited 0 with six functions and 24 subtests PASS. Initial bash scripts/verify.sh exited 1 at go vet from sandbox Go-cache denial after tracker, 44 Python tests, Go unit tests and race tests passed; whitespace checks were not reached. Permission-enabled rerun exited 0 with all six checks PASS: tracker, 44 Python tests, Go unit tests, race detection, go vet and both working-tree/index whitespace checks. Only this evidence text was updated afterward; final tracker validation, both whitespace checks, complete diff review and scope/preservation assertions passed.",
+        "reviewed_by": "Human-authorized acceptance following the user's report that implementation was reviewed and published, 2026-11-12. Codex cross-checked committed source/tests and historical evidence and executed the fresh commands separately identified in result. No claim that ChatGPT or the human reviewer personally executed the historical tests. Final tracker diff awaits human engineering review."
       },
       "blocker": null
     },
