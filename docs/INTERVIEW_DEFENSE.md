@@ -64,6 +64,8 @@ P1 engineering authority remains:
 
 EngineerGame Harness v2.0 is supplementary educational material, not engineering authority.
 
+For the EngineerGame Superbrain 2.2 Mission Station teaching contract, see [Superbrain Learning](SUPERBRAIN_LEARNING.md). It supplements learning only; existing tracks, modes, grading, evidence rules, and engineering authority remain unchanged. It grants no implementation or task-activation authority.
+
 Use relevant coach courses, DDIA, Clean Architecture, Clean Code and curated technical sources to deepen explanations and compare alternatives, only when those references are actually accessible and their contents have been checked.
 
 Distinguish verified repository facts, coach/course guidance, reference-book principles, current external documentation, and proposed engineering recommendations. Do not silently convert educational recommendations into P1 implementation requirements. Preserve source-access and course-excerpt restrictions.
