@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.7",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -199,7 +199,7 @@
       "id": "M3.7",
       "title": "Wait and Resume",
       "objective": "Represent delays with resume deadlines and retain an in-memory execution cursor, without sleeping a worker for the entire wait.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.6"
       ],
@@ -209,10 +209,20 @@
         "No durable restart guarantee is claimed."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "10a270486f5df4b591852db90b6264b5e6d5ab2c",
+        "commands": [
+          "bash init.sh",
+          "python3 scripts/validate_features.py feature_list.json",
+          "go test -count=1 -run '^TestWait' -v ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "git diff -- feature_list.json",
+          "git status --short",
+          "git rev-parse HEAD"
+        ],
+        "result": "Acceptance criterion 1: PrepareWait() validates the workflow configuration and WAIT identity/type, snapshots the configured step map and calculates ResumeAt once using now.Add(step.Delay). Early resume attempts return ErrWaitNotReady without changing cursor, deadline or consumption and without executing downstream callbacks (TestWaitPreparationAndEarlyResume). Acceptance criterion 2: exact-deadline and later attempts are eligible; ResumeWait() consumes before callbacks and starts at the saved WAIT successor through existing ExecuteActions() sequential continuation. Previously completed actions are not replayed in the tested sequential scenario; consumed waits return ErrWaitConsumed without replay. Terminal, condition and subsequent WAIT handoffs are supported. Downstream action failures preserve the failed cursor and underlying error (TestWaitResumeWithoutReplay, TestWaitResumeBoundaries, TestWaitFailureConsumesWithoutRetry). Acceptance criterion 3: WaitState is in-memory/process-local only; no durable persistence, scheduler or restart recovery exists. Passing tests establish local behavior, not production durability. Additional tests: TestWaitRejectsInvalidInput and TestWaitDefinitionSnapshot. Six test functions and 11 subtests. Historical implementation evidence, recorded in committed PROGRESS.md and docs/HANDOFF.md and the supplied implementation report: explicit human authorization preceded implementation; RED compilation failed because the new wait/resume API was undefined; GREEN tests passed after implementation. Prior permission-enabled full verification passed tracker validation, 44 Python harness tests, Go unit tests, Go race tests, go vet and both Git whitespace checks. Sandbox Go-cache denials were environmental failures, not intentional RED results. The documentation session separately recorded an initial sandbox Go-cache denial followed by permission-enabled full verification PASS. These historical checks are not newly executed RED/GREEN tests; no pre-activation preflight was rerun. Published implementation commit: 10a270486f5df4b591852db90b6264b5e6d5ab2c. Published documentation commit: 9c57598597a1d081cc6fbc60da1c683a976a3478. Fresh acceptance startup (2026-11-12): clean main at the documentation commit; initialization and tracker validation passed. Live GitHub main was independently resolved through the GitHub connector to 9c57598597a1d081cc6fbc60da1c683a976a3478, separate from cached origin/main. Limitations: state is process-local, not durable; no background scheduler or polling. WaitState requires single-caller access, must not be copied and does not support concurrent ResumeWait() or Snapshot() access. Definitions must not be mutated concurrently with PrepareWait(). Repeated PrepareWait() calls create independent states; preparation validates configuration, not prior execution provenance. Consuming before callbacks prevents ordinary sequential replay but does not guarantee exactly-once external effects. Failure after consumption requires separately designed reconciliation or recovery. Callback panics are not recovered and may leave an imprecise saved cursor. No callback cancellation or timeout was introduced. Handler registrations and captured callback inputs are not snapshotted; registry concurrency constraints still apply. No M2 lifecycle integration exists yet. No production deployment, measured business outcome or distributed correctness guarantee is claimed. Human-authorized final tracker reconciliation changes only M3.7 status/evidence and clears active_task_id; WIP remains 1. M3.1-M3.6 and M3.8-M3.10 records are preserved; later tasks remain pending and no M3.8 work is authorized. Final tracker acceptance changes are uncommitted; no final tracker acceptance commit exists. Fresh final acceptance verification (2026-11-12), at HEAD 9c57598597a1d081cc6fbc60da1c683a976a3478 plus this tracker edit: python3 scripts/validate_features.py feature_list.json exited 0. The focused verbose TestWait command exited 0: all six test functions and 11 subtests passed. Initial bash scripts/verify.sh exited 1 at Go unit-test setup from sandbox Go build-cache denial after tracker and all 44 Python tests passed; race, vet and whitespace were not reached. Permission-enabled rerun exited 0: tracker validation, 44 Python tests, go test -count=1 ./..., go test -race -count=1 ./..., go vet ./..., git diff --check and git diff --cached --check all passed. Only this outcome record was appended after full verification; final tracker validation, both whitespace checks, complete diff review and scope/preservation checks cover this evidence-only addition.",
+        "reviewed_by": "Human-authorized acceptance following ChatGPT source review and Codex-reported verification, 2026-11-12. Human authorization does not imply the human personally executed tests. ChatGPT source review and Codex's fresh verification are distinct activities."
       },
       "blocker": null
     },
