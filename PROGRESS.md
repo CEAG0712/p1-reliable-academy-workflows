@@ -100,8 +100,9 @@ documentation commit. No fetch or live remote verification was performed.
   separate from the historical Lesson 9 checks above.
 - Historical M3.5 checkpoint: implementation committed; final tracker acceptance pending
   then, with M3.1-M3.4 verified and M3.6 not yet authorized. Superseded below.
-- Current M3 active task: M3.7, implementation committed; human acceptance pending.
-  M3.1-M3.6 are verified; M3.8-M3.10 remain pending and unauthorized.
+- Current M3 active task: M3.8, implementation uncommitted; human review pending.
+  M3.1-M3.7 are verified; M3.9-M3.10 remain pending and unauthorized.
+  See the M3.8 checkpoint below for fresh evidence and boundaries.
 
 ## Lesson 11 — Controlled Task Preflight (2026-11-08)
 
@@ -658,7 +659,7 @@ At HEAD f189ce6be261e2269b8bd266584f123c11a4ce06 plus these two documentation ed
   deployment, live remote check, tracker acceptance or M3.7 work occurred.
   These two uncommitted documentation files await human engineering review.
 
-## M3.7 — Wait and Resume Checkpoint (2026-11-11)
+## Historical M3.7 — Wait and Resume Checkpoint (2026-11-11)
 
 - Starting observed HEAD: `10a270486f5df4b591852db90b6264b5e6d5ab2c` on main.
   Startup tree/index were clean. Git history and commit inspection confirm exactly
@@ -797,3 +798,83 @@ Do not mark a feature complete without its acceptance evidence.
 Update docs/HANDOFF.md when relevant state or evidence changes. Distinguish
 the previous checkpoint from current HEAD and uncommitted work. A task
 listed as next does not authorize implementation.
+
+## M3.8 — M2 Lifecycle Integration (2026-11-12)
+
+- Previous documentation checkpoint: `9c57598597a1d081cc6fbc60da1c683a976a3478`.
+  M3.7 acceptance is committed as `4545eef`; historical pending-M3.7 statements
+  above are superseded. Starting/current observed HEAD on main:
+  `842000fabc0b203a75481b1dcc42d6cb1a9b4eb8`, the supplied expected baseline.
+  Startup tree/index were clean. Initialization passed and reported cached
+  origin/main matches HEAD; no fetch or live remote check was performed.
+- Explicit human authorization covered M3.8 only. Tracker validation and
+  `python3 scripts/task_preflight.py --task M3.8` passed before activation.
+  Only M3.8 status and active_task_id changed; WIP remains 1, M3.1-M3.7 verified,
+  M3.9-M3.10 pending. M3.8 remains in_progress; evidence fields are preserved.
+- Added workflow_runner.go and workflow_runner_test.go; changed feature_list.json,
+  PROGRESS.md and docs/HANDOFF.md. All changes are uncommitted and unstaged.
+  Existing M2/M3 source/tests, acceptance criteria, roadmap and AGENTS.md are unchanged.
+
+### API and bounded behavior
+
+`(*HandlerRegistry).RunActions(repo WorkflowLifecycleRepository, executionID, workerID string, d WorkflowDefinition) (string, error)`
+uses an explicit interface containing only TryClaim, Get, Complete and Fail.
+The repository run identity is separate from the definition ID; callers supply the
+correct association. Nonnil initialized dependencies are required. A successful
+claim and usable owned RUNNING snapshot precede ExecuteActions(d, d.StartStep).
+The claimed version is captured before callbacks and never refreshed for a retry.
+Execution errors use Fail with nonempty diagnostics and preserve errors.Is causes.
+Only empty cursor/nil error from ExecuteActions requests Complete. Both terminal
+return values are checked; rejection returns a reconciliation error, with no
+fallback write or blind replay. SaveIfVersion is absent from the dependency API.
+
+Nonempty cursor/nil is an unexecuted condition/WAIT handoff: return it and preserve
+RUNNING, owner, version 2, attempts 1 and claim-only history. No boundary callback,
+wait preparation, deadline evaluation, resume/finalization or scheduling is added.
+Callers retain cursor/definition locally. Existing condition and wait helpers remain
+separate; their results do not automatically update M2. RunActions cannot resume a
+RUNNING execution. There is no new WAITING status, persistence or recovery model.
+
+### Fresh RED, GREEN and regression evidence
+
+- `go test -count=1 -run '^TestLifecycleRunner' ./...` exited 1 before implementation:
+  RunActions undefined at test lines 89, 149, 183, 224, 275 and 295. This was a genuine
+  missing-API RED compilation failure, with no cache permission failure in that run.
+- After implementation/gofmt,
+  `go test -count=1 -run '^TestLifecycleRunner' -v ./...` exited 0:
+  six test functions and 24 deterministic subtests passed.
+- Standalone tracker validation passed before activation, after activation and
+  before full verification. Initial `bash scripts/verify.sh` exited 1 at Go unit
+  test setup from sandbox Go-cache denial; tracker and all 44 Python tests passed,
+  later checks were not reached. This environmental failure is separate from RED.
+- Permission-enabled `bash scripts/verify.sh` exited 0: tracker, 44 Python tests,
+  `go test -count=1 ./...`, `go test -race -count=1 ./...`, `go vet ./...`,
+  `git diff --check` and `git diff --cached --check` passed. Existing regression
+  behavior remains passing locally. Only checkpoint documentation changed afterward;
+  final tracker/formatting/whitespace/scope checks cover those additions.
+
+### Acceptance mapping and limits
+
+1. Success/failure preserve M2 status/version/history: TestLifecycleRunnerTerminalOutcomes
+   covers success and first/middle/final action failures, exact callback prefixes,
+   READY -> RUNNING -> COMPLETED/FAILED, versions 1 -> 2 -> 3, retained owner,
+   attempts 1, exact two-entry history, failure cursor and LastError/history reason.
+   TestLifecycleRunnerRejectedClaim confirms zero callbacks and unchanged state on
+   rejection. TestLifecycleRunnerTerminalRejection covers rejected/stale completion
+   and failure, original-cause preservation and no version refresh/fallback writes.
+   TestLifecycleRunnerInvalidClaimSnapshot prevents callbacks on missing/invalid
+   post-claim snapshots. TestLifecycleRunnerHandoffs establishes boundary treatment.
+2. Fail with nonempty reason; no SaveIfVersion failure: terminal-outcome and
+   TestLifecycleRunnerExecutionValidationFailure tests verify Fail invocation,
+   diagnostics in state/history, malformed-definition/unknown-handler errors, and
+   cause wrapping. The probe/interface expose no SaveIfVersion operation.
+
+This is a synchronous, process-local action-path lifecycle adapter. No integrated
+condition/WAIT continuation, durable cursor, scheduler, leases, retry, compensation,
+panic recovery, cancellation/timeout, cloud or provider integration is established.
+Lost handoffs, unusable post-claim snapshots or callback panics may leave RUNNING.
+Callback side effects can succeed before a rejected terminal update; reconciliation
+is required. Registry/definition concurrency constraints remain applicable. No
+exactly-once external effects, production outcomes or M3.9/M3.10 acceptance claimed.
+Next: human engineering review. Do not mark verified, commit, push, deploy or begin
+M3.9 without separate explicit authorization.

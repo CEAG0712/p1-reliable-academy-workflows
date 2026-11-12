@@ -8,7 +8,7 @@ generic engine. This is an in-memory engineering portfolio prototype.
 
 ## 2. Repository identity and checkpoint revision
 
-Current checkpoint: section 12 (M3.7). Earlier revisions/status below are historical.
+Current checkpoint: section 13 (M3.8). Earlier revisions/status below are historical.
 
 - Repository: CEAG0712/p1-reliable-academy-workflows; branch: main.
 - Module: example.com/p1-reliable-academy-workflows; Go: 1.24.5.
@@ -560,7 +560,7 @@ At HEAD f189ce6be261e2269b8bd266584f123c11a4ce06 plus these two documentation ed
   deployment, live remote check, tracker acceptance or M3.7 work occurred.
   These two uncommitted documentation files await human engineering review.
 
-## 12. Current M3.7 documentation reconciliation (2026-11-11)
+## 12. Historical M3.7 documentation reconciliation (2026-11-11)
 
 Previous documentation checkpoint: `020e37acdab851ab4e71230e939ad1f9120569d7`.
 M3.6 acceptance and M3.7 parent baseline: `ec0331523dec72ed1c6f8b7a12681458fd3dcacd`,
@@ -654,3 +654,70 @@ At HEAD 10a270486f5df4b591852db90b6264b5e6d5ab2c plus the two documentation edit
   in_progress/active, WIP 1; M3.8-M3.10 pending and unauthorized. No commit, push,
   deployment, live remote check or acceptance occurred. Stop for human engineering
   review of these uncommitted documentation changes; no unresolved blocker found.
+
+## 13. Current M3.8 implementation checkpoint (2026-11-12)
+
+Previous documentation checkpoint: `9c57598597a1d081cc6fbc60da1c683a976a3478`.
+M3.7 acceptance commit: `4545eef`, inspected in local history, superseding section 12.
+Starting/current observed HEAD on main: `842000fabc0b203a75481b1dcc42d6cb1a9b4eb8`.
+This matches the user-supplied baseline; startup tree/index were clean. Initialization
+passed and reported cached origin/main matches HEAD. No live remote access occurred.
+
+The user explicitly authorized activation and implementation of M3.8 only. Tracker
+validation and M3.8 preflight passed before activation; eligibility was not authority.
+M3.1-M3.7 remain verified; M3.8 is in_progress/active; WIP 1; M3.9-M3.10 pending.
+Tracker acceptance criteria, objective and evidence fields are unchanged. No acceptance,
+commit, push, deployment, M3.9 or M3.10 work occurred in this session.
+
+Uncommitted files: workflow_runner.go, workflow_runner_test.go (new), feature_list.json
+(activation only), PROGRESS.md and docs/HANDOFF.md (checkpoint reconciliation).
+Existing source/tests, AGENTS.md, roadmap, scripts and README are unchanged.
+
+### Integration and review evidence
+
+New API:
+`(*HandlerRegistry).RunActions(repo WorkflowLifecycleRepository, executionID, workerID string, d WorkflowDefinition) (string, error)`.
+The lifecycle interface includes TryClaim/Get/Complete/Fail only; the in-memory M2
+repository supplies them. Claim precedes callbacks; Get validates the owned RUNNING
+snapshot and captures the version before ExecuteActions. Terminal success requires
+empty cursor/nil plus accepted Complete. Execution errors call Fail with nonempty
+context, retain the failed cursor and wrap the original cause. Rejected terminal
+operations return reconciliation errors without version refresh, retry or fallback.
+
+A nonempty cursor/nil hands off an unexecuted condition/WAIT and leaves RUNNING with
+unchanged claim metadata. Retain cursor/definition locally. No condition evaluation,
+PrepareWait, lifecycle-aware resume/finalization, scheduler, WAITING status or durable
+waiting is added. Existing helpers remain separate; calling RunActions again cannot
+resume the RUNNING execution. This is the bounded boundary treatment, not completed
+end-to-end orchestration. The execution/definition association belongs to the caller.
+
+Acceptance mapping is recorded in PROGRESS.md's M3.8 section. The six new tests cover
+success, first/middle/final action errors, claim rejection, terminal owner/version,
+exact status/version/attempt/history invariants, nonempty failure diagnostics,
+rejected/stale terminal operations, invalid claimed snapshots, validation/handler
+errors and direct/action-to-condition/WAIT handoffs (24 subtests).
+
+Fresh commands/results at HEAD plus these uncommitted changes:
+
+- `bash init.sh`, branch/HEAD/status/log checks, tracker validation and pre-activation
+  `python3 scripts/task_preflight.py --task M3.8`: exit 0. Tracker validation after
+  activation and before full verification also passed.
+- RED `go test -count=1 -run '^TestLifecycleRunner' ./...`: exit 1, RunActions undefined
+  at test lines 89, 149, 183, 224, 275, 295; no sandbox/cache failure in this run.
+- GREEN `go test -count=1 -run '^TestLifecycleRunner' -v ./...`: exit 0; six functions,
+  24 subtests. Both new Go files formatted with gofmt.
+- Initial `bash scripts/verify.sh`: exit 1 at Go unit-test setup from denied sandbox
+  Go-cache access after tracker and 44 Python tests passed; later checks not reached.
+- Permission-enabled `bash scripts/verify.sh`: exit 0; tracker, 44 Python tests,
+  Go unit tests, race detection, go vet and working-tree/index whitespace all PASS.
+  Only documentation changed afterward; final tracker/formatting/whitespace/scope
+  checks cover those additions. These are local results, not cloud/E2E evidence.
+
+Limitations: process-local action-path execution only; no durable progress/recovery,
+lease, retry, compensation, panic recovery, cancellation/timeout or cloud integration.
+A lost handoff, unusable claim snapshot or callback panic can leave RUNNING. Callbacks
+may have side effects before a rejected terminal write: reconcile rather than replay.
+Nonnil initialized dependencies and existing registry/definition concurrency rules
+are required. No exactly-once external-side-effect or production guarantee is claimed.
+Next action: human engineering review of the uncommitted implementation and evidence.
+M3.8 must remain in_progress; no commit/push/deployment or later task is authorized.
