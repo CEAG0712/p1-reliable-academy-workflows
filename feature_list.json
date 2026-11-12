@@ -4,7 +4,7 @@
   "milestone": "M3 Reusable Workflow Definition and Execution Engine",
   "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
   "work_in_progress_limit": 1,
-  "active_task_id": "M3.9",
+  "active_task_id": null,
   "status_meanings": {
     "pending": "Not started or not established as implemented",
     "in_progress": "One approved bounded task is currently being worked on",
@@ -261,7 +261,7 @@
       "id": "M3.9",
       "title": "Concurrency and Failure Verification",
       "objective": "Test competing execution attempts, invalid ownership, action errors, and duplicate invocations.",
-      "status": "in_progress",
+      "status": "verified",
       "depends_on": [
         "M3.8"
       ],
@@ -271,10 +271,26 @@
         "No distributed exactly-once guarantee is claimed."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "5909abf099c888536f1bda88ca2d4614a45a4508",
+        "commands": [
+          "bash init.sh",
+          "git branch --show-current",
+          "git rev-parse HEAD",
+          "git status --short",
+          "git diff --cached --name-only",
+          "git show --format=fuller --stat HEAD",
+          "python3 scripts/validate_features.py feature_list.json",
+          "go test -count=1 -run '^TestRunnerConcurrency' -v ./...",
+          "go test -count=1 -run '^TestLifecycleRunner' -v ./...",
+          "go test -race -count=1 -run '^TestRunnerConcurrency' ./...",
+          "go test -race -count=20 -run '^TestRunnerConcurrency' ./...",
+          "bash scripts/verify.sh",
+          "git diff --check",
+          "git diff --cached --check",
+          "git diff -- feature_list.json"
+        ],
+        "result": "Human-authorized M3.9 final tracker acceptance preparation (2026-11-12). Clean starting main at the required implementation revision; index empty. Commit message and four-file scope confirmed: workflow_runner_concurrency_test.go, feature_list.json, PROGRESS.md and docs/HANDOFF.md. GitHub connector resolved live main to the same SHA, separately from cached origin/main. Criterion 1: TestRunnerConcurrencySuccessfulExecutions and TestRunnerConcurrencyFailedExecutions each launch ten distinct workers for execution-42 against one shared repository, initialized registry and immutable definition. Readiness/start channels, buffered results and a mutex-protected callback trace assert one action path, nine claim rejections and an exact callback sequence without duplicates. TestRunnerConcurrencyBlockedCallback rejects a contender while the winning callback is blocked RUNNING, preserves the snapshot and completes once after release; synchronization uses channels, atomic counters, deadlines and cleanup. Criterion 2: success/failure tests assert COMPLETED/FAILED, winning owner, version 3, attempts 1 and exact claim/terminal history. Failure stops at transform, preserves the sentinel via errors.Is and stores a nonempty matching LastError/history reason with no completion. TestRunnerConcurrencyDuplicateAfterCompletion rejects same-owner and other-owner invocations without callbacks or lifecycle mutation. TestRunnerConcurrencyInvalidOwnership rejects non-owner Complete/Fail without snapshot changes, then allows owner completion. Existing TestLifecycleRunnerTerminalRejection covers four rejected/stale terminal scenarios, visible rejection, original cause, captured owner/version, exact operation order without refresh/retry/fallback and state consistent with accepted transitions. Criterion 3: guarantees are limited to the exercised single-process scenarios using one shared in-memory repository. No distributed exactly-once execution, exactly-once external provider effects, cross-process exclusivity, durable recovery, safe replay after every timeout or production readiness is established. Ambiguous side effects require reconciliation. Existing production correctness was exercised without source changes: M3.9 added verification coverage, not a production fix. Historical implementation-session baseline GREEN and earlier passing checks are recorded in the committed checkpoints; those reports are separate from this fresh acceptance run. Fresh Codex verification: initial verbose concurrency and lifecycle commands exited 1 at setup from sandbox Go-cache denial; permission-enabled reruns exited 0 (five concurrency functions/two subtests and six lifecycle functions/24 subtests). These environmental errors are not behavioral RED failures. Both focused race commands, including count=20, exited 0. The first full verifier invocation exited 0: tracker, 44 Python tests, Go unit tests, full race checks, go vet and both whitespace checks PASS. The user reports completed human engineering review and ChatGPT source-level review of the implementation diff; Codex independently inspected committed source/tests and executed the fresh checks identified here. Only final tracker acceptance fields and active_task_id are edited; M3.1-M3.8, M3.10, criteria and other metadata are preserved. M3.9 is verified locally, active_task_id null, WIP 1 and M3.10 pending. This uncommitted acceptance preparation remains pending human review; no acceptance commit or publication is claimed. Post-edit tracker validation and both whitespace checks exited 0. Programmatic comparison confirmed only feature_list.json changed, an empty index, unchanged HEAD, complete evidence and preservation of every field outside the permitted M3.9 acceptance fields and active_task_id. No source, test, documentation, script or configuration changes, staging, commit, push, deployment or M3.10 work occurred.",
+        "reviewed_by": "Human explicitly authorized this acceptance operation and reports completed human engineering review and ChatGPT source-level review of the complete implementation diff. Codex independently cross-checked source/tests and recorded fresh verification on 2026-11-12; no claim that the human or ChatGPT executed those tests. The final tracker edit remains pending human engineering review; no commit, push, deployment or M3.10 work is authorized."
       },
       "blocker": null
     },
