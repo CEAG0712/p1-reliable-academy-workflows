@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "project": "P1 Reliable Academy Workflows",
-  "milestone": "M3 Reusable Workflow Definition and Execution Engine",
-  "source_of_scope": "docs/ROADMAP.md, section 13: M3 Sequential Engineering Task Plan",
+  "milestone": "M3 Reusable Workflow Engine (Accepted) + M4 Gin HTTP API (Planned)",
+  "source_of_scope": "docs/ROADMAP.md, sections 7 and 13; approved M4.1-M4.10 engineering task breakdown",
   "work_in_progress_limit": 1,
   "active_task_id": null,
   "status_meanings": {
@@ -333,6 +333,251 @@
         ],
         "result": "Human-authorized final M3.10 acceptance and Stage 3 closure preparation only (2026-11-12). Clean starting main at ae17f66b6c91a394050eb4fc60c33087e064e6a3, implementation commit \"test: verify M3 workflow engine reusability\"; index empty. Local inspection confirmed exactly workflow_runner_reusability_test.go, feature_list.json, PROGRESS.md and docs/HANDOFF.md in the implementation commit, with no production engine-core changes. Live GitHub connector fetch_commit(main) independently resolved remote main to this same implementation SHA; cached origin/main was not used as live proof. Criterion 1: TestRunnerReusabilityWorkflows runs enrollment-fulfillment (purchase.confirmed; enrollment.validate -> enrollment.prepare -> enrollment.record) and learning-analytics (report.requested; analytics.collect -> analytics.aggregate -> analytics.render -> analytics.publish) in both orders. The three- and four-action definitions have distinct step IDs, handler structures, inputs, execution IDs, workers and local outputs: prepared:student-17:go-basics versus published:learning activity: 10. Both use WorkflowDefinition, one initialized HandlerRegistry, existing RunActions/ExecuteActions and a shared InMemoryWorkflowRepository. Tests assert exact callbacks without cross-workflow contamination, independent snapshots/outputs, correct owner, one attempt, READY -> RUNNING -> COMPLETED, versions 1 -> 2 -> 3, exact history and empty terminal cursor. TestRunnerReusabilityActionShapes independently checks both lengths through ExecuteActions. TestRunnerReusabilityIndependentFailure preserves the analytics sentinel via errors.Is at aggregate-activity, nonempty matching LastError/failure-history reason and FAILED lifecycle, stops later callbacks, leaves enrollment untouched and then permits enrollment completion without changing the failed analytics execution. Trigger fields are configuration; direct runner tests do not establish event-dispatch integration. No real entitlement or external report is produced. Historical implementation BASELINE GREEN is preserved as historical evidence, separate from these fresh acceptance runs; no artificial RED or source correction. Criterion 2: all seven initial standalone Go commands (focused reusability/lifecycle/concurrency, focused race, verbose full suite, full race and vet) exited 1 from sandbox Go-cache denial; test setup failed, not behavioral RED. Permission-enabled reruns each exited 0. Fresh verbose selections: reusability three functions/four subtests; lifecycle six functions/24 subtests; concurrency five functions/two subtests. Full verbose regression ran 100 functions/122 subtests, including enrollment rules, execution state/version, owner-aware repository lifecycle, stale-update rejection, Exercise 82 failure safeguards and every M3 definition/validation/trigger/registry/condition/action/wait/lifecycle/concurrency/reusability family; all passed. Focused concurrency race, full race and go vet passed. Additional concurrency race count=20 exited 0, without proving all possible schedules. Two fresh bash scripts/verify.sh invocations each exited 0: tracker, 44 Python harness tests, Go unit tests, full race detection, vet and both Git whitespace checks PASS. Criterion 3: reviewed PROGRESS.md M3.10 and docs/HANDOFF.md section 15 against source/tests; no missing material limitation or correction required. This is an in-memory prototype, with no cross-process coordination, durable execution or WAIT/condition recovery, lifecycle-aware resume framework, automatic retries/compensation, crash-safe effects, exactly-once provider effects, guaranteed safe replay, panic recovery, production scheduler/deployment or measured business outcomes. Definitions must remain immutable, registration must precede concurrent use and mutable callbacks need synchronization. New business fixtures are sequential; concurrency guarantees cover only tested shared in-memory repository scenarios. Callbacks can succeed before a rejected terminal write; ambiguous external effects/timeouts require reconciliation. Lost handoffs or panics can leave RUNNING. No production-readiness claim. The user reports prior human engineering review and publication of the implementation; source-level diff review and Codex fresh command execution are distinct evidence. Only active_task_id and M3.10 status/evidence are edited. M3.1-M3.9 records/evidence, M3.10 title/objective/dependencies/criteria, WIP limit 1 and all unrelated metadata are preserved. All ten Stage 3 tasks are now verified locally with active_task_id null. Final tracker review and publication remain pending; this preparation is uncommitted and does not claim a future acceptance revision. Post-edit tracker validation, working-tree/index whitespace and complete preservation comparison passed: only feature_list.json changed, no staged/untracked files and unchanged HEAD. No source, tests, documentation, scripts or configuration outside the authorized tracker fields changed. No staging, commit, push, deployment or Stage 4 work occurred.",
         "reviewed_by": "Human explicitly authorized final M3.10 tracker acceptance and Stage 3 closure preparation and reports prior human engineering review of the published implementation. ChatGPT source-level review of the provided implementation diff is source-review evidence, not local test execution. Codex independently inspected source/tests, verified live main and executed the fresh checks recorded here on 2026-11-12. Human engineering review of this final tracker acceptance edit and its publication remain pending; neither ChatGPT nor the human reviewer is claimed to have executed the Codex commands."
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.1",
+      "title": "Gin Foundation",
+      "objective": "Establish a minimal, locally testable Gin HTTP foundation without modifying the generic workflow engine.",
+      "status": "pending",
+      "depends_on": [
+        "M3.10"
+      ],
+      "acceptance_criteria": [
+        "A pinned Gin dependency is verified compatible with the approved Go toolchain and resolved dependency graph.",
+        "Router construction is separate from HTTP listener startup.",
+        "A local `GET /health` route returns the approved HTTP status, JSON content type, and response body.",
+        "HTTP listener startup failures are handled explicitly.",
+        "Deterministic `httptest` cases cover health success, unknown paths, and unsupported methods according to the agreed contract.",
+        "Existing M1/M2/M3 regression tests, race checks, vet, and the canonical verifier pass.",
+        "No enrollment invocation, production exposure, or unrelated engine-core modification is introduced."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.2",
+      "title": "API Contracts",
+      "objective": "Define the workflow API's explicit HTTP resource and error contracts.",
+      "status": "pending",
+      "depends_on": [
+        "M4.1"
+      ],
+      "acceptance_criteria": [
+        "Endpoint paths and methods are documented.",
+        "Request and response DTOs are defined and tested.",
+        "The HTTP status-code and error-response contract is explicit and consistent.",
+        "Authentication, authorization, tenancy, and payment-trust assumptions are documented as decisions or blockers, not falsely claimed as implemented.",
+        "No business operation is exposed beyond its approved trust boundary.",
+        "Existing regression verification passes."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.3",
+      "title": "Request Validation",
+      "objective": "Reject invalid or unsupported requests before workflow or business side effects.",
+      "status": "pending",
+      "depends_on": [
+        "M4.2"
+      ],
+      "acceptance_criteria": [
+        "Malformed JSON and missing/invalid identifiers are rejected.",
+        "Unsupported operations are rejected deterministically.",
+        "Validation errors produce the approved response shape.",
+        "Negative tests verify no execution creation or business-handler invocation occurs after rejection.",
+        "Client-supplied payment status is not treated as authoritative proof of payment.",
+        "Prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.4",
+      "title": "Workflow Service Boundary",
+      "objective": "Introduce a minimal transport-independent application boundary connecting API handlers to authorized workflow operations.",
+      "status": "pending",
+      "depends_on": [
+        "M4.3"
+      ],
+      "acceptance_criteria": [
+        "Gin-specific types remain outside the generic workflow engine.",
+        "HTTP handlers delegate business operations through an explicit service contract.",
+        "Service construction, dependencies, and errors are tested.",
+        "Existing repository ownership, versioning, and lifecycle rules remain authoritative.",
+        "No unnecessary engine redesign occurs.",
+        "Prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.5",
+      "title": "Workflow Invocation",
+      "objective": "Connect an authorized, validated API request to a selected workflow through the existing engine.",
+      "status": "pending",
+      "depends_on": [
+        "M4.4"
+      ],
+      "acceptance_criteria": [
+        "A valid local request selects an approved workflow definition.",
+        "Execution identity and creation behavior follow a documented contract.",
+        "Invocation uses the existing lifecycle-controlled runner.",
+        "Successful and failed paths preserve owner/version/history invariants.",
+        "Untrusted client inputs cannot independently authorize payment or course access.",
+        "No unsupported durable queue, real provider, or distributed exactly-once behavior is claimed.",
+        "HTTP-to-engine tests and prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.6",
+      "title": "Execution Status API",
+      "objective": "Expose appropriate execution status information through HTTP.",
+      "status": "pending",
+      "depends_on": [
+        "M4.5"
+      ],
+      "acceptance_criteria": [
+        "Known executions return contract-compliant status information.",
+        "Missing or inaccessible executions receive defined responses.",
+        "READY, RUNNING, COMPLETED, and FAILED representations are consistent.",
+        "WAIT/condition handoff is not falsely reported as completion.",
+        "Sensitive diagnostics and tenant data follow approved visibility rules.",
+        "Prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.7",
+      "title": "Duplicate, Conflict, and Error Contracts",
+      "objective": "Implement and verify bounded local request-identity, conflict, and error-handling behavior.",
+      "status": "pending",
+      "depends_on": [
+        "M4.6"
+      ],
+      "acceptance_criteria": [
+        "Duplicate and conflicting request semantics are documented.",
+        "Repeated requests cannot create unintended extra workflow executions within the tested local contract.",
+        "Concurrent creation behavior is handled safely.",
+        "Existing create-only repository limitations are explicitly considered.",
+        "Errors distinguish validation rejection, known workflow failure, and ambiguous outcomes.",
+        "Ambiguous external effects are not blindly replayed.",
+        "Prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.8",
+      "title": "HTTP Integration Verification",
+      "objective": "Verify the HTTP handler-to-service-to-engine integration using controlled local components.",
+      "status": "pending",
+      "depends_on": [
+        "M4.7"
+      ],
+      "acceptance_criteria": [
+        "An HTTP request can exercise the selected workflow through the approved application boundary.",
+        "Response contracts are verified.",
+        "Repository status, owner, version, attempts, and history are verified where applicable.",
+        "Invalid requests produce no unintended business effects.",
+        "Known failures produce correct diagnostics.",
+        "Prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.9",
+      "title": "API Concurrency and Safety",
+      "objective": "Verify that concurrent HTTP requests do not weaken the existing in-process workflow-safety guarantees.",
+      "status": "pending",
+      "depends_on": [
+        "M4.8"
+      ],
+      "acceptance_criteria": [
+        "Competing valid requests are tested.",
+        "Duplicate execution and claim outcomes follow the approved contract.",
+        "Owner/version/lifecycle invariants remain intact.",
+        "Tenant and identity validation boundaries are exercised.",
+        "Focused concurrency and race checks pass.",
+        "No cross-process coordination or distributed exactly-once guarantee is falsely claimed.",
+        "Prior regressions pass."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
+      },
+      "blocker": null
+    },
+    {
+      "id": "M4.10",
+      "title": "Stage 4 Regression and Acceptance",
+      "objective": "Verify the completed local Gin API milestone and formally prepare Stage 4 acceptance.",
+      "status": "pending",
+      "depends_on": [
+        "M4.9"
+      ],
+      "acceptance_criteria": [
+        "The published Stage 4 roadmap's API requirements are evaluated against source and tests.",
+        "All M1/M2/M3/M4 tests pass.",
+        "Full Go race checks and static analysis pass.",
+        "The canonical verification script passes.",
+        "HTTP contracts, startup behavior, failure handling, and known limitations are documented.",
+        "Historical M3 evidence and all previously accepted task evidence remain preserved.",
+        "Human engineering review is required before final acceptance, commit, and publication."
+      ],
+      "evidence": {
+        "revision": null,
+        "commands": [],
+        "result": null,
+        "reviewed_by": null
       },
       "blocker": null
     }

@@ -8,7 +8,8 @@ generic engine. This is an in-memory engineering portfolio prototype.
 
 ## 2. Repository identity and checkpoint revision
 
-Current checkpoint: section 15 (M3.10). Earlier revisions/status below are historical.
+Current checkpoint: section 16 (Stage 4 tracker preparation only).
+Earlier revisions/status below are historical; M3.1-M3.10 are now verified.
 
 - Repository: CEAG0712/p1-reliable-academy-workflows; branch: main.
 - Module: example.com/p1-reliable-academy-workflows; Go: 1.24.5.
@@ -802,7 +803,7 @@ verified or begin M3.10. Detailed acceptance mapping and command outcomes are al
 recorded in PROGRESS.md's M3.9 checkpoint. No current behavioral blocker found.
 
 
-## 15. Current M3.10 implementation checkpoint (2026-11-12)
+## 15. Historical M3.10 implementation checkpoint (2026-11-12)
 
 Previous implementation/documentation checkpoint revision:
 `5909abf099c888536f1bda88ca2d4614a45a4508`; it recorded its own start at
@@ -913,3 +914,79 @@ actual HEAD/tree/index/history, validate tracker and reconcile code/tests/eviden
 Do not mistake the previous checkpoint revision or these uncommitted changes for
 an implementation commit. Do not rerun pending-task preflight as if M3.10 were
 still pending; it is now active and no other task is authorized.
+
+
+## 16. Current Stage 4 tracker preparation checkpoint (2026-11-13)
+
+Previous documentation checkpoint revision: `ae17f66b6c91a394050eb4fc60c33087e064e6a3`.
+Current observed HEAD on main: `5457b77e7835cf951b1c71ab332080d7b81fe735`,
+`chore: finalize M3.10 and Stage 3 acceptance`. The startup tree and index were
+clean. Live remote main matched via permission-enabled `git ls-remote origin
+refs/heads/main` (exit 0); the sandbox attempt exited 128 from DNS failure.
+`bash init.sh` and tracker validation exited 0. The initialization cached-ref
+message alone is not live evidence. Source/tests, history and all ten verified
+M3 records supersede section 15's pre-acceptance status. README and roadmap
+historical status notes lag; their future API/trust decisions remain unresolved.
+
+The human authorized Stage 4 TRACKER PREPARATION ONLY. The unified schema-v1
+tracker contains exactly 20 ordered tasks: ten structurally identical accepted
+M3 records, then pending M4.1-M4.10 contracts from the supplied request. All M4
+evidence is null/empty, blockers null, global WIP 1, active_task_id null. M4.1
+depends on verified M3.10; every later M4 task depends on the preceding M4 task.
+Status meanings/rules are unchanged. The API task IDs follow the supplied
+breakdown; the roadmap's older Stage 3 M4 enrollment label is separate. Gin
+v1.11.0 remains an unapproved compatibility candidate, not an installed package.
+No HTTP status/body/method or authentication/payment-trust decisions were invented.
+
+Only these six allowed files are changed, unstaged/uncommitted:
+feature_list.json (metadata and appended contracts), AGENTS.md (M3/M4 preflight,
+selection and global WIP), scripts/test_validate_features.py (seven tests),
+scripts/test_task_preflight.py (four tests), PROGRESS.md and docs/HANDOFF.md
+(truthful current planning checkpoint). Validator/preflight/verifier implementations,
+Go source/tests, go.mod/go.sum, API, infrastructure and roadmap are unchanged.
+
+Baseline verifier: initial sandbox exit 1 at Go unit setup after 44 Python tests
+passed, from denied Go-cache access; permission-enabled rerun exit 0, all six checks
+PASS. Fresh post-extension validation exit 0; Python unittest discovery with
+PYTHONDONTWRITEBYTECODE=1 exit 0, 55 tests (all 44 unchanged fixtures plus 11 new).
+M4.1 preflight exit 0: ELIGIBLE, HUMAN APPROVAL REQUIRED, no activation or authority.
+M4.2 preflight exit 1: expected negative, depends on unverified M4.1. Standalone
+Go unit/race/vet commands initially exited 1 from sandbox Go-cache denial; their
+permission-enabled reruns each exited 0. Environmental failures are not behavioral
+RED. Exact commands are recorded in PROGRESS.md's current checkpoint and the
+external review report. Nonverbose Go output does not provide test counts.
+
+Preservation regression reads the immutable local published tracker via git show
+5457b77e7835cf951b1c71ab332080d7b81fe735:feature_list.json without network access.
+Preparation invariants require empty evidence for the proposed pending M4 tasks;
+schema v1 generally permits populated pending evidence, explicitly tested here.
+It enforces null nonblocked blockers, one global in_progress slot and matching
+active_task_id. Preflight remains read-only and cannot establish human authorization.
+Original M3 fixture methods/order were not edited. Existing engine limitations in
+section 15 remain applicable; harness success establishes no API/cloud capability.
+
+Read-only baseline snapshot and complete review material:
+`/private/tmp/p1-stage4-tracker-review/`. Recheck actual HEAD/tree/index, tracker,
+source/tests and verification at startup; do not treat uncommitted edits as a commit.
+Next action is human engineering review. No M4 task activated or accepted. Nothing
+staged, committed, pushed or deployed; no Gin installed and no API code implemented.
+Stop after tracker preparation; no M4.1 implementation or later task is authorized.
+
+Final preparation verification and preservation audit:
+
+- Post-change `bash scripts/verify.sh`: initial sandbox exit 1 at go vet cache
+  access after tracker, 55 Python tests and Go unit/race checks passed;
+  permission-enabled rerun exit 0, all six checks PASS including vet/whitespace.
+- Separate structural audit against the complete published tracker and the
+  read-only pre-edit snapshot passed all 14 required preservation checks:
+  M3 objects/evidence/order/status, M4 pending/empty evidence/null blockers,
+  schema/global WIP/no active task, exact chain/count and permitted file scope.
+  Additional checks passed for unchanged HEAD, empty index, no untracked files,
+  unchanged status meanings/rules, original fixture method ASTs and every supplied
+  M4 title/objective/dependency/acceptance criterion.
+- Only these checkpoint verification records were added after the passing verifier.
+  Final tracker validation, both whitespace checks, status/stat and complete patch
+  export follow those records; no behavior or tracker contract changed afterward.
+  Review patch: `/private/tmp/p1-stage4-tracker-review/complete-review.patch`.
+  Full report: `/private/tmp/p1-stage4-tracker-review/review-report.txt`.
+  Separate audit: `/private/tmp/p1-stage4-tracker-review/preservation-audit.txt`.

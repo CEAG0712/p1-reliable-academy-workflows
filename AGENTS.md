@@ -11,7 +11,7 @@ Confirm the current state first
   source/tests; do not treat a handoff as proof of current state.
 - Read README.md, go.mod, workflow.go, workflow_repository.go, and relevant tests before changing code.
 - Check the working tree (git status) and the current implementation. README milestone notes may lag local work.
-- Ask for clarification or stop with a blocker rather than inventing missing M3 requirements.
+- Ask for clarification or stop with a blocker rather than inventing missing M3 or M4 requirements.
 - At session start, run `bash init.sh` when terminal
   access is available.
 - Review initialization warnings before editing.
@@ -45,19 +45,20 @@ Information map - Load context when relevant
 - Do not treat interview answers or planned designs
   as proof of implemented engineering behavior.
 
-- feature_list.json: approved M3 task sequence,
+- feature_list.json: approved unified M3/M4 task sequence,
   dependencies, acceptance criteria, and evidence.
   Read before selecting implementation work.
 - Run `python3 scripts/validate_features.py feature_list.json`
   before task activation and after tracker changes; resolve any
   validation failures before proceeding.
-- Work on at most one in_progress task at a time.
+- Work on at most one in_progress task at a time across M3 and M4;
+  both stages share one active_task_id and WIP limit 1.
 - Do not mark a task verified without reviewed
   acceptance evidence and actual test results.
 - Do not change task scope or activate a new task
   without authorization.
 - Never begin implementation solely because a task is described as next.
-- Before requesting activation of an M3 task, run
+- Before requesting activation of an M3 or M4 task, run
   `python3 scripts/task_preflight.py --task TASK_ID` and resolve diagnostics.
   Preflight checks structural eligibility only; eligibility is not authorization.
   Human approval is still required. Preflight success alone must never trigger

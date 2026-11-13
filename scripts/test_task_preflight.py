@@ -156,6 +156,75 @@ class TaskPreflightTests(unittest.TestCase):
         self.assertIn("unrecognized arguments", result.stderr)
         self.assertEqual(result.stdout, "")
 
+    def initial_m4_fixture(self):
+        """Keep accepted M3 records but control M4 state independently of progress."""
+        self.tracker = json.loads(self.original)
+        self.tracker["active_task_id"] = None
+        for task in self.tracker["tasks"][10:]:
+            task.update(status="pending", blocker=None, evidence=dict(
+                revision=None, commands=[], result=None, reviewed_by=None))
+
+    def test_unified_m4_first_is_eligible_without_mutation_or_authority(self):
+        self.initial_m4_fixture()
+        before = copy.deepcopy(self.tracker)
+        self.assertEqual(self.tracker["tasks"][9]["id"], "M3.10")
+        self.assertEqual(self.tracker["tasks"][9]["status"], "verified")
+        result = self.fixture_cli("M4.1")
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stderr, "")
+        for message in ("ELIGIBLE — M4.1", "HUMAN APPROVAL REQUIRED",
+                        "No task activated", "does not authorize implementation"):
+            self.assertIn(message, result.stdout)
+        self.assertEqual(self.tracker, before)
+        self.assertIsNone(self.tracker["active_task_id"])
+
+    def test_unified_m4_second_waits_for_first_without_mutation(self):
+        self.initial_m4_fixture()
+        before = copy.deepcopy(self.tracker)
+        self.assert_rejected(self.fixture_cli("M4.2"), "depends on unverified M4.1")
+        self.assertEqual(self.tracker, before)
+
+    def test_unified_m4_first_requires_verified_m3_last(self):
+        self.initial_m4_fixture()
+        self.tracker["tasks"][9].update(status="pending", evidence=dict(
+            revision=None, commands=[], result=None, reviewed_by=None))
+        self.assert_rejected(self.fixture_cli("M4.1"), "depends on unverified M3.10")
+
+    def test_cross_stage_wip_rejected_without_mutation(self):
+        self.initial_m4_fixture()
+        self.tracker["tasks"][9]["status"] = "in_progress"
+        self.tracker["active_task_id"] = "M3.10"
+        self.assert_rejected(self.fixture_cli("M4.1"), "in_progress: M3.10")
+        self.tracker["tasks"][10]["status"] = "in_progress"
+        self.assert_rejected(self.fixture_cli("M4.2"),
+                             "invalid tracker", "multiple in_progress tasks: M3.10, M4.1")
+
+    def test_verified_m4_first_allows_second_without_mutation_or_authority(self):
+        self.initial_m4_fixture()
+        self.tracker["tasks"][10].update(status="verified", evidence=dict(
+            revision="fixture-revision", commands=["fixture check"],
+            result="PASS", reviewed_by="fixture reviewer"))
+        before = copy.deepcopy(self.tracker)
+        result = self.fixture_cli("M4.2")
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stderr, "")
+        for message in ("ELIGIBLE — M4.2", "HUMAN APPROVAL REQUIRED",
+                        "No task activated", "does not authorize implementation"):
+            self.assertIn(message, result.stdout)
+        self.assertEqual(self.tracker, before)
+
+    def test_m4_second_in_progress_and_active_mismatch_are_rejected(self):
+        self.initial_m4_fixture()
+        self.tracker["tasks"][10].update(status="verified", evidence=dict(
+            revision="fixture-revision", commands=["fixture check"],
+            result="PASS", reviewed_by="fixture reviewer"))
+        self.tracker["tasks"][11]["status"] = "in_progress"
+        self.tracker["active_task_id"] = "M4.2"
+        self.assert_rejected(self.fixture_cli("M4.2"), "status is in_progress")
+        self.assert_rejected(self.fixture_cli("M4.3"), "in_progress: M4.2")
+        self.tracker["active_task_id"] = "M4.1"
+        self.assert_rejected(self.fixture_cli("M4.3"), "invalid tracker", "must be 'M4.2'")
+
 
 if __name__ == "__main__":
     unittest.main()

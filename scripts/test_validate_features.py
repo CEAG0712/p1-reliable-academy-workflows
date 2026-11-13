@@ -231,5 +231,104 @@ class FeatureValidationTests(unittest.TestCase):
             self.assertIn("FAIL", result.stderr)
 
 
+class LiveTrackerPreservationTests(unittest.TestCase):
+    """Validate current state and immutable M3 history without freezing M4 progress."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.original = json.loads(subprocess.check_output(
+            ["git", "show", "5457b77e7835cf951b1c71ab332080d7b81fe735:feature_list.json"],
+            cwd=ROOT, text=True))
+        cls.raw = TRACKER.read_bytes()
+        cls.live = json.loads(cls.raw)
+
+    def test_live_tracker_is_valid_without_mutation(self):
+        before = copy.deepcopy(self.live)
+        self.assertEqual(validate_tracker(self.live), [])
+        self.assertEqual(self.live, before)
+        self.assertEqual(TRACKER.read_bytes(), self.raw)
+
+    def test_original_m3_objects_evidence_and_order_are_preserved(self):
+        self.assertEqual(len(self.original["tasks"]), 10)
+        self.assertEqual(self.live["tasks"][:10], self.original["tasks"])
+        self.assertTrue(all(t["status"] == "verified" for t in self.live["tasks"][:10]))
+
+
+class UnifiedTrackerFixtureTests(unittest.TestCase):
+    """Control M4 lifecycle state in memory independently of live task progress."""
+
+    def setUp(self):
+        self.tracker = json.loads(TRACKER.read_text(encoding="utf-8"))
+        self.tracker["active_task_id"] = None
+        for task in self.tracker["tasks"][10:]:
+            task.update(status="pending", blocker=None, evidence=dict(
+                revision=None, commands=[], result=None, reviewed_by=None))
+
+    def verify_m4_first(self):
+        self.tracker["tasks"][10].update(status="verified", evidence=dict(
+            revision="fixture-revision", commands=["fixture check"],
+            result="PASS", reviewed_by="fixture reviewer"))
+
+    def test_unified_twenty_task_tracker_is_valid(self):
+        self.assertEqual(validate_tracker(self.tracker), [])
+        self.assertEqual(len(self.tracker["tasks"]), 20)
+        self.assertEqual([t["id"] for t in self.tracker["tasks"]],
+                         [f"M{stage}.{n}" for stage in (3, 4) for n in range(1, 11)])
+        self.assertEqual(self.tracker["schema_version"], 1)
+        self.assertEqual(self.tracker["work_in_progress_limit"], 1)
+        self.assertIsNone(self.tracker["active_task_id"])
+
+    def test_proposed_m4_chain_pending_evidence_and_blockers(self):
+        empty = dict(revision=None, commands=[], result=None, reviewed_by=None)
+        for n, task in enumerate(self.tracker["tasks"][10:], start=1):
+            with self.subTest(task=task["id"]):
+                self.assertEqual(task["status"], "pending")
+                self.assertEqual(task["evidence"], empty)
+                self.assertIsNone(task["blocker"])
+                self.assertEqual(task["depends_on"], ["M3.10" if n == 1 else f"M4.{n - 1}"])
+
+    def test_cross_stage_in_progress_tasks_are_rejected(self):
+        self.tracker["tasks"][9]["status"] = "in_progress"
+        self.tracker["tasks"][10]["status"] = "in_progress"
+        self.tracker["active_task_id"] = "M3.10"
+        self.assertIn("multiple in_progress tasks: M3.10, M4.1",
+                      "\n".join(validate_tracker(self.tracker)))
+
+    def test_active_id_must_match_sole_m4_in_progress_task(self):
+        self.tracker["tasks"][10]["status"] = "in_progress"
+        for active in (None, "M3.10", "M4.2"):
+            with self.subTest(active=active):
+                self.tracker["active_task_id"] = active
+                self.assertIn("must be 'M4.1'", "\n".join(validate_tracker(self.tracker)))
+        self.tracker["active_task_id"] = "M4.1"
+        self.assertEqual(validate_tracker(self.tracker), [])
+
+    def test_schema_v1_allows_populated_pending_evidence(self):
+        # Empty M4 evidence is a preparation invariant, not a universal schema rule.
+        self.tracker["tasks"][10]["evidence"] = dict(
+            revision="fixture", commands=["fixture check"], result="draft",
+            reviewed_by="fixture reviewer")
+        self.assertEqual(validate_tracker(self.tracker), [])
+
+    def test_pending_m4_nonnull_blocker_is_rejected_by_schema(self):
+        self.tracker["tasks"][10]["blocker"] = "fixture blocker"
+        self.assertIn("blocker must be null", "\n".join(validate_tracker(self.tracker)))
+
+    def test_verified_m4_first_with_pending_second_is_valid(self):
+        self.verify_m4_first()
+        self.assertEqual(self.tracker["tasks"][11]["status"], "pending")
+        self.assertEqual(validate_tracker(self.tracker), [])
+
+    def test_m4_second_in_progress_requires_matching_active_id(self):
+        self.verify_m4_first()
+        self.tracker["tasks"][11]["status"] = "in_progress"
+        self.tracker["active_task_id"] = "M4.2"
+        self.assertEqual(validate_tracker(self.tracker), [])
+        for active in (None, "M3.10", "M4.1"):
+            with self.subTest(active=active):
+                self.tracker["active_task_id"] = active
+                self.assertIn("must be 'M4.2'", "\n".join(validate_tracker(self.tracker)))
+
+
 if __name__ == "__main__":
     unittest.main()
