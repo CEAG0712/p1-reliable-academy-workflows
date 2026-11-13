@@ -1219,3 +1219,195 @@ Final preparation verification and preservation audit:
   Review patch: `/private/tmp/p1-stage4-tracker-review/complete-review.patch`.
   Full report: `/private/tmp/p1-stage4-tracker-review/review-report.txt`.
   Separate audit: `/private/tmp/p1-stage4-tracker-review/preservation-audit.txt`.
+
+
+## M4.1 Gin Foundation implementation checkpoint (2026-11-13)
+
+Previous documentation checkpoint revision: `ed161d7ced6061dac105f67c3fbe10137030a44c`
+(the tracker-preparation publication). That checkpoint recorded its own starting
+HEAD as `5457b77e7835cf951b1c71ab332080d7b81fe735`; it is historical, not the
+current HEAD. Current observed starting/ending HEAD on main is `ed161d7ced6061dac105f67c3fbe10137030a44c`.
+Live remote main matched that required baseline using permission-enabled
+`git ls-remote origin refs/heads/main` (exit 0). Startup tree and index were clean.
+Published tracker, Git history and fresh tests supersede the older pending M3.10
+and uncommitted tracker-preparation statements. README/roadmap historical status
+still lags the accepted M3 tracker. No README or roadmap change was authorized.
+
+Human explicitly authorized M4.1 activation and bounded implementation ONLY.
+`bash init.sh`, tracker validation, M4.1 preflight and baseline canonical verifier
+exited 0. Preflight printed ELIGIBLE and HUMAN APPROVAL REQUIRED; the supplied
+request, not eligibility, supplied authorization. Baseline Python count is 60,
+not the historical checkpoint's 55. Activation changed only active_task_id to
+M4.1 and its status to in_progress, preserving empty evidence until actual runs.
+Current M4.1 evidence records observed results; reviewed_by remains null.
+M3.1-M3.10 objects/evidence remain unchanged and verified, M4.2-M4.10 unchanged
+and pending, schema 1 and WIP 1. Human acceptance remains pending.
+
+### Implementation and acceptance evidence
+
+- `internal/httpapi/router.go`: independent NewRouter, gin.New plus Recovery,
+  GET /health only. Returns 200, application/json; charset=utf-8, semantic JSON
+  exactly {"status":"ok"}. No listener, engine imports or business dependencies.
+- `internal/httpapi/router_test.go`: TestHealth, TestUnknownRoute,
+  TestHealthUnsupportedMethod, TestHealthRepeatedCalls. Default Gin 404 for
+  GET /does-not-exist and POST /health; exact rejection body excludes health
+  success. Ten calls reuse one router. JSON decoding rejects extra fields,
+  malformed/trailing JSON and incorrect types. Tests use httptest, no sockets.
+- `cmd/p1-api/main.go`: tcp 127.0.0.1:8080 only, standard http.Server with
+  five-second ReadHeaderTimeout. Injectable net.Listen seam; listen/serve errors
+  wrap the cause and include operation/address. main logs and exits on failure.
+- `cmd/p1-api/main_test.go`: TestRunListenFailure and TestRunServeFailure inject
+  deterministic errors without public/local sockets, sleeps or port selection.
+  Assert loopback target, errors.Is, diagnostic context and listener closure.
+- `go.mod` and new `go.sum`: direct Gin v1.11.0 plus required transitive modules.
+  Actual toolchain go1.24.5 darwin/arm64; Gin's own go.mod requires 1.23.0.
+  Resolved metadata covers 55 modules; all reported Go requirements <= 1.24.5.
+  Project go 1.24.5 retained, no toolchain directive, no proxy/system changes.
+  Only Gin is a direct third-party requirement. go mod verify exits 0.
+- HTTP import graph excludes the root engine package, so neither health nor
+  unknown/method rejection can invoke workflow repositories/actions, executions,
+  enrollment providers or payment state. This is structural evidence combined
+  with handler tests, not a claim of end-to-end workflow integration.
+
+### Actual command results
+
+- RED `go test -count=1 -v ./internal/httpapi/... ./cmd/p1-api/...`: exit 1
+  before implementations existed. Permission-enabled run showed undefined
+  NewRouter at four sites and run at two sites. Earlier sandbox attempt also
+  showed net/http/internal/testcert setup failure; it is environmental, not RED.
+- GREEN same focused command: exit 0, all six test functions passed.
+- `go test -race -count=1 ./internal/httpapi/... ./cmd/p1-api/...`: exit 0.
+- `go mod download -json github.com/gin-gonic/gin@v1.11.0`,
+  `go get github.com/gin-gonic/gin@v1.11.0`, `go mod tidy`, and
+  `go list -m -json all`: permission-enabled exits 0. Original download/list
+  attempts hit sandbox DNS, original tidy hit module/build-cache permissions.
+  Original live-remote attempt also hit DNS (exit 128). Environmental failures
+  were resolved through permission-enabled reruns, not classified as incompatibility.
+- `python3 scripts/validate_features.py feature_list.json`: exit 0 before/after
+  activation; Python discovery with PYTHONDONTWRITEBYTECODE=1: exit 0, 60 tests.
+- Standalone `go test -count=1 ./...`, `go test -race -count=1 ./...`,
+  `go vet ./...`: each exit 0 with normal cache access, all three packages pass.
+- Post-implementation `bash scripts/verify.sh`: exit 0, all six checks PASS,
+  including tracker, 60 Python tests, Go unit/race/vet and both whitespace checks.
+- `go mod verify`, `go list -deps ./internal/httpapi ./cmd/p1-api`,
+  `git diff --check` and `git diff --cached --check`: each exit 0.
+- Source formatted with gofmt. Separate untracked-file whitespace, formatting,
+  tracker-preservation and permitted-file audits accompany the external patch.
+  Only tracker evidence/checkpoint documentation changed after regression;
+  final validation and whitespace/audit results are in the review materials.
+
+### Review boundary and limitations
+
+Modified: feature_list.json, go.mod, PROGRESS.md, docs/HANDOFF.md.
+New/untracked: go.sum, internal/httpapi/router.go, internal/httpapi/router_test.go,
+cmd/p1-api/main.go, cmd/p1-api/main_test.go. Existing engine files/tests, harness
+scripts, README, roadmap and AGENTS.md are unchanged. No enrollment endpoint,
+workflow invocation, payment API, production/cloud access or deployment config.
+Nothing staged, committed, pushed or deployed. HEAD remains the starting SHA.
+
+This establishes only a locally tested HTTP foundation. It does not establish
+enrollment HTTP invocation, real payment authorization, real provider integration,
+durable execution state, reliable asynchronous orchestration, cloud deployment,
+production security or distributed exactly-once processing. Engine limitations
+in earlier checkpoints remain applicable. Health indicates HTTP responsiveness
+only. HTTP recovery cannot undo side effects or repair persisted workflow state.
+No production lifecycle/shutdown system or end-to-end enrollment test is claimed.
+
+Complete review patch (including every untracked file), report, module metadata,
+command logs and preservation audit: `/private/tmp/p1-m4.1-review/`.
+Next action: STOP for human engineering review. Keep M4.1 in_progress and M4.2
+pending; do not stage, commit, push, deploy or mark verified. At next startup,
+reconcile actual HEAD/tree/index/tracker/source/tests and this uncommitted
+checkpoint. Do not treat the review patch or current edits as a published commit.
+
+
+## M4.1 acceptance reconciliation checkpoint (2026-11-13)
+
+Published baseline and current observed HEAD on main:
+`ed161d7ced6061dac105f67c3fbe10137030a44c`.
+Previous committed documentation checkpoint revision: the same `ed161d7`.
+The immediately preceding M4.1 implementation checkpoint above remains
+uncommitted; its complete reviewed patch is `/private/tmp/p1-m4.1-review/complete-review.patch`.
+Neither that checkpoint nor this acceptance update has an implementation or
+acceptance commit. Live remote main independently matched the full baseline
+through permission-enabled `git ls-remote origin refs/heads/main` (exit 0).
+Initial sandbox lookup exited 128 from DNS restriction. Initialization exited 0;
+its warning about existing changes was reviewed. Those changes are expected:
+all nine modified/new files exactly matched the previously reviewed complete
+patch before this reconciliation. Index empty, no unrelated changes. No pending-task
+preflight was rerun against the already-active M4.1.
+
+Human engineering owner explicitly authorized acceptance reconciliation following
+ChatGPT source-level review of the supplied patch against all seven M4.1 criteria.
+Codex independently inspected source/tests and ran the fresh local commands below.
+ChatGPT is not claimed to have executed local commands; the human reviewer is not
+claimed to have personally run tests. Human source-review acceptance is distinct
+from Codex command evidence. The older pending-review/in_progress statements above
+are preserved as history and superseded by this checkpoint.
+
+Acceptance mapping, without implementation changes:
+
+1. go.mod pins Gin v1.11.0 and retains Go 1.24.5 without a toolchain directive.
+   Fresh go mod verify passed. Resolved metadata contains 55 modules, all reported
+   Go requirements <= 1.24.5; actual installed toolchain is go1.24.5 darwin/arm64.
+2. internal/httpapi/router.go NewRouter constructs routes without listening;
+   cmd/p1-api/main.go owns listener startup. Existing engine files remain unchanged.
+3. TestHealth asserts 200, parsed application/json and exact semantic {"status":"ok"}.
+4. TestRunListenFailure/TestRunServeFailure assert wrapped causes and diagnostic
+   operation/address; tcp 127.0.0.1:8080, five-second ReadHeaderTimeout, listener closure.
+5. TestUnknownRoute and TestHealthUnsupportedMethod assert default 404;
+   TestHealthRepeatedCalls checks ten calls through one router. httptest and
+   injected listener failures require no listening ports or sleeps.
+6. Fresh Go/Python/race/vet and canonical checks passed as recorded below.
+7. Source and import graph show no engine dependency, enrollment/payment endpoint,
+   provider integration, lifecycle modification, production exposure or M4.2 work.
+
+Fresh pre-acceptance commands, each exit 0 on the successful run:
+
+- go mod verify
+- go test -count=1 -v ./internal/httpapi/... ./cmd/p1-api/... (six test functions)
+- go test -race -count=1 ./internal/httpapi/... ./cmd/p1-api/...
+- go test -count=1 ./... (all three packages)
+- go test -race -count=1 ./... (all three packages)
+- go vet ./... (no diagnostics)
+- PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v
+  (60 tests)
+- bash scripts/verify.sh (all six canonical checks PASS)
+- go list -m -json all
+- go list -deps ./internal/httpapi ./cmd/p1-api
+
+Initial sandbox focused unit/race and module verification passed, but full Go
+unit setup exited 1 from denied root-package build-cache access. Permission-enabled
+rerun of the required checks passed. This environmental error is not a behavioral
+failure or new RED evidence. No source fix, dependency install or toolchain change.
+
+Only after the required checks passed, M4.1 transitioned in_progress -> verified
+and active_task_id became null. Its original evidence/result/commands were preserved
+and fresh results appended with explicit attribution. All ten M3 task objects and
+evidence are unchanged/verified; M4.2-M4.10 unchanged/pending. Schema 1, WIP 1,
+all acceptance criteria/dependencies and unrelated metadata preserved; no task
+in progress. M4.2 structural eligibility grants no activation authority.
+
+This reconciliation edits only feature_list.json, PROGRESS.md and docs/HANDOFF.md.
+Entire working tree versus HEAD still has exactly these modified paths:
+PROGRESS.md, docs/HANDOFF.md, feature_list.json, go.mod; and these untracked paths:
+go.sum, internal/httpapi/router.go, internal/httpapi/router_test.go,
+cmd/p1-api/main.go, cmd/p1-api/main_test.go. The six implementation/dependency
+files are unchanged from the reviewed patch. All other repository files are
+unchanged from the published baseline. No staging, commit, push, deployment,
+implementation modification or M4.2 activation performed or authorized.
+
+Local HTTP foundation only: no enrollment HTTP invocation, real payment/provider
+integration, durable execution state, reliable asynchronous orchestration, cloud
+deployment, production security or distributed exactly-once guarantee. Health
+means HTTP responsiveness; engine limitations and previous RED/GREEN evidence
+remain applicable. No unresolved behavioral defect was found during reconciliation.
+
+Post-update verification results and exact exit codes, independent preservation
+checks, the three-file acceptance-only diff and full nine-file review patch
+(including all untracked contents) are retained outside the repository under
+`/private/tmp/p1-m4.1-acceptance-review/`. Recheck those artifacts for final results.
+Next action: STOP for human publication review; do not stage, commit, push,
+deploy, activate M4.2 or implement more API functionality. At next startup,
+reconcile actual HEAD/tree/index/tracker and fresh evidence, preserving the
+distinction between accepted local source and published commits.
