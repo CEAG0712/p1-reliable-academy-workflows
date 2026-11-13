@@ -1411,3 +1411,228 @@ Next action: STOP for human publication review; do not stage, commit, push,
 deploy, activate M4.2 or implement more API functionality. At next startup,
 reconcile actual HEAD/tree/index/tracker and fresh evidence, preserving the
 distinction between accepted local source and published commits.
+
+
+## M4.2 API Contracts implementation checkpoint (2026-11-13)
+
+Previous committed documentation checkpoint revision: `eac1f8bf7a14f6853036d91071c6b5881cd373ca`
+(the M4.1 publication; its embedded acceptance narrative began at `ed161d7`).
+Current observed starting HEAD on main: `eac1f8bf7a14f6853036d91071c6b5881cd373ca`.
+Startup tree/index clean. Live remote main independently matched that full SHA:
+initial sandbox `git ls-remote origin refs/heads/main` exit 128 (DNS),
+permission-enabled retry exit 0. Source, Git history, accepted tracker and fresh
+checks supersede older uncommitted M4.1/pending-review text. README/roadmap
+historical implementation notes lag; the human supplied the bounded M4.2 decisions.
+
+The supplied human request explicitly authorizes activation and implementation of
+M4.2 ONLY. AGENTS.md requires authorization, not a second approval after an
+explicit request. Preflight eligibility was not treated as authority.
+`bash init.sh`, tracker validation, M4.2 preflight and baseline
+`bash scripts/verify.sh` each exited 0. Preflight reported ELIGIBLE / HUMAN
+APPROVAL REQUIRED. Baseline verifier passed all six checks and 60 Python tests.
+Activation changed only active_task_id and M4.2 status, retaining empty evidence
+until actual implementation/test results existed. Human source review is pending;
+reviewed_by remains null, M4.2 remains in_progress and active_task_id is M4.2.
+
+Implementation, exactly six changed/new repository files:
+
+- `internal/httpapi/contracts.go` (new): CreateExecutionRequest,
+  CreateExecutionResponse, ExecutionStatusResponse, APIError and ErrorResponse;
+  exact approved JSON fields, string statuses, uint64 numeric version.
+- `internal/httpapi/contracts_test.go` (new): seven required test functions;
+  semantic exact JSON, full uint64 precision, four persisted status examples,
+  public-field allowlists, health and only-health route-table/404 checks.
+- `docs/API_CONTRACTS.md` (new): implemented health versus future POST creation
+  and GET status resources; explicit HTTP/error matrix, ordinary validation 400,
+  conditional 201, reserved 202, FAILED retrieval may be 200. Documents identity,
+  authorization, tenant isolation, payment trust and insertion/duplicate blockers.
+- `feature_list.json`: M4.2 activation and actual evidence only.
+- `PROGRESS.md` and `docs/HANDOFF.md`: this factual implementation checkpoint.
+
+RED -> GREEN evidence:
+
+- Before contracts.go, direct `go test -count=1 -v ./internal/httpapi/...`
+  exited 1 with undefined CreateExecutionRequest, CreateExecutionResponse,
+  ExecutionStatusResponse, ErrorResponse and APIError. Original output is in the
+  session; a labelled transcription is `/private/tmp/p1-m4.2-review/red.txt`.
+- A separate attempt to capture RED output via Python subprocess hit denied
+  Go-cache access (exit 1); its assertion failed because missing symbols were not
+  in that environmental output. That failure is not RED evidence. The log is
+  preserved as red-capture-environmental-failure.txt. The same Go command was
+  rerun permission-enabled after implementation, exit 0.
+- GREEN same focused Go command exit 0, seven new and four existing test
+  functions pass. `gofmt -w` on both new Go files exited 0.
+
+Post-implementation commands, each exit 0:
+
+- `python3 scripts/validate_features.py feature_list.json`
+- `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v`
+  (60 tests)
+- `go test -count=1 ./...` (all three packages)
+- `go test -race -count=1 ./...` (all three packages)
+- `go vet ./...` (no diagnostics)
+- `bash scripts/verify.sh` (all six checks PASS)
+- `git diff --check` and `git diff --cached --check`
+- `go list -deps ./internal/httpapi ./cmd/p1-api` (engine package absent)
+
+Preservation audit and final post-checkpoint checks are retained with complete
+source, command logs, review report and full tracked-plus-untracked patch under
+`/private/tmp/p1-m4.2-review/`. No source/dependency changes beyond the DTO files;
+router, server, engine, harness, go.mod/go.sum, README and roadmap are unchanged.
+M3.1–M3.10 and M4.1 accepted objects/evidence remain unchanged, M4.3–M4.10 remain
+unchanged/pending, original scope/dependencies unchanged, schema 1 and WIP 1.
+No business operations or operational execution endpoints are exposed. Structural
+import/route checks support absence of invocation; no end-to-end integration is
+claimed. No HTTP authentication, authorization, tenant ownership enforcement,
+provider authenticity/replay defense, durable processing, scheduling or distributed
+exactly-once behavior was added. EventID is correlation only; in-memory Save()
+has no insertion/duplicate result. Payment string checks do not authenticate origin.
+
+All six files remain unstaged/uncommitted. No stage, commit, push, deployment,
+M4.2 acceptance or M4.3 activation occurred. No future commit SHA is asserted.
+Next action: STOP for human source review of the complete patch. At next startup,
+reconcile HEAD/tree/index, tracker and source/tests with this checkpoint, and run
+init.sh. M4.2 is already active: do not use pending-task preflight to reactivate
+it, and do not begin later work without separate authorization.
+
+Final checkpoint checks: preservation/formatting audit exit 0. Its first attempt
+incorrectly required exit 0 from `git diff --no-index --check` on added files;
+Git returned 1 with no diagnostics for added content. The external audit was
+corrected to accept 0/1 only with empty diagnostics, alongside explicit whitespace
+and gofmt checks; no repository fix was needed. Final post-checkpoint verifier
+first exited 1 at root Go unit setup from denied cache access after 60 Python
+tests passed. Permission-enabled `bash scripts/verify.sh` retry exited 0, all six
+checks PASS. Logs are final-canonical.txt and
+final-canonical-permission-enabled.txt in the review directory. These environment
+and audit-tool issues are not behavioral RED. Only evidence text changed afterward;
+final tracker validation, whitespace, preservation and patch checks accompany the
+review report. Observed HEAD remains eac1f8bf7a14f6853036d91071c6b5881cd373ca.
+
+
+## M4.2 source-review correction checkpoint (2026-11-13)
+
+Human authorized CORRECTION ONLY: source review found the permanent
+TestOperationalRoutesNotRegistered test would freeze later legitimate API work.
+Removed that test only. All other test code, DTOs/JSON contracts, sensitive-field
+allowlists, health tests, docs/API_CONTRACTS.md, router/server, engine and
+dependencies remain unchanged from the reviewed implementation.
+
+Previous committed checkpoint revision and current observed HEAD on main:
+`eac1f8bf7a14f6853036d91071c6b5881cd373ca`. The six existing modified/new
+M4.2 files matched the previous review snapshot before correction. init.sh exit 0;
+its existing-changes notice was reviewed. Index empty. No fresh remote lookup
+was needed or performed for this local correction; prior live observation is
+historical. M4.2 was already active; no pending-task preflight or activation.
+
+Current focused `go test -count=1 -v ./internal/httpapi/...` exit 0: observed
+six M4.2 test functions plus four existing router tests, all PASS. Earlier seven
+M4.2 test counts above describe the pre-correction run only.
+
+One-time read-only acceptance audit, outside the permanent suite:
+`python3 /private/tmp/p1-m4.2-correction/route_acceptance_audit.py`.
+It supplies external audit code through Go's test-only overlay and calls actual
+NewRouter(), without replacing production source or writing an audit into the
+repository. Observed only GET /health; POST /v1/workflow-executions and
+GET /v1/workflow-executions/execution-1 each returned 404 "404 page not found".
+The actual HTTP/server dependency graph excludes the workflow/business package;
+production router/server bytes match publication and correction start. Together
+with the inspected health-only handler, this establishes current nonexposure,
+not future routing constraints or end-to-end integration. First sandbox audit
+exited 1 at go list from denied Go-cache access; permission-enabled retry exited
+0 with all assertions PASS. Reproducible code, overlay and actual output are in
+`/private/tmp/p1-m4.2-correction/` (route-audit-permission-enabled.txt).
+
+Fresh requested regressions each exited 0: tracker validation; Python unittest
+discovery with PYTHONDONTWRITEBYTECODE=1 (60 tests); go test -count=1 ./...;
+go test -race -count=1 ./...; go vet ./...; bash scripts/verify.sh (all six checks);
+git diff --check; git diff --cached --check. All three Go packages pass.
+Full correction preservation audit and final evidence/whitespace checks are in
+the correction review materials. Only this test removal and factual updates to
+PROGRESS.md, docs/HANDOFF.md and M4.2 tracker evidence changed during correction.
+M3/M4.1 accepted objects/evidence unchanged; later tasks unchanged/pending;
+M4.2 remains in_progress, active_task_id M4.2, reviewed_by null, schema/WIP 1.
+Human source review of the correction remains pending; no verification status.
+Exact correction-only and updated complete patches are in the same external
+review directory. No staging, commit, push, deployment or M4.3 activation.
+Next action: STOP for human review. Uncommitted work is not a published revision.
+
+Final correction preservation audit exited 0, comparing all repository files to
+the pre-correction snapshot and all M3/M4.1/later task objects to publication.
+Final post-checkpoint canonical verifier first exited 1 at root-package setup
+from Go-cache denial; permission-enabled retry exited 0, all six checks PASS
+(60 Python tests, all three Go packages unit/race, vet and whitespace). Only this
+factual evidence text changed afterward. Both logs, reproducible audits and
+exact correction patch are retained in /private/tmp/p1-m4.2-correction/.
+
+
+## M4.2 acceptance reconciliation checkpoint (2026-11-13)
+
+Published starting baseline and current observed HEAD on main:
+`eac1f8bf7a14f6853036d91071c6b5881cd373ca`.
+Previous committed documentation checkpoint revision: the same `eac1f8b`;
+M4.2 implementation/correction checkpoints above remain uncommitted local work.
+Fresh live remote main matched via permission-enabled git ls-remote (exit 0);
+initial sandbox lookup exited 128 from DNS restriction. init.sh and tracker
+validation exited 0; expected existing-changes notice reviewed. All six local
+M4.2 files matched the accepted correction snapshot exactly; index empty.
+No pending-task preflight or later activation was run.
+
+Human explicitly authorized acceptance reconciliation following source review
+of the original implementation and correction-only patches against all six
+criteria. Codex independently inspected source and ran local checks. ChatGPT
+is not claimed to have executed local tests; the human is not claimed to have
+personally run them. This acceptance supersedes historical pending-review and
+in_progress statements without rewriting their evidence.
+
+Acceptance mapping: API_CONTRACTS.md documents health and two future execution
+paths; DTOs and six permanent tests cover exact JSON, public allowlists, uint64
+version and four persisted states; nested errors and the explicit status matrix
+are documented/tested; identity, authorization, tenancy and payment-origin trust
+are requirements/blockers, not claimed controls. The historical one-time route
+audit observed health only, proposed paths default 404 and no engine imports.
+Its code/output remain available under /private/tmp/p1-m4.2-correction/ and are
+copied into /private/tmp/p1-m4.2-acceptance-review/historical-route-audit/.
+Identical current router/server source ties that evidence to this acceptance;
+it is not a permanent restriction on later authorized routing work.
+
+Fresh pre-status checks each exited 0 on successful runs: focused Go unit/race;
+full Go unit/race (three packages); go vet; Python unittest discovery with
+PYTHONDONTWRITEBYTECODE=1 (60 tests); tracker validation; canonical verify.sh
+(all six checks); working-tree/index whitespace. Focused verbose output observed
+six M4.2 plus four existing router test functions PASS. gofmt -l was clean and
+untracked whitespace checked independently, with no formatting/source changes.
+Initial sandbox full Go unit/race/vet and canonical runs exited 1 from denied
+root Go-cache access; permission-enabled reruns passed. No behavioral failure
+or implementation change. Exact commands/exits are retained in review logs.
+
+Only after passing checks, M4.2 transitioned in_progress -> verified and
+active_task_id became null. Historical evidence preserved; fresh results and
+truthful human review attribution appended. All M3/M4.1 objects and evidence
+unchanged; M4.3–M4.10 unchanged/pending, no active task, schema/WIP 1. Original
+requirements/dependencies intact. HTTP identity/authorization/tenant ownership,
+provider authenticity/replay defense, durable processing/scheduling and distributed
+exactly-once guarantees remain unresolved. No execution/business endpoint added.
+
+This acceptance edits only feature_list.json, PROGRESS.md and docs/HANDOFF.md.
+Complete six-file M4.2 working tree additionally includes the unchanged accepted
+internal/httpapi/contracts.go, internal/httpapi/contracts_test.go and
+docs/API_CONTRACTS.md. Router/server, engine, dependencies and existing tests
+remain unchanged from publication. No implementation or acceptance commit exists;
+no staging, commit, push, deployment or M4.3 work occurred. Final post-update
+checks, preservation audit, acceptance-only patch and complete tracked/untracked
+patch are retained in /private/tmp/p1-m4.2-acceptance-review/.
+Next action: STOP for human publication review. At next startup reconcile actual
+HEAD/tree/index/tracker and source/tests; do not treat local acceptance as already
+published or infer permission to activate M4.3.
+
+Final acceptance results: post-reconciliation tracker/Python (60 tests), full Go
+unit/race, vet and canonical verifier all exited 0 on successful runs. Initial
+post-update sandbox race/vet/canonical attempts exited 1 from denied root cache
+access; full unit passed even in that attempt. Permission-enabled retries all
+passed. Independent preservation audit exited 0: exact three-file acceptance-only
+scope, historical evidence intact, accepted corrected source and all other task
+objects unchanged, no active task. No untracked whitespace or gofmt diagnostics.
+Only factual evidence/checkpoint text changed after those regressions; final
+validation, whitespace, preservation and patch applicability checks are recorded
+in /private/tmp/p1-m4.2-acceptance-review/. Acceptance remains local/uncommitted;
+STOP for human publication review, with no authorization for M4.3 or publication.

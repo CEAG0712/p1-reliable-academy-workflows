@@ -405,7 +405,7 @@
       "id": "M4.2",
       "title": "API Contracts",
       "objective": "Define the workflow API's explicit HTTP resource and error contracts.",
-      "status": "pending",
+      "status": "verified",
       "depends_on": [
         "M4.1"
       ],
@@ -418,10 +418,43 @@
         "Existing regression verification passes."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "Uncommitted M4.2 changes based on eac1f8bf7a14f6853036d91071c6b5881cd373ca; no implementation commit exists. Acceptance reconciliation on 2026-11-13: published starting/current HEAD remains eac1f8bf7a14f6853036d91071c6b5881cd373ca; corrected reviewed implementation and human acceptance exist locally. This tracker reconciliation is uncommitted; no implementation/acceptance commit or GitHub publication is claimed.",
+        "commands": [
+          "bash init.sh \u2014 exit 0; clean main at expected baseline; cached remote is not live evidence.",
+          "git ls-remote origin refs/heads/main \u2014 sandbox exit 128 (DNS); permission-enabled exit 0, remote eac1f8bf7a14f6853036d91071c6b5881cd373ca matches local HEAD.",
+          "python3 scripts/task_preflight.py --task M4.2 \u2014 before activation exit 0, ELIGIBLE / HUMAN APPROVAL REQUIRED; supplied human request separately authorizes activation and implementation.",
+          "bash scripts/verify.sh \u2014 baseline exit 0, all six checks PASS, 60 Python tests.",
+          "python3 scripts/validate_features.py feature_list.json \u2014 exit 0 before activation, immediately after activation and after implementation.",
+          "go test -count=1 -v ./internal/httpapi/... \u2014 initial direct RED exit 1 before DTO definitions: undefined CreateExecutionRequest, CreateExecutionResponse, ExecutionStatusResponse, ErrorResponse, APIError. Subsequent subprocess RED log-capture attempt exit 1 from cache denial, not behavioral evidence; capture assertion failed. Permission-enabled rerun after implementation exit 0.",
+          "gofmt -w internal/httpapi/contracts.go internal/httpapi/contracts_test.go \u2014 exit 0.",
+          "go test -count=1 -v ./internal/httpapi/... \u2014 GREEN exit 0; all seven new contract tests and four existing router tests pass.",
+          "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v \u2014 exit 0, 60 tests.",
+          "go test -count=1 ./... \u2014 exit 0, all three packages.",
+          "go test -race -count=1 ./... \u2014 exit 0, all three packages.",
+          "go vet ./... \u2014 exit 0, no diagnostics.",
+          "bash scripts/verify.sh \u2014 post-implementation exit 0, all six checks PASS.",
+          "git diff --check; git diff --cached --check \u2014 each exit 0.",
+          "go list -deps ./internal/httpapi ./cmd/p1-api \u2014 exit 0; root workflow-engine package absent.",
+          "python3 /private/tmp/p1-m4.2-review/audit.py \u2014 corrected external audit exit 0; entire other task objects/metadata and permitted file scope preserved, new files whitespace checked, gofmt clean, dependencies/router/server byte-identical. Initial audit incorrectly assumed no-index diff exits 0 for additions; corrected without repository changes.",
+          "bash scripts/verify.sh \u2014 final post-checkpoint sandbox attempt exit 1 (root Go-cache denial), permission-enabled retry exit 0, all six checks PASS; 60 Python tests. Only evidence/checkpoint text changed afterward.",
+          "CORRECTION ONLY: removed permanent TestOperationalRoutesNotRegistered; all six remaining M4.2 tests and four existing router tests observed PASS with go test -count=1 -v ./internal/httpapi/... (exit 0). Earlier seven-test counts are historical.",
+          "python3 /private/tmp/p1-m4.2-correction/route_acceptance_audit.py \u2014 initial exit 1 at go list from sandbox cache denial; permission-enabled retry exit 0. External test-only overlay uses actual NewRouter: only GET /health registered; POST creation and GET status default 404; actual import graph excludes engine; production router/server unchanged from published baseline and correction start.",
+          "Fresh correction regressions: python3 scripts/validate_features.py feature_list.json; PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v (60 tests); go test -count=1 ./...; go test -race -count=1 ./...; go vet ./...; bash scripts/verify.sh (all six checks); git diff --check; git diff --cached --check \u2014 each exit 0. Logs and correction preservation method in /private/tmp/p1-m4.2-correction/.",
+          "Final correction preservation_audit.py \u2014 exit 0. Final post-checkpoint bash scripts/verify.sh: sandbox exit 1 at root Go-cache setup; permission-enabled retry exit 0, all six checks PASS (60 Python tests). Only factual evidence/checkpoint prose updated afterward; final tracker, whitespace and preservation checks accompany review artifacts.",
+          "Acceptance startup: bash init.sh; python3 scripts/validate_features.py feature_list.json \u2014 each exit 0. Exact six-file source matches /private/tmp/p1-m4.2-correction/source; expected uncommitted tree, empty index, main HEAD eac1f8bf7a14f6853036d91071c6b5881cd373ca.",
+          "Fresh acceptance git ls-remote origin refs/heads/main \u2014 sandbox exit 128 (DNS), permission-enabled retry exit 0, live remote equals eac1f8bf7a14f6853036d91071c6b5881cd373ca.",
+          "Fresh pre-acceptance go test -count=1 -v ./internal/httpapi/...; go test -race -count=1 ./internal/httpapi/... \u2014 each exit 0; observed six M4.2 and four existing router test functions PASS.",
+          "Fresh pre-acceptance PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v; python3 scripts/validate_features.py feature_list.json \u2014 each exit 0, 60 Python tests.",
+          "Fresh pre-acceptance go test -count=1 ./...; go test -race -count=1 ./...; go vet ./...; bash scripts/verify.sh \u2014 initial sandbox exits 1 from root-package Go-cache access denial; permission-enabled reruns each exit 0, all three packages pass, vet clean, all six canonical checks PASS.",
+          "Fresh pre-acceptance git diff --check; git diff --cached --check; gofmt -l internal/httpapi/contracts.go internal/httpapi/contracts_test.go \u2014 each exit 0; no gofmt output; explicit untracked-file whitespace checks PASS. Logs /private/tmp/p1-m4.2-acceptance-review/pre*-*.txt.",
+          "Historical one-time route acceptance audit remains available: /private/tmp/p1-m4.2-correction/route-audit-permission-enabled.txt (exit 0), code/output copied into acceptance-review/historical-route-audit/. Actual router registered only health, operational paths default 404, engine imports absent. No fresh route test or permanent restriction introduced; identical router/server source preserved.",
+          "Fresh post-reconciliation python3 scripts/validate_features.py feature_list.json; PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v \u2014 each exit 0, 60 tests; verified M4.2/pending M4.3 compatible with harness.",
+          "Fresh post-reconciliation go test -count=1 ./... \u2014 sandbox and permission-enabled exits 0; go test -race -count=1 ./..., go vet ./..., bash scripts/verify.sh \u2014 initial sandbox exits 1 from root Go-cache denial, permission-enabled retries each exit 0. All three Go packages pass and all six canonical checks PASS.",
+          "Fresh post-reconciliation git diff --check; git diff --cached --check; gofmt -l internal/httpapi/contracts.go internal/httpapi/contracts_test.go \u2014 each exit 0; untracked whitespace checked independently. git status --short, git diff --stat and git diff --cached --name-only exited 0; exactly expected six-file tree and empty index.",
+          "python3 /private/tmp/p1-m4.2-acceptance-review/preservation_audit.py \u2014 exit 0, exact three-file acceptance-only scope, unchanged corrected source and entire M3/M4.1/later objects, historical M4.2 evidence preserved, no active task, schema/WIP 1. Only this factual evidence/checkpoint text updated after passing full post-reconciliation regressions; final validation/whitespace/preservation outputs accompany review patches."
+        ],
+        "result": "DTOs and docs/API_CONTRACTS.md cover approved paths, exact JSON fields, shared errors, HTTP status matrix and identity/authorization/tenancy/payment/creation/idempotency blockers. No new operational routes; health/default 404 unchanged. Original acceptance criteria are mapped in /private/tmp/p1-m4.2-review/review-report.txt. Local tests pass; human source review pending. M4.2 remains in_progress, schema 1 and global WIP 1. No acceptance, staging, commit, push, deployment or later milestone authorized. Correction checkpoint: human source review identified one future-fragile route test; removed only that test. Six permanent M4.2 tests remain; nonexposure is now a reproducible one-time audit outside the suite. Production DTO/router/server and historical records unchanged. Correction source review pending; no acceptance or status transition. Acceptance reconciliation supersedes the historical pending-review/in_progress statements above: all six criteria reviewed and accepted by the human engineering owner; Codex independently reconciled source and ran fresh local checks before changing M4.2 to verified and clearing active_task_id. Six permanent M4.2 tests; historical seven-test implementation and later correction/audit evidence retained. No operational endpoint or security control added; existing trust/persistence blockers remain. Local acceptance and tracker update are uncommitted, pending separate publication authorization.",
+        "reviewed_by": "Human engineering owner explicitly authorized M4.2 acceptance reconciliation on 2026-11-13 following ChatGPT source-level review of the original six-file implementation and correction-only patch against all six published acceptance criteria. Codex separately performed and reported local verification. ChatGPT did not independently execute local tests. Acceptance remains local and uncommitted pending separate publication authorization."
       },
       "blocker": null
     },
