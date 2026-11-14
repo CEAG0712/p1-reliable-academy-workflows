@@ -192,3 +192,123 @@ not future handler-to-engine integration.
 No operational route, middleware, authentication or application service is added.
 Health and Gin's default 404 behavior remain unchanged. Historical M4.2 statements
 above describe that milestone; only this validation function is newly implemented.
+
+## M4.5 — Controlled local fixture invocation (implementation pending source review)
+
+This section describes an unregistered local/test adapter. Production `NewRouter`
+continues to expose only GET `/health`. No operational execution endpoint, HTTP
+status retrieval, caller authentication or tenant ownership implementation is added.
+Historical milestone statements above retain their original scope.
+
+### Trust and composition
+
+`application.NewLocalInvocationScope(repo, ids, workerID)` binds a concrete existing
+in-memory repository, trusted execution-ID source and nonblank server worker ID.
+It performs structural checks without calling ID, definition, repository or runner
+operations. Supply a repository from `NewInMemoryWorkflowRepository`; uninitialized
+storage fails at creation without invoking actions. Injected Go dependencies belong
+to trusted host composition; this is not a sandbox for malicious process code.
+
+The scope can issue a `TrustedLocalInvocationCommand` containing private authority
+and selection fields. `InvokeLocal` independently requires the exact scope token.
+Zero, JSON-populated and foreign-scope commands cannot obtain execution authority.
+Supported-definition membership, client context values, EventID=CONFIRMED, worker
+strings and arbitrary tenant/payment fields are not identity or payment proof.
+
+The fixed catalog is local.success, local.failure, local.wait and local.condition.
+Each call builds a fresh private graph and registry. The only actions are local.noop
+(return nil) and local.fail (return a fixed fixture error); local.check returns
+true/nil and is not evaluated by this action runner. There are no provider, grant,
+payment, filesystem or network effects. All graph action/condition references,
+including disconnected and post-handoff paths, must be safe and appear in the
+successful-registration manifest. Existing graph Validate runs independently.
+There is no public callback, resolver, graph or runner injection path.
+
+`httpapi.NewLocalInvocationHandler(scope)` creates a handler but registers nothing.
+Only tests compose it with `gin.New()` and `httptest`, without a listener. It reads
+at most 4097 bytes and reuses unchanged M4.3 validation. The trusted test harness
+controls requests and owns the capability the handler attaches. Registering this
+handler operationally would delegate its scope to incoming clients and is prohibited
+within M4.5. The sealed local scope is NOT production authentication.
+
+### Identity, creation and association
+
+Execution IDs are server-controlled: `exec-` plus 32 lowercase hexadecimal characters.
+`CryptoExecutionIDSource` uses 16 random bytes from the standard library; tests
+inject deterministic IDs. The format is checked before repository access. Worker
+ID is a separate ownership string. WorkflowDefinition.ID selects configuration;
+EventID is correlation; WorkflowExecution.WorkflowID is the execution-record key.
+These roles must not be substituted for one another.
+
+The additive repository `CreateIfAbsent(*WorkflowExecution) (bool, error)` clones
+and validates fresh READY/version-1 data with empty owner/error/history and zero
+attempts. Blank IDs, invalid candidates and uninitialized storage return false/error.
+Duplicate detection and insertion use the same existing map and lock as Save:
+true/nil proves insertion by this call; false/nil means duplicate with no mutation.
+Invalid duplicates remain errors. true/error violates the creation contract and is
+classified as uncertain if a faulty injected collaborator ever returns it.
+Existing Save and all lifecycle method bodies/semantics are unchanged.
+Callers must not directly mutate candidate fields concurrently with snapshotting.
+
+An inserted record is immediately retrievable through the same process-local
+repository's Get; the application verifies that snapshot before runner entry.
+A duplicate does not adopt the existing record, run actions or generate a replacement.
+Repeated EventID with distinct generated IDs can create independent runs. Neither
+EventID nor random identity establishes request idempotency or exactly-once behavior.
+
+Definition, event, execution identity, plan and handoff cursor are associated only
+within the call/result. The execution model stores no definition/event/cursor metadata.
+This provides no durable association, M4.6 visibility policy or continuation storage.
+
+### Runner outcomes and interruption
+
+The unchanged real HandlerRegistry.RunActions receives the same authoritative
+repository through a private call-local observer. The observer forwards each call
+exactly once, unchanged, and records its actual result. It holds no execution map,
+performs no independent state write and never refreshes versions or retries.
+
+Normal completion requires accepted claim/Complete plus the coherent COMPLETED/v3
+snapshot, retained owner, attempts 1 and claim/completion history. Action failure
+requires accepted Fail plus FAILED/v3 and the same nonempty diagnostic in state/history.
+The application retains causes internally; public messages are fixed safe text.
+A rejected terminal write always requires reconciliation, even if a later snapshot
+is COMPLETED. Missing/inconsistent snapshots also require reconciliation. There is
+no error-string parsing, fallback terminal write, replacement execution or replay.
+
+WAIT/condition returns a nonempty cursor and RUNNING/v2 with claim history only.
+It does not persist WAITING, evaluate a condition, prepare a deadline or resume.
+Cancellation before creation prevents creation; cancellation detected after insertion
+and before runner entry retains READY/v1 as created_not_started. The synchronous
+runner and callbacks accept no context: cancellation during invocation does not
+stop them or discard a valid observed result. No background goroutine simulates
+cancellation. Crashes/panics/lost responses can leave READY/RUNNING or a terminal
+record without a delivered outcome. No queue/scheduler/recovery mechanism resumes it.
+
+### Isolated HTTP response contract
+
+Existing request/response DTOs and ErrorResponse remain unchanged. HTTP 201 is used
+only for explicit insertion plus a retrievable coherent application outcome:
+COMPLETED/v3, FAILED/v3, RUNNING/v2 handoff, or READY/v1 created_not_started. It reports
+resource creation and actual observed status, not universal action success,
+asynchronous scheduling or durable persistence. No HTTP 202 or WAITING is introduced.
+
+| Condition | HTTP | Existing code |
+|---|---|---|
+| Invalid transport/command | 400 | INVALID_REQUEST |
+| Missing local capability (not external-user authentication) | 401 | UNAUTHENTICATED |
+| Foreign capability/disallowed local operation | 403 | FORBIDDEN |
+| Missing selected definition | 404 | NOT_FOUND |
+| Duplicate generated key or rejected claim | 409 | CONFLICT |
+| Unavailable dependency or cancellation before creation | 503 | UNAVAILABLE |
+| Invalid plan, inconsistent result or reconciliation required | 500 | INTERNAL_ERROR |
+
+Cancellation after confirmed creation can still project 201 READY if a response is
+writable. A known FAILED execution can project 201 FAILED despite an internal
+execution error. Reconciliation never projects success; its safe error envelope
+cannot carry the full internal outcome/identity. The controlled test harness can
+inspect that outcome and repository. No public recovery/status API is implemented.
+Owner, attempts, diagnostics, history, cursor and capabilities are never serialized.
+
+M4.5 establishes no real payment authenticity, tenant authorization, entitlement grant,
+durable queue/storage/scheduler, automatic retry/resume, cloud integration or
+distributed exactly-once guarantee. Acceptance awaits human source review.

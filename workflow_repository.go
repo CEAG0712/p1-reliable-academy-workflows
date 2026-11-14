@@ -1,6 +1,10 @@
 package enrollment
 
-import "sync"
+import (
+	"errors"
+	"strings"
+	"sync"
+)
 
 type InMemoryWorkflowRepository struct {
 	mu         sync.RWMutex
@@ -11,6 +15,32 @@ func NewInMemoryWorkflowRepository() *InMemoryWorkflowRepository {
 	return &InMemoryWorkflowRepository{
 		executions: make(map[string]*WorkflowExecution),
 	}
+}
+
+// CreateIfAbsent accepts only fresh READY/version-1 records. A true result
+// proves this call inserted; false/nil means duplicate; false/error means invalid
+// input or unusable storage. Save remains the backward-compatible legacy API.
+// As with Save, callers must not write source fields concurrently with cloning.
+func (r *InMemoryWorkflowRepository) CreateIfAbsent(execution *WorkflowExecution) (bool, error) {
+	if r == nil || execution == nil {
+		return false, errors.New("initialized repository and execution are required")
+	}
+	snapshot := cloneWorkflowExecution(execution)
+	if strings.TrimSpace(snapshot.WorkflowID) == "" || snapshot.Status != "READY" ||
+		snapshot.Version != 1 || snapshot.ClaimOwner != "" || snapshot.LastError != "" ||
+		snapshot.Attempts != 0 || len(snapshot.History) != 0 {
+		return false, errors.New("execution must be a fresh READY/version-1 record")
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.executions == nil {
+		return false, errors.New("repository storage is uninitialized")
+	}
+	if _, exists := r.executions[snapshot.WorkflowID]; exists {
+		return false, nil
+	}
+	r.executions[snapshot.WorkflowID] = snapshot
+	return true, nil
 }
 
 // Creates a new execution containing copies of its data fields.
