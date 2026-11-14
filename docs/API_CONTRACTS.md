@@ -417,3 +417,105 @@ concurrently. No durability, cross-process consistency, database I/O-error contr
 queue, scheduler, retries, recovery, cloud/provider/entitlement integration or
 distributed exactly-once behavior is established. Human source review remains
 required; this checkpoint does not accept or publish M4.6.
+
+## M4.7 — Opt-in local request identity (awaiting human source review)
+
+The additive `NewLocalRequestIdentityScope(repo, ids, workerID, maxReservations)`
+and `NewLocalRequestIdentityHandler(scope)` provide controlled local invocation
+with bounded request reservations. They register no routes or listeners.
+Production `NewRouter` continues to expose only GET `/health`. M4.5's existing
+scope/handler retain their fresh-execution behavior: repeated EventIDs may create
+different runs there. M4.6 visibility remains a separate capability and allowlist.
+
+### Identity, validation and admission
+
+The new handler requires exactly one `Idempotency-Key` header value containing
+1–128 ASCII letters, digits, underscores, hyphens or periods. Values are exact,
+case-sensitive and never trimmed, normalized or comma-split. Missing, empty,
+repeated, comma-combined and malformed values return 400 INVALID_REQUEST with
+fixed message `invalid idempotency key`. Header names are case-insensitive,
+including noncanonical map entries supplied by an in-process harness. A network
+HTTP parser may normalize transport whitespace before this handler sees it;
+validation applies to the value delivered to the handler, not raw wire bytes.
+
+The unchanged body parser runs after a maximum 4097-byte read; its maximum valid
+body remains 4096 bytes. Malformed bodies, unsupported definitions and bad identity
+fields are rejected before reservation. The service independently checks its own
+construction, sealed scope capability, context, key, selection syntax and approved
+fixture membership before admitting a request. JSON/context values cannot mint
+authority. Constructors perform no repository, resolver, runner or ID-source calls.
+
+A request identity belongs to exactly one constructed scope. Its fingerprint is
+the exact validated `(WorkflowDefinitionID, EventID)` value tuple. Equivalent JSON
+formatting/order does not change that fingerprint; changing either field does.
+EventID remains correlation data, not payment/tenant proof or the reservation key.
+
+One mutex protects reservation insertion, lookup and disposition changes. At most
+one request invokes the existing M4.5 service per scope/key. Repository/ID/resolver/
+runner/callback calls occur outside that mutex. Separate keys can progress while
+another request is blocked. ID sources must support concurrent use. The existing
+repository still atomically creates by execution ID, claims once, checks ownership
+and versions, and owns attempts/history/diagnostics; no lifecycle method changes.
+
+### Reservation dispositions and responses
+
+Reservations distinguish reserved/in-progress, known outcome and uncertain outcome.
+They store only the bounded key, exact tuple, disposition and available execution
+identity. They do not cache snapshots or grant status visibility.
+
+| Situation | Response and retained behavior |
+|---|---|
+| First accepted invocation | Existing M4.5 outcome rules apply |
+| Same key and payload, in progress or known outcome | 409 CONFLICT, `execution conflict`; no dependency calls or replay |
+| Same key, different validated payload | 409 CONFLICT, same fixed message; original reservation unchanged |
+| Same key/payload after uncertainty | 500 INTERNAL_ERROR, `internal error`; no dependency calls or replay |
+| New key at capacity | 503 UNAVAILABLE, `local invocation unavailable`; no reservation or invocation |
+| Execution-ID collision / CreateIfAbsent duplicate | 409; no adoption, overwrite, regenerated-ID retry or callbacks |
+| Any creation-call error, including false/error or true/error | 500; uncertain reservation retained |
+| Missing/contradictory snapshot or rejected terminal write | 500; uncertain reservation retained |
+| Known pre-creation dependency error | Existing safe 503/404/500 as applicable; admitted key remains known and blocked |
+| Confirmed COMPLETED, FAILED, RUNNING handoff or created-not-started READY | Existing 201 two-field creation projection |
+
+The new boundary deliberately treats false/error creation more conservatively
+than M4.5. It never assumes a creation error proves absence under a faulty
+collaborator. A 503 does not authorize automatic replay: even known pre-creation
+failures consume an admitted key, and identical repeats return 409.
+
+201 FAILED requires the sealed concrete M4.5 service's accepted claim/Fail
+observations and coherent authoritative FAILED/v3 snapshot, attempts/owner/history
+and matching nonempty diagnostic. A FAILED snapshot with rejected Fail is uncertain
+and returns 500. RUNNING handoffs retain v2; no WAITING, evaluation or continuation
+is introduced. Owner, history, attempts, LastError, event, cursor, key and authority
+never enter HTTP DTOs. All responses emitted by the new handler set no-store.
+
+### Cancellation, panic and recovery limits
+
+Cancellation observed before admission leaves no reservation. Cancellation racing
+admission may consume a key. Once admitted, cancellation/errors/panics never remove
+the reservation. Before creation, observed cancellation prevents creation; after
+confirmed creation, existing M4.5 evidence may project 201 READY. Cancellation
+during synchronous callbacks does not interrupt them or discard a coherent result.
+
+Deferred bookkeeping marks a panic-affected reservation uncertain and lets the
+panic propagate. This adapter adds no recovery middleware or safe-log guarantee.
+If the underlying invocation panics before returning its outcome, the reservation
+may lack the generated execution ID even if storage changed. Trusted host
+inspection/manual reconciliation may be necessary. In-progress duplicates can
+return 409 before an eventual uncertain outcome is known; later repeats return 500.
+
+The positive host-selected capacity bounds retained request entries. There is no
+TTL, eviction, key release, result replay, automatic retry, resume or repair.
+Reservations can become stranded; exhaustion can deny new work. Do not replace a
+scope or choose a new key as an automatic retry strategy for an ambiguous effect.
+Scopes do not coordinate with other scopes, legacy invocations or processes, even
+with one repository. Restart/reconstruction loses reservations; execution records
+do not durably retain request fingerprints or definition/event associations.
+
+Request acceptance, execution-ID insertion, single-winner claim and idempotent
+external effects are separate properties. This design establishes only bounded
+scope-local invocation suppression in controlled composition. It supplies no
+production authentication, tenant ownership, payment/entitlement proof, operational
+invocation/status endpoint, durable recovery, cloud integration or distributed
+exactly-once effects. M4.10 must evaluate the roadmap with this controlled-local
+delivery boundary explicitly; fixture handlers do not establish operational API
+readiness. M4.7 remains in_progress pending human source review and acceptance.

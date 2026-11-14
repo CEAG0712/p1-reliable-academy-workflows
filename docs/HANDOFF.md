@@ -2334,3 +2334,183 @@ Complete local eight-file set: internal/application/status.go; internal/applicat
 
 
 Final post-acceptance M4.6 evidence (2026-11-14): Codex fresh focused application12 functions/62 RUN entries and HTTP10/43 passed; application/HTTP package races, full Go unit/race across four packages, go vet, actual60 Python tests, tracker, canonical all six, both whitespace checks all exit0 on valid post-retry runs. Initial post HTTP package race exited1 from sandbox Go-cache access; approved full post-retry sequence exited0, no source workaround or behavioral failure. Post read-only formatting/new-file whitespace/trust audits passed; all five frozen hashes unchanged. Final preservation confirms only three acceptance-session edits, exact eight-file complete scope, protected baseline bytes and other19 task objects unchanged, M4.6 verified/active null, M4.7-M4.10 pending, empty index and unchanged main HEAD ad792a3618071d6ae6ff7631b9ae622906a8d6de. Acceptance-only and complete tracked-plus-untracked patches reverse-check exit0. This factual results append follows those runs; final validation/canonical/preservation and refreshed patch checks are recorded externally after this append. No source/test/API edit, staging/commit/push/deployment or next activation. STOP for human publication review; acceptance remains local/uncommitted.
+
+
+## M4.7 bounded implementation checkpoint (2026-11-14)
+
+Previous M4.6 acceptance checkpoint recorded revision:
+`ad792a3618071d6ae6ff7631b9ae622906a8d6de` plus then-uncommitted acceptance.
+Current observed published starting HEAD and unchanged current HEAD:
+`97365a29fa58f4b0813c22015a4c2925a795e04f` on main, establishing verified M4.6.
+Older acceptance/publication-pending statements remain historical. Clean initial
+working tree, empty index and live origin/main matched this required SHA. Initial
+remote lookup failed with sandbox DNS exit128; approved retry exit0. Read-only
+init and baseline canonical verification passed. Tracker:20 tasks/schema1/WIP1,
+M3.1-M3.10/M4.1-M4.6 verified, M4.7-M4.10 pending, active null. Preflight eligible;
+the human engineering owner explicitly approved the integrated design, exact
+M4.7 eight-file ceiling and bounded activation/implementation with three guardrails.
+M4.7 alone was activated; tracker immediately validated. This is not acceptance.
+
+Exactly eight paths form the implementation: new internal/application/
+request_identity.go and request_identity_test.go; new internal/httpapi/
+request_identity.go and request_identity_test.go; bounded append to docs/
+API_CONTRACTS.md, PROGRESS.md and docs/HANDOFF.md; feature_list.json activation
+and factual evidence. All other tracked bytes and old tests are protected.
+Seven original criteria/objective/dependency/order and other nineteen task objects
+remain unchanged. No M4.8/M4.9/M4.10 activation or implementation.
+
+The separate sealed local scope admits at most one invocation per exact key.
+Exact (definition,event) tuple fingerprint; copied support set; independent direct
+service capability/context/syntax/fixture gates. The mutex protects bounded
+reservation insertion/lookup/dispositions only. Dependencies run outside the lock.
+Reserved/in-progress, known and uncertain dispositions remain distinct. Every
+admitted key is retained through failure/cancellation/panic; no TTL/eviction/retry.
+Ordinary duplicates/conflicts return fixed409; identical uncertain repeats500;
+new keys at positive configured capacity503. No duplicate dependency/action calls.
+Any creation-call error, including false/error, is conservatively uncertain; no
+new ID or adopted collision. Existing concrete M4.5 classification proves known
+FAILED using accepted Fail and matching authoritative owner/version/history/reason.
+A FAILED snapshot with rejected Fail is uncertain, never201. Existing owner/version
+checks, failure diagnostics, attempts/history and generic runner remain unchanged.
+
+The new unregistered HTTP adapter reuses unchanged DTO/body validation (4096-byte
+valid limit;4097-byte maximum read), validates exactly one Idempotency-Key before
+reservation, and applies no-store to its emitted responses. Keys use exact1-128
+ASCII letters/digits/underscore/hyphen/period. Missing/empty/repeated/comma-combined/
+malformed keys fail400; header-name casing is insensitive. Host/network HTTP
+parsing may normalize wire whitespace before handler validation. Existing M4.5
+fresh-ID/correlation semantics and independent M4.6 status scope remain unchanged.
+Actual production NewRouter remains only GET /health; external overlay test checks
+health JSON/type/status and default404 for execution/test/enrollment/payment/
+entitlement/admin GET/POST paths. No listener/production route or middleware added.
+
+Tests were written before source: initial test command exit1 from Go-cache denial;
+approved retry exit1 from missing new symbols (structural RED). GREEN passed.
+No behavioral RED is claimed. Final focused unit log:14 application functions/42
+RUN entries,9 HTTP functions/15 RUN entries (23/57 total, parents included). Loops
+also cover validation/header/stream/capacity cases. Channel barriers and atomic
+counters cover ten competing reservations, ten duplicate/conflicting requests
+while a callback is blocked, independent-key progress and cancellation during a
+callback. Panic retention covers ID source, post-insert creation and callbacks.
+Fault tests cover hidden insertion with false/error, true/error, contradictory/
+missing snapshots, rejected/lied terminal writes and FAILED without accepted Fail.
+Normal tests use actual repository/runner; private fault collaborators are trusted
+test composition, not claims about concrete repository behavior.
+
+Successful logged commands exit0: focused verbose Go tests; focused race tests;
+focused concurrency race count20; full go test -count=1 ./...; full go test -race
+-count=1 ./... (four packages); go vet ./...; Python unittest discovery actual60;
+canonical bash scripts/verify.sh all six checks; external route overlay. Focused
+race, expanded HTTP-unit and route-overlay initial attempts had sandbox cache
+permission failures; approved retries passed without source workarounds. Baseline
+canonical also passed. Exact argv/exits/raw logs: /private/tmp/p1-m4.7-review/
+commands.jsonl and named logs. Final post-documentation canonical, preservation,
+whitespace, formatting and complete-patch checks are recorded externally after
+this checkpoint; do not infer their results without those logs.
+
+Limits: one scope in one process only; separate scopes, legacy invocation and
+restarts do not coordinate. Capacity exhaustion/stranded reservations deny work;
+no result replay or public recovery identity. A panic before core return can lose
+the reservation's execution-ID association despite stored state. Cancellation
+cannot interrupt synchronous runner/callbacks; observed pre-admission cancellation
+leaves no key, but racing admission may consume it. No automatic retry under a new
+key/scope is safe for ambiguous effects. Application panics propagate; no recovery
+middleware/log guarantee is introduced. Trusted fixture capability is not production
+authentication/tenant ownership/payment/entitlement proof or an in-process sandbox.
+No durable storage/queue/scheduler/resume/recovery/cloud or distributed exactly-once
+claim. M4.10 must explicitly evaluate controlled-local delivery against the roadmap;
+fixture HTTP integration does not establish operational endpoint readiness.
+
+M4.7 remains in_progress, active_task_id M4.7, acceptance revision/reviewed_by null.
+M4.8-M4.10 pending. All changes unstaged/uncommitted; no stage/commit/push/deploy.
+External complete tracked-plus-untracked patch, original seven-criterion matrix,
+command logs, hashes and review/limitations checklist are prepared for human source
+review. STOP before acceptance/publication. Fresh agents must reconcile actual
+HEAD/live remote/index/tree/tracker and logs before further authorized work.
+
+
+## M4.7 acceptance-reconciliation checkpoint (2026-11-14)
+
+Previous implementation checkpoint recorded published revision:
+`97365a29fa58f4b0813c22015a4c2925a795e04f` plus eight uncommitted M4.7 paths.
+Current observed starting/current HEAD remains that exact baseline on main.
+Older in_progress/source-review-pending statements above are historical and are
+superseded by this local acceptance checkpoint; no future commit is invented.
+
+The human engineering owner reports source review accepted the exact submitted
+M4.7 eight-file implementation without required source corrections and explicitly
+authorizes acceptance reconciliation only. Codex independently reconstructed the
+complete tracked-plus-untracked patch and compared it byte-for-byte with the
+reviewed patch SHA256 0db3a868ac278fd268d2bf8a5ce8b80199428c82d9d017d36eb9064a0809e25e.
+Independent application of that patch to baseline files externally reproduced all
+eight current outputs exactly. All eight starting hashes matched prior evidence.
+The five source/test/API-contract files below are frozen; three permitted acceptance
+files were saved byte-for-byte externally before edits. Live origin/main matches
+HEAD after sandbox DNS exit128 and approved retry exit0. init.sh passed and its
+expected dirty-tree/cached-remote notices were reconciled with live inspection.
+Index empty; exact eight expected paths; M4.7 initially in_progress/active M4.7.
+Prior M3/M4 implementation bytes, other nineteen task objects and all original
+seven M4.7 criteria/objective/dependency/order/schema/count/WIP were preserved.
+
+Fresh BEFORE-acceptance verification, each command exit0: focused M4.7 verbose
+unit tests (14 application functions/42 RUN entries;9 HTTP/15;23/57 total including
+parents/subtests); focused race; focused concurrency race count20; full Go units
+and races across four packages; go vet; actual60 Python harness tests; tracker;
+canonical verifier all six checks; tracked/index whitespace; independent exact
+gofmt-byte and untracked trailing-whitespace checks. Fresh visibility tests22
+functions/105 RUN entries, targeted guardrail tests7/21, existing external production
+router overlay and independent source/trust/preservation audits passed. No failed
+or unexecuted command is counted as passing; pre-acceptance test suite needed no
+environmental retry. Earlier implementation-session cache failures remain historical.
+Exact argv/exits/raw logs are in /private/tmp/p1-m4.7-acceptance-review/commands.jsonl.
+
+Source inspection and fresh tests reverify all seven criteria within approved
+controlled-local scope: exact duplicate/conflict tuple policy; at most one admitted
+invocation per scope/key; safe bounded mutex admission/concurrent creation without
+holding the lock across dependencies; create-only execution-ID storage limits and
+collision/no-adoption behavior; validation/known-failure/uncertainty distinctions;
+no blind replay after creation uncertainty, terminal rejection, cancellation or
+panic; prior regressions. Guardrail A: reserved/known/uncertain stay distinct, and
+201 FAILED requires the unchanged concrete M4.5 accepted Fail plus authoritative
+owner/version/attempt/history/reason evidence; a FAILED snapshot with rejected Fail
+remains uncertain500. Guardrail B: body/header/definition/direct-service validation
+precedes admission, including missing/empty/repeated/comma-combined/malformed keys;
+a winning key is retained after errors/cancellation/panic, with deferred uncertain
+panic bookkeeping. Guardrail C: actual production router only GET /health, with
+unchanged health JSON/type/status and default404 execution/test/enrollment/payment/
+entitlement/admin probes. Invocation grants no independent M4.6 status visibility.
+
+Only after all pre-acceptance gates passed: M4.7 in_progress -> verified;
+active_task_id -> null; M4.8-M4.10 remain pending. Only feature_list.json,
+PROGRESS.md and docs/HANDOFF.md change during acceptance. Existing tracker command/
+result evidence and document history are preserved by append. Human source review
+and authorization are attributed to the owner; Codex executed fresh checks. No
+claim that the human or another reviewer independently ran these commands.
+
+Limitations remain: scope-local in-memory invocation suppression only. Separate
+scopes, processes, legacy invocation and restarts do not share reservations. No
+production authentication, tenant ownership, payment/entitlement proof, operational
+invocation/status route, cloud/provider integration or distributed exactly-once
+effects. No automatic retry/replay/resume/repair or durable recovery association.
+Keys do not expire; stranded reservations and capacity exhaustion can deny work.
+Cancellation cannot interrupt synchronous callbacks; panic propagation has no
+framework safe-log guarantee and can leave the execution-ID association unknown.
+A new key/scope is not an automatic safe retry for ambiguity. M4.10 must explicitly
+retain controlled-local versus operational-delivery limits in roadmap acceptance.
+The frozen API-contract implementation checkpoint remains historical as written;
+its source-review-pending wording is superseded by this acceptance record, without
+editing the contract. This acceptance neither completes Stage4 nor starts M4.8.
+
+Fresh AFTER-acceptance verification and final preservation/patch results are
+recorded externally after this append. Reconcile those actual logs before claiming
+a successful post-acceptance gate. Acceptance-only and complete eight-file patches,
+hashes, original-criterion matrix and publication-review checklist are external.
+All work remains local/unstaged/uncommitted, unchanged HEAD and empty index.
+STOP for human publication review. No staging, commit, push, deployment, M4.8
+activation or source/test/API-contract correction is authorized or performed.
+Frozen SHA256:
+8b40d003ffbb321a00c548e3720cf63cec21d1daf9c24f584c01c37da13835cc  internal/application/request_identity.go
+9679cfd71d4d4971780d7f94bfa574ee3f61a970761cee20b40e9f699212211e  internal/application/request_identity_test.go
+06914bb9d224338c95490e555861d1be45592c5c368f04364ca4cc9d4c0474cf  internal/httpapi/request_identity.go
+5944c9c4fbb4cbe589231491aa92706454a3ad9d4a27e36d5e3e1308e50e2e25  internal/httpapi/request_identity_test.go
+f2707a6bf53fed828e9beebfd6042cc6344a7ba04ff9195eb2edcbb1adb2294a  docs/API_CONTRACTS.md
