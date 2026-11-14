@@ -312,3 +312,108 @@ Owner, attempts, diagnostics, history, cursor and capabilities are never seriali
 M4.5 establishes no real payment authenticity, tenant authorization, entitlement grant,
 durable queue/storage/scheduler, automatic retry/resume, cloud integration or
 distributed exactly-once guarantee. Acceptance awaits human source review.
+
+## M4.6 — Local execution status (implementation awaiting human source review)
+
+This additive checkpoint describes a constructible, unregistered status adapter.
+Historical statements above describe their respective milestones. Production
+`NewRouter` still exposes only GET `/health`; execution status remains default
+404 there. A controlled local/test harness may explicitly compose
+`GET /v1/workflow-executions/:execution_id` with `NewLocalStatusHandler(scope)`.
+No listener, middleware, dependency or operational route is added.
+
+### Independent visibility and observation
+
+`application.NewLocalStatusScope(reader, visibleExecutionIDs)` accepts only an
+`ExecutionReader` exposing `Get(string) (*WorkflowExecution, bool)` and a list of
+IDs. Nil/typed-nil readers and invalid members fail construction. Construction
+makes no repository read or policy evaluation. IDs use the same 1–128 ASCII-byte
+alphabet as M4.3: letters, digits, underscore, hyphen and period. Exact bytes and
+case are retained. Duplicates collapse; an empty list denies all. The constructor
+copies members into a private map, retains no caller slice and exposes no setter.
+Legacy Save can store IDs outside this grammar; M4.6 does not guarantee those IDs
+are HTTP-addressable. The handler neither trims nor decodes path values again.
+An unmatched missing segment retains Gin's default 404, outside this handler.
+
+A distinct, private, nonzero-sized `localStatusAuthority` binds commands to one
+scope. `Command(id)` validates syntax; `Querier().QueryLocal(ctx, command)`
+independently checks service construction, exact capability, context, syntax and
+visibility. Zero/JSON commands have no authority; a foreign scope is rejected.
+M4.5 invocation authority is a different type and grants no status visibility.
+Context tenant/caller/worker strings and ID possession cannot bypass the gate.
+
+Policy precedes the sole Get. Denied IDs perform zero repository reads and reveal
+no snapshot; internal `concealed` means policy denial, not proof of existence.
+An allowed missing ID performs one Get and produces internal `not_found`.
+Policy error/unknown decisions fail unavailable. No executable policy is publicly
+injectable; fault injection is private to package tests. No service dependency
+can call lifecycle mutations or actions. Query projection never normalizes or
+repairs data and never returns a WorkflowExecution pointer.
+
+This is local fixture visibility, NOT production authentication, tenant ownership,
+payment proof or an in-process sandbox. Trusted host code can construct scopes and
+already possesses the repository. Exposing a scoped handler operationally would
+delegate that fixture capability to clients. Missing/concealed responses are equal
+in status, JSON and headers; timing equality is not promised.
+
+### Stored snapshots and legacy compatibility
+
+A present snapshot must be nonnil, match the exact requested ID, have positive
+stored Version and nonnegative Attempts, and use READY/RUNNING/COMPLETED/FAILED.
+READY requires empty owner/history and zero attempts; legacy LastError is allowed.
+RUNNING needs positive attempts and coherent history, permitting ownerless legacy
+TryStart and retained legacy diagnostics. COMPLETED needs an owner, positive
+attempts, coherent history and empty LastError. FAILED needs an owner, positive
+attempts, coherent history and a nonempty LastError matching the final reason.
+
+History permits READY -> RUNNING and RUNNING -> COMPLETED/FAILED only. Entries
+must connect, use strictly increasing positive versions, have consistent owners,
+and end at the snapshot's status/version. Ownerless start is supported for
+RUNNING. Failure reasons are nonempty; nonfailure reasons are empty. Claim entries
+cannot exceed attempts. Coherent historical suffixes are accepted, without a
+version-1 origin requirement or a hardcoded version-2/3 classification. Real
+Complete, Fail and SaveIfVersion transitions are supported, including higher
+versions. History-free active/terminal records are ambiguous and safely rejected;
+this is a deliberate compatibility limit even though legacy Save can store them.
+Contradictory nonnil/false, nil/true, wrong ID and other invalid records return 500.
+No repair or corruption detail is disclosed.
+
+### Projection, errors and headers
+
+Success returns HTTP 200 using the unchanged `ExecutionStatusResponse` with exactly
+`execution_id`, `status`, `version` (the actual stored uint64 as a JSON number).
+FAILED is a successful retrieval and returns 200 with status FAILED. LastError,
+owner, attempts, history, event, cursor, tenant information and capabilities never
+appear. Real WAIT/condition handoffs remain RUNNING, without WAITING, evaluation,
+callback replay, automatic continuation or another terminal transition.
+
+Every response emitted by this handler sets `Cache-Control: no-store`. Normal
+JSON responses use `application/json; charset=utf-8`. Error messages are fixed;
+causes and panic payloads are never serialized by the adapter.
+
+| Condition | HTTP | Code | Fixed message |
+|---|---:|---|---|
+| Invalid matched ID/command | 400 | INVALID_REQUEST | invalid execution ID |
+| Missing local capability | 401 | UNAUTHENTICATED | local capability required |
+| Foreign local capability | 403 | FORBIDDEN | local status query not permitted |
+| Missing or concealed | 404 | NOT_FOUND | execution not found |
+| Policy error/unknown or observed cancellation | 503 | UNAVAILABLE | local status query unavailable |
+| Invalid snapshot/unexpected query error | 500 | INTERNAL_ERROR | internal error |
+
+Explicit collaborator panic containment is omitted. Application panics propagate;
+Gin recovery, when composed by a trusted host, can emit a bodyless 500 before any
+success JSON is written. That framework response has no JSON-envelope guarantee.
+The recovery test checks no false 200, no panic payload and retained no-store.
+These tests do not add recovery middleware to production or promise safe logs.
+
+Context is checked before policy, after policy/before Get, and before returning
+success. Original cancellation causes are retained internally. Synchronous Get
+cannot be interrupted; a cancellation observed afterward suppresses success.
+Cancellation can race response delivery after the final check. A coherent earlier
+RUNNING snapshot may be returned after a legitimate concurrent Complete/Fail; no
+reread, polling-until-terminal, response-lifetime lock or freshness guarantee exists.
+Readers must return stable independent snapshots and support concurrency when used
+concurrently. No durability, cross-process consistency, database I/O-error contract,
+queue, scheduler, retries, recovery, cloud/provider/entitlement integration or
+distributed exactly-once behavior is established. Human source review remains
+required; this checkpoint does not accept or publish M4.6.

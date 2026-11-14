@@ -2411,3 +2411,155 @@ are recorded outside the repository in /private/tmp/p1-m4.5-acceptance-review/.
 No source/test/API contract/dependency/formatting edits, stage, commit, push, deployment
 or M4.6 activation. Local acceptance remains uncommitted; STOP for human publication
 review and separate publication authorization.
+
+
+## M4.6 bounded implementation checkpoint (2026-11-14)
+
+Previous M4.5 acceptance checkpoint recorded revision:
+`4329b18d5dcb4928dc0d7ec72bc2babaa2f0f2a2` (then uncommitted acceptance).
+Current observed published starting HEAD and unchanged current HEAD:
+`ad792a3618071d6ae6ff7631b9ae622906a8d6de`, main, commit establishing verified M4.5.
+Older uncommitted/publication-pending statements above remain historical. Fresh
+Git/source/tracker reconciliation confirms M3.1-M3.10 and M4.1-M4.5 verified,
+M4.6-M4.10 initially pending, active null, schema/WIP 1, twenty tasks, clean tree
+and empty index. Fresh live origin/main matches the full required SHA. Initial
+lookup exited 128 (sandbox DNS); approved retry exited 0. Inspected read-only
+init.sh before running; initialization, tracker, M4.6 preflight and canonical
+baseline verifier passed (60 Python tests, four Go packages). Cached-remote warning
+was resolved by the live check. README milestone prose still lags actual source.
+Initial gate outputs are in the session transcript; a second baseline canonical
+run and subsequent command outputs are saved externally.
+
+The deliberately submitted human-approved handoff authorizes bounded activation
+and implementation, not acceptance/publication. All baseline gates passed before
+activating M4.6 alone; tracker validation immediately passed. The six original
+criteria were frozen unchanged in an external source/implementation/test/check/
+limitation/review matrix before coding. Other nineteen full task objects, schema,
+WIP, count, objective and dependency remain unchanged. M4.6 is in_progress and
+active_task_id M4.6; evidence.revision/reviewed_by remain null. M4.7-M4.10 pending.
+
+Exactly eight authorized paths change:
+- internal/application/status.go: independent nonzero-sized private status token,
+  sealed commands and local scope; validated copied exact-ID allowlist, duplicates
+  collapsed and empty deny-all; narrow public construction, no operational calls
+  during construction; private policy injection for faults. Service independently
+  checks capability/context/syntax/policy before exactly one allowed Get. Denied
+  IDs never read. Get-only interface, no lifecycle/action dependency, no repairs.
+  Typed errors retain internal causes; result contains ID/status/actual version.
+  Separate snapshot validator accepts ownerless TryStart RUNNING, READY diagnostic
+  markers, owner-aware claim/Complete/Fail, SaveIfVersion completion, higher stored
+  versions and coherent historical suffixes. History/state/version/owner/reason
+  contradictions and history-free active/terminal ambiguity are safely rejected.
+- internal/application/status_test.go: twelve functions, 62 RUN entries including
+  parents/subtests. Constructor nil/typed-nil and no-call checks, zero/foreign/JSON
+  authority, copied/empty/duplicate allowlists, direct-call ordering, private policy
+  errors/unknown decisions, four states, legacy compatibility and malformed
+  snapshots. Counts prove one allowed read, zero concealed reads/writes/callbacks.
+  Repeated queries preserve every authoritative field. Channel barriers cover
+  claim/Complete/Fail between snapshot capture and response, simultaneous readers
+  and writer, blocked synchronous Get cancellation; no sleeps. A real registry
+  action counter proves status does not replay a callback or advance a WAIT.
+- internal/httpapi/status.go: unregistered handler, unchanged M4.3 grammar and
+  M4.2 DTO. Explicit three-field projection; all emitted responses no-store.
+  Fixed safe error envelopes; missing/concealed share exact 404 body/headers.
+  FAILED retrieval is 200. Normal public composition accepts only sealed scope.
+- internal/httpapi/status_test.go: ten functions, 43 RUN entries. Path boundaries,
+  direct matched invalid IDs, no double decoding, default unmatched segment,
+  exact context/command delegation, safe errors, real missing/foreign capability,
+  exact response keys, no disclosure, equality of missing/concealed including all
+  response headers, corruption/cancellation and invalid-projection guards. Real
+  isolated M4.5 HTTP invocation -> same repository -> independent M4.6 HTTP status
+  covers controlled READY and local.success/failure/wait/condition. Repeated GETs
+  preserve owner/version/error/attempts/history; handoffs stay RUNNING/v2.
+- docs/API_CONTRACTS.md: additive local-only status contract and limits.
+- feature_list.json: M4.6 activation and factual evidence only.
+- PROGRESS.md and docs/HANDOFF.md: append this factual checkpoint, preserve history.
+
+Application tests first exited 1 from genuinely missing status symbols (structural
+RED), then GREEN. HTTP first attempt exited 1 from Go-cache denial; approved retry
+exited 1 from missing handler symbols (structural RED), then GREEN. No behavioral
+RED is claimed; environmental failures are distinct. No unrelated source broken.
+Successful commands each exited 0: focused application and HTTP verbose tests;
+package races; go test -count=1 ./...; go test -race -count=1 ./...; go vet ./...;
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v
+(actual 60); tracker validation; bash scripts/verify.sh (all six); gofmt -l on new
+Go files; route, trust and preservation audits. Go cache denials in focused/race/
+full/vet/canonical attempts were followed by approved successful retries, without
+source workarounds. Exact argv, exit codes and raw outputs are retained under
+/private/tmp/p1-m4.6-review/commands.jsonl and named logs. No dependency install.
+
+External route-overlay test freshly instantiates actual NewRouter: exactly GET
+/health, unchanged 200/JSON/content type. GET/POST execution creation/status,
+test-only invoke/status, enrollment, payment/callback, entitlement and admin paths
+retain default 404. No listener or permanent future-route prohibition test added.
+Static trust/order/Get-only audit complements manual source inspection and tests;
+it is not a production security proof. Preservation checks all protected tracked
+bytes, including repository methods, runner/actions, old source/tests, invocation,
+DTO/validator/router/cmd, dependencies and harness. Other nineteen task objects and
+all six criteria are unchanged; checkpoint/contract history is append-only.
+
+Limits: fixture visibility is NOT production authentication, tenant ownership,
+payment/entitlement authority or an in-process sandbox. Injected readers are
+trusted and must supply stable independent snapshots; concurrent use needs a safe
+reader. ID possession/context identity cannot authorize visibility. Concealed does
+not prove existence; no constant-time promise. Legacy IDs outside the grammar
+need not be addressable. History-free active/terminal records may be ambiguous.
+No database error return is invented for synchronous Get. Cancellation cannot
+interrupt it; observed cancellation suppresses success, but the final check can
+race response delivery. Earlier coherent snapshots can legitimately be returned
+after another goroutine completes/fails; no reread/polling freshness guarantee.
+Explicit panic containment omitted: application panics propagate; composed Gin
+recovery can return bodyless 500/no-store before success JSON, with no JSON error
+or safe framework-log guarantee. Recovery tested without production wiring.
+No operational route, new middleware, real provider/cloud, durable storage/queue,
+scheduler, automatic retry/resume/recovery or distributed exactly-once behavior.
+
+All work remains unstaged/uncommitted; index empty; HEAD unchanged. No acceptance,
+M4.6 verification, active-task clearing, M4.7 activation, staging, commit, push or
+deployment. External complete tracked-plus-untracked patch, source report, six-
+criterion matrix, RED/GREEN logs, verification and five focused audits, route and
+preservation reports, limitations and checklist are prepared for human source
+review. Final post-documentation canonical/whitespace/preservation and patch checks
+are recorded externally; do not infer results until those logs show success.
+STOP before human acceptance/publication. At next startup recheck actual HEAD,
+tree/index/tracker and init.sh; this checkpoint does not imply publication.
+
+
+Final M4.6 evidence: post-documentation canonical retry exited 0, all six checks
+including actual 60 Python tests and full Go unit/race across four packages. Its
+sandbox attempt exited 1 at race-cache access after unit tests passed; approved
+retry passed without source changes. Final trust/preservation and complete-patch
+reverse checks exited 0. Only this factual text and tracker command/result evidence
+were appended afterward; final tracker/whitespace/untracked-file/preservation and
+refreshed patch checks are external. Twelve application/ten HTTP functions (62/43
+RUN entries) executed. M4.6 remains in_progress, active_task_id M4.6; acceptance
+revision/reviewed_by null. Exactly eight unstaged/uncommitted paths, empty index,
+main HEAD ad792a3618071d6ae6ff7631b9ae622906a8d6de unchanged. No acceptance,
+publication or M4.7 activation. STOP for human source review.
+
+External untracked-file audit correction: its first run exited 1 because it
+incorrectly required git diff --no-index to return zero for differing files.
+There were no whitespace diagnostics. Corrected external audit exited 0, with
+independent trailing-whitespace and exact gofmt-byte checks for all four new files.
+No project source/test change resulted; failure/retry logs are retained externally.
+
+
+## M4.6 acceptance-reconciliation checkpoint (2026-11-14)
+
+Previous implementation checkpoint recorded revision: ad792a3618071d6ae6ff7631b9ae622906a8d6de plus eight uncommitted paths. Current observed starting HEAD remains that exact published M4.5 SHA; no future revision is invented. Earlier in-progress/source-review-pending statements remain historical and are superseded by this local acceptance checkpoint.
+
+M4.6 acceptance reconciliation (2026-11-14), local and uncommitted. Published starting/current HEAD ad792a3618071d6ae6ff7631b9ae622906a8d6de on main; live origin/main matched after sandbox DNS exit128 and approved retry exit0. Human engineering owner reports ChatGPT source-level review accepted the submitted eight-file patch without corrections and authorized acceptance reconciliation. Codex independently compared bytes, inspected source/tests and executed fresh local checks; ChatGPT is not claimed to have independently run these commands, nor the human to have manually executed them. Exact reviewed patch SHA256 dac02892e77b9f1c4cde09bea6da4e3765e1def3b9b1431c5974c8d82fa0feae matched reconstructed tracked-plus-untracked bytes and all eight reconstructed file outputs. Historical manifest all88 entries matched. Five source/test/API files frozen and unchanged (hashes below and external Starting-hashes.json). Three acceptance files saved byte-for-byte externally before edits; historical evidence preserved.
+Fresh pre-acceptance commands all passed on valid runs: focused application12 functions/62 RUN entries, focused HTTP10/43; focused races; full application34/127 and HTTP38/404 functions/RUN entries; package races; full Go units/races across four packages; go vet; actual60 Python harness tests; tracker; canonical all six; worktree/index whitespace; each new Go file exact gofmt bytes and independent whitespace. Route overlay first exited1 from sandbox Go-cache denial, approved retry exited0; only GET /health, unchanged JSON/type/status, all probed execution/test/enrollment/payment/entitlement/admin paths default404. No source workaround or behavioral failure. External historical-manifest parser first exited1 on a heading; corrected parser verified all88 entries, no repository changes.
+Fresh source/test and reproducible audits confirm independent private nonzero-sized status authority, copied exact-ID allowlist, zero/foreign/JSON fail-closed, no public arbitrary policy setter, no constructor operations, independent direct-service gates. Policy precedes sole Get; concealed zero reads, visible missing one, identical public404 body/code/message/all headers, no constant-time claim. Strict Get-only query cannot call lifecycle/actions or change owner/version/diagnostic/attempt/history. Four-state explicit three-field projection uses actual stored version; FAILED lookup200 preserves private diagnostic. Legacy TryStart/READY marker/claim/Complete/Fail/SaveIfVersion/high versions/coherent suffixes supported, ambiguous history-free active/terminal rejected. Repeated real M4.5 WAIT/condition status remains RUNNING2 without cursor disclosure, callbacks/resume/terminal writes. Channel-barrier claim/Complete/Fail snapshot interleavings, 24 simultaneous readers and writer, cancellation-before/after-policy and blocked-Get evidence pass. Earlier coherent snapshot may follow concurrent completion; cancellation cannot interrupt synchronous Get or guarantee prevention after final check. Causes retained internally; fixed safe HTTP errors/no-store. Application panics propagate; composed Gin recovery has no JSON-envelope/safe-log guarantee.
+All six original criteria satisfied within the approved local-only design by reviewed source, fresh tests and external Six-criterion-acceptance.txt. Protected repository/runner/invocation/DTO/validator/router/server/dependencies/harness and other19 task objects unchanged; original criteria/order/objective/M4.5 dependency preserved,20 tasks/schema1/WIP1. Only after pre-acceptance gates passed: M4.6 in_progress -> verified; active_task_id -> null; M4.7-M4.10 pending. No source correction, formatting, installation, stage/commit/push/deployment or next activation. Local fixture authority is NOT production authentication, tenant ownership, payment/entitlement authority or malicious in-process isolation. No operational status endpoint, durable storage/queue, scheduler, retry/resume/recovery, real provider/cloud or distributed guarantee. External artifacts /private/tmp/p1-m4.6-acceptance-review/; exact argv/exits/raw logs commands.jsonl. Post-acceptance results are recorded separately after execution. STOP for separate human publication review; local acceptance does not publish Git changes.
+Frozen SHA256:
+3814a7a0f2282b940ac5a04d5017e8d27e0b0cfc1de80baec5c5ea0b87ba745d  internal/application/status.go
+67a4fe8e47cf40b6ac41c0288b3b1eb273cf7729e4c308e172c1b3003e402e88  internal/application/status_test.go
+c95dd107ef4e9ec81a676e54d46b7a832df67fc5c7fd0bb4a56a220c8c3e395e  internal/httpapi/status.go
+9dd2112d90387886b1ee65c91cfebb67920750059da42002a8dd482e03b1a7aa  internal/httpapi/status_test.go
+d14fcff10b7fb21b4628e34fc268c572237b54966adf21eabec96dff0ea3f4bb  docs/API_CONTRACTS.md
+
+Complete local eight-file set: internal/application/status.go; internal/application/status_test.go; internal/httpapi/status.go; internal/httpapi/status_test.go; docs/API_CONTRACTS.md; feature_list.json; PROGRESS.md; docs/HANDOFF.md. Only the final three changed during acceptance; five frozen files unchanged. Git index empty. Reconcile actual HEAD/tree/tracker and external post-acceptance evidence on next startup. Separate publication authorization required.
+
+
+Final post-acceptance M4.6 evidence (2026-11-14): Codex fresh focused application12 functions/62 RUN entries and HTTP10/43 passed; application/HTTP package races, full Go unit/race across four packages, go vet, actual60 Python tests, tracker, canonical all six, both whitespace checks all exit0 on valid post-retry runs. Initial post HTTP package race exited1 from sandbox Go-cache access; approved full post-retry sequence exited0, no source workaround or behavioral failure. Post read-only formatting/new-file whitespace/trust audits passed; all five frozen hashes unchanged. Final preservation confirms only three acceptance-session edits, exact eight-file complete scope, protected baseline bytes and other19 task objects unchanged, M4.6 verified/active null, M4.7-M4.10 pending, empty index and unchanged main HEAD ad792a3618071d6ae6ff7631b9ae622906a8d6de. Acceptance-only and complete tracked-plus-untracked patches reverse-check exit0. This factual results append follows those runs; final validation/canonical/preservation and refreshed patch checks are recorded externally after this append. No source/test/API edit, staging/commit/push/deployment or next activation. STOP for human publication review; acceptance remains local/uncommitted.
