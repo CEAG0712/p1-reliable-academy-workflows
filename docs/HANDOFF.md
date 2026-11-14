@@ -1640,3 +1640,268 @@ empty index. Only this factual evidence text and tracker evidence changed after
 regressions; final tracker/whitespace/preservation and patch-applicability checks
 are recorded in the verification report. Acceptance remains local/uncommitted;
 STOP for human publication review, with no publication or M4.4 authorization.
+
+
+## M4.4 workflow-service implementation checkpoint (2026-11-14)
+
+Previous checkpoint's recorded revision: `89c1317b2785df994036bb6ea7ca087599ca828b`
+(M4.3 implementation/acceptance started there). Current observed starting HEAD:
+`8a447b5a5bce896cf929e90da5e5ffaf9890e05e`, main; live remote main matched
+independently (git ls-remote exit 0 after sandbox DNS exit 128). Git history now
+confirms published, verified M4.3; older local/uncommitted statements are historical.
+Starting tree clean, index empty. init.sh, tracker validation, M4.4 preflight and
+baseline canonical verifier all exited 0. Initialization's cached-remote caveat
+was reviewed and resolved by the live lookup. README/roadmap status notes lag code.
+
+The human's bounded M4.4 request authorizes activation and implementation after
+baseline/design reconciliation. Before activation, the A-G criterion-2 design
+was presented in chat: real unregistered Gin handler -> transport-independent
+WorkflowService.PrepareSubmission -> read-only DefinitionReader.LookupDefinition,
+identity match, existing WorkflowDefinition.Validate and configuration summary.
+This checks the actual server graph, unlike M4.3 request syntax/support membership.
+No execution is created, claimed, dispatched, scheduled, resumed or authorized.
+No criterion text was amended. Only M4.4 was activated; schema/WIP remain 1.
+M4.4 remains in_progress, active_task_id M4.4, revision/reviewed_by null, pending
+human source review. M4.5-M4.10 remain pending and all other task objects unchanged.
+
+Exactly seven files change:
+
+- internal/application/submission.go: explicit WorkflowService command/result and
+  read-only DefinitionReader contract, constructor rejecting nil/typed nil with
+  zero dependency calls. Lookup receives context and definition ID exactly once;
+  identity mismatch or invalid graph returns ErrInvalidDefinition. Missing,
+  unavailable and unexpected dependency errors retain errors.Is identity through
+  wrapping; failed operations return zero result. Nil/zero Service fails closed;
+  empty identifiers/nil context reject, cancelled context avoids lookup. Transport
+  syntax validation remains the adapter's responsibility. No HTTP/Gin types.
+- internal/application/submission_test.go: four deterministic top-level tests,
+  construction, exact lookup/context/result, repeated correlation without execution,
+  failure/zero-result behavior and cancellation. A real pre-existing FAILED
+  repository snapshot retains owner/version/attempts/history/diagnostic unchanged.
+  This repository is deliberately not injected; capability/source inspection is
+  the primary proof that this boundary cannot perform lifecycle writes or grants.
+- internal/httpapi/preparation.go: NewPreparationHandler returns a real Gin
+  handler but is never composed by NewRouter/server. It snapshots the server
+  support set, reads at most 4097 bytes, reuses unchanged M4.3 validation, maps the
+  two fields to the application command and passes request context. The isolated
+  adapter's HTTP 200 JSON summary has exactly workflow_definition_id, event_id,
+  step_count. It is not a published endpoint or CreateExecutionResponse; no
+  execution ID, lifecycle state or acceptance receipt is fabricated. No new
+  status number or public error code is introduced. ErrorResponse/APIError remain
+  unchanged: invalid command 400 INVALID_REQUEST, missing definition 404 NOT_FOUND,
+  unavailable dependency 503 UNAVAILABLE, bad server graph/unexpected errors
+  500 INTERNAL_ERROR. Internal messages are never serialized.
+- internal/httpapi/preparation_test.go: six new top-level tests (19 HTTP functions
+  total), nil/typed nil service, no constructor call, support-set copy, all 74
+  existing rejection inputs through real handler with zero service calls, additional
+  tenant/caller/payment-field rejection, bounded infinite stream/read-error and
+  exact 4096-byte control, exact command/context/result, wrapped safe error matrix.
+  Real handler+real service+controlled definition reader succeeds on a valid graph
+  then rejects a broken graph for identical valid JSON. This proves meaningful
+  delegation beyond a fake call counter. An action name entitlement.grant is
+  configuration only: no registry/provider exists in this composition.
+- feature_list.json: M4.4 activation and actual evidence only.
+- PROGRESS.md and docs/HANDOFF.md: appended factual checkpoint, histories retained.
+
+RED: focused application and HTTP sandbox attempts exited 1 at denied Go-cache
+access (environmental only). Approved permission-enabled retries exited 1 from
+undefined DefinitionReader/NewService/command/result/errors and no non-test
+application files respectively: genuine pre-implementation RED. GREEN focused
+application and HTTP commands exited 0 after implementation. gofmt on four new
+Go files exited 0. Additional read-boundary coverage was added before full checks.
+
+Fresh verification commands (successful runs each exit 0):
+
+- python3 scripts/validate_features.py feature_list.json (before/after activation)
+- PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v
+  (60 tests)
+- go test -count=1 -v ./internal/application/... (four functions)
+- go test -count=1 -v ./internal/httpapi/... (19 functions)
+- go test -count=1 ./... (four packages)
+- go test -race -count=1 ./... (four packages)
+- go vet ./... (no diagnostics)
+- bash scripts/verify.sh (all six checks)
+- git diff --check; git diff --cached --check
+- gofmt -l on the four new Go files (empty output)
+
+Full unit/race/vet/canonical sandbox attempts exited 1 at Go-cache permissions;
+approved permission-enabled retries all exited 0, no behavioral failure/source fix.
+Exact command arguments, exits and logs: /private/tmp/p1-m4.4-review/commands.jsonl
+and named .txt logs, with reproducible run_checks.py. Initial baseline commands
+are recorded in the session transcript and baseline.json; baseline verifier passed.
+
+One-time route audit: python3 /private/tmp/p1-m4.4-review/route_audit.py, exit 0.
+External Go test overlay calls actual NewRouter, observes only GET /health with
+unchanged JSON/content type, and default 404 for execution creation/status,
+/test-only/prepare, /enrollment and /payment. Exact route enumeration excludes
+all other business paths. Test-only handler route is not operationally reachable.
+Go import inspection shows Gin absent in engine/application; application imports
+the existing engine model for Validate. HTTP's dependency graph now includes that
+model package, which is explicitly not an invocation path. Source audit finds no
+runner/repository/provider invocation in new production files. Router/server bytes
+unchanged. Audit source, overlay, output and command exits retained externally;
+no permanent test freezes future authorized routing work.
+
+Preservation audit compares every pre-existing file with the full starting SHA,
+all 20 task records and original M4.4 objective/dependency/six criteria. New code
+cannot bypass TryClaim/expectedVersion/Fail, because no execution repository or
+runner is injected or called. Existing engine/repository/tests, DTOs, validator,
+API contract document, dependency files and harness remain byte-identical.
+Final documentation checks, preservation audit and complete tracked-plus-untracked
+patch are recorded in the external review directory. Tests establish local
+behavior only; they do not constitute human acceptance or cloud integration.
+
+Trust limitations remain: no caller authentication, tenant ownership, workflow
+permission, payment/provider authenticity, replay defense, durable storage/queue,
+production provider, distributed coordination or scheduling. EventID is correlation
+only; even CONFIRMED is no payment proof. Support membership is no authorization.
+The reader must be trusted, read-only and return stable configuration during a call;
+this interface cannot police arbitrary malicious dependency implementations.
+Preparation checks graph structure only, not registered handlers, event contents
+or execution readiness; its result must never be reused as authorization or a
+validated executable snapshot. No production definition reader is wired.
+
+No staging, commit, push, deployment, dependency installation or M4.5 activation
+occurred. Current HEAD remains 8a447b5; tree is unstaged/uncommitted and index empty.
+STOP for human source review; do not mark verified or clear active_task_id. At
+next startup reconcile actual HEAD/tree/tracker/tests and run init.sh; temporary
+review artifacts are outside the repository and not publication evidence.
+
+Final post-checkpoint verification (2026-11-14): tracker/Python (60 tests), focused
+application (4 functions)/HTTP (19 functions), full Go unit/race (4 packages), vet,
+canonical verifier, formatting and working-tree/index whitespace passed on their
+successful runs (all exit 0). Final sandbox Go checks initially exited 1 from
+cache permissions; approved retries all exited 0. No behavioral failure or source
+fix. Corrected external preservation audit exits 0; its first audit-only failure
+misread git diff --no-index exit 1 for clean new-file differences as a failure,
+then was corrected to check empty diagnostics and whitespace directly. No project
+code changed. Exact final logs and manifest are retained externally. Only factual
+evidence text changed after regressions; final tracker/whitespace/preservation
+and complete patch reverse-applicability checks are recorded in final-artifacts.txt.
+No human acceptance/publication occurred; STOP for human source review.
+
+
+## M4.4 acceptance reconciliation checkpoint (2026-11-14)
+
+Previous committed documentation checkpoint / current observed starting HEAD:
+`8a447b5a5bce896cf929e90da5e5ffaf9890e05e` (published M4.3), main. The prior
+implementation checkpoint recorded this same baseline plus seven uncommitted
+M4.4 files; its earlier historical revision 89c1317 remains historical. Live
+remote main independently matched the full current SHA (approved lookup exit 0
+after sandbox DNS exit 128). Starting tree contained exactly the expected seven
+M4.4 files, index empty. init.sh and tracker validation exited 0; expected dirty
+tree notice reviewed. No activation preflight rerun: M4.4 was already active.
+
+Human engineering owner explicitly reports source-level acceptance of the
+seven-file implementation against all six original criteria with no correction,
+and authorizes acceptance reconciliation only. Codex separately inspected source
+and performed the local commands below. ChatGPT is not claimed to have executed
+local tests; the human is not claimed to have personally run them. This checkpoint
+supersedes earlier pending-review status without rewriting its history/evidence.
+
+Complete tracked-plus-untracked starting patch matched the human-reviewed
+/private/tmp/p1-m4.4-review/Complete-review.patch byte-for-byte, SHA256
+`ec1e71d769909747202e103f5a0cbf7d6bebd09d5ecd3e80cf1ffe6000f963ef`.
+Accepted seven files: internal/application/submission.go and submission_test.go;
+internal/httpapi/preparation.go and preparation_test.go; feature_list.json;
+PROGRESS.md; docs/HANDOFF.md. The four Go files remain byte-identical to that
+reviewed source; exactly the three checkpoint/tracker files change this session.
+
+Six-criterion acceptance mapping (original tracker text remains unchanged):
+
+1. Gin stays in HTTP transport; application command/result/interface use context
+   and model values. Generic engine imports/source are unchanged.
+2. Real NewPreparationHandler invokes WorkflowService.PrepareSubmission with exact
+   command/context; TestPreparationHandlerDelegation observes one call and JSON.
+   TestPreparationHandlerRealService uses the real service and existing graph
+   Validate: identical valid JSON succeeds for valid server configuration and
+   fails for invalid configuration. The accepted criterion-2 interpretation is
+   meaningful read-only preparation; the handler remains unregistered.
+3. TestServiceConstruction/PreparationErrors/PreparationInvalidUse and handler
+   tests cover nil/typed nil, no construction calls, nil/zero service, cancellation,
+   lookup arguments, identity mismatch, bad graph, errors.Is propagation, zero
+   failure result, support-set snapshot and bounded body reads. Nil context rejects
+   in inspected source; no separate nil-context test is claimed. Safe errors map
+   to unchanged 400 INVALID_REQUEST / 404 NOT_FOUND / 503 UNAVAILABLE / 500
+   INTERNAL_ERROR envelopes; wrapped private diagnostics are excluded.
+4. The read-only service receives no execution repository, registry or provider;
+   its only dependency call is DefinitionReader.LookupDefinition and its model
+   operation is Validate. State-preservation test keeps an existing FAILED snapshot
+   intact. Existing owner/version/history/diagnostic/single-winner/WAIT/ambiguous-
+   effect regressions pass unchanged. Preparation does not itself exercise those
+   lifecycle transitions. SaveIfVersion remains completion-only; Fail authoritative.
+5. All existing source/tests, runner/repository contracts, API_CONTRACTS.md,
+   DTOs/validator, router/server, dependencies and harness remain byte-identical
+   to publication. No engine redesign or invocation machinery added.
+6. Fresh pre-status regression results passed as recorded below.
+
+Fresh BEFORE-status checks: each successful run exit 0:
+
+- python3 scripts/validate_features.py feature_list.json
+- PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_*.py' -v
+  (60 tests)
+- go test -count=1 -v ./internal/application/... (four test functions)
+- go test -count=1 -v ./internal/httpapi/... (19 test functions)
+- go test -race -count=1 ./internal/application/...
+- go test -race -count=1 ./internal/httpapi/...
+- go test -count=1 ./...; go test -race -count=1 ./... (four Go packages)
+- go vet ./... (no diagnostics); bash scripts/verify.sh (all six checks)
+- git diff --check; git diff --cached --check
+- gofmt -l on four accepted Go files (empty output, no writes)
+- python3 /private/tmp/p1-m4.4-acceptance-review/preservation_audit.py pre
+  (exact accepted starting checkpoint, source bytes, task objects, empty index,
+  untracked-file whitespace and seven-file scope PASS)
+
+Initial sandbox focused unit/race, full unit/race, vet and canonical attempts
+all exited 1 at denied Go-cache access. Each approved permission-enabled retry
+exited 0; no source defect, source fix or new behavioral RED. Logs and exact argv/
+exit manifest are external under /private/tmp/p1-m4.4-acceptance-review/.
+
+Historical one-time route audit source, overlay and raw output were read and
+copied into historical-implementation/ there. It observed actual NewRouter with
+only GET /health, unchanged 200 JSON/content type, default 404 for execution
+creation/status, test preparation, enrollment/payment. This audit was NOT freshly
+executed this acceptance session. Current router/server source is byte-identical
+to the audited published baseline. Inspected new source has no runner/repository/
+provider calls; model import for read-only Validate is permitted, not invocation.
+No permanent future-route prohibition test was introduced.
+
+Only after pre-status checks passed, M4.4 changed in_progress -> verified and
+active_task_id became null. Schema/WIP remain 1, all 20 task records retained;
+M3.1-M3.10/M4.1-M4.3 complete verified objects unchanged; M4.5-M4.10 complete
+pending objects unchanged. Original M4.4 objective, dependency and six criteria
+intact, earlier implementation/design/preflight/activation/RED/GREEN/error/audit
+history retained. Revision field explicitly distinguishes published baseline,
+accepted uncommitted source and local reconciliation; no M4.4 SHA invented.
+
+Trust limitations persist: no caller authentication/authorization, tenant ownership
+or isolation, payment-provider authenticity/replay protection, production definition
+reader, registered-action availability guarantee, execution identity/creation,
+durable persistence/scheduling, real provider integration, cross-process concurrency,
+distributed idempotency, rate limiting or operational HTTP execution endpoints.
+The injected reader must be trusted, read-only and stable for the call. EventID
+is correlation, not payment or idempotency proof. Support membership is no permission;
+a preparation summary proves neither caller authority nor execution readiness.
+
+Acceptance is local/uncommitted; observed HEAD remains 8a447b5, index empty.
+No implementation changes, new routes, workflow invocation, dependency install,
+M4.5 work, staging, commit, push or deployment occurred. GitHub still contains the
+published M4.3 baseline. Fresh AFTER-status verification and final independent
+preservation checks are recorded separately below and in external artifacts.
+STOP for human publication review. Do not infer permission to publish or activate
+M4.5. Next startup: run init.sh and reconcile actual HEAD/tree/tracker/tests.
+
+Final AFTER-status acceptance checks: tracker/Python (60 tests), focused application
+(4 functions)/HTTP (19 functions), focused race checks, full Go unit/race (4 packages),
+vet, canonical verifier (all six checks), formatting and working-tree/index
+whitespace each passed on their successful runs, exit 0. Initial post-status
+sandbox Go checks each exited 1 from denied Go-cache access; approved retries
+all exited 0. No behavioral source failure or implementation change. Independent
+post-preservation audit exited 0: exactly three acceptance-only edits, four accepted
+Go files unchanged, other 19 task objects unchanged, original six criteria intact,
+M4.4 verified, no active task, empty index. Only factual evidence text was appended
+after regressions. Final tracker/whitespace/preservation and both patch reverse-
+applicability checks are retained in final-artifacts.txt. Acceptance-only and
+complete seven-file patches, fresh verification report, six-criterion mapping,
+trust report and historical audit copies are in the external review directory.
+Acceptance remains local/uncommitted; STOP for human publication review.
