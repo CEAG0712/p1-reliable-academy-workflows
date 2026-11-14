@@ -141,3 +141,54 @@ payment callbacks, entitlement grants and administrative routes are outside
 M4.2. M4.3–M4.10 require separate authorization. No cloud integration, deployment,
 provider authentication or end-to-end workflow behavior is established by these
 contracts or their local tests.
+
+
+## M4.3 request-validation policy
+
+`ParseAndValidateCreateExecutionRequest(body []byte, approvedDefinitions map[string]struct{})`
+returns the existing `CreateExecutionRequest` and a nil failure on success.
+On rejection it returns a zero-valued DTO and `*ValidationFailure`, containing
+`StatusCode: 400` and the existing `ErrorResponse` with code `INVALID_REQUEST`.
+Messages are fixed public text; parser errors, submitted unknown keys and
+internal configuration are not exposed. No HTTP handler serializes this yet.
+
+The supplied raw body must be at most 4096 bytes and contain exactly one JSON
+object. Empty/malformed input, null, non-object values, concatenated JSON and
+trailing non-whitespace content are rejected. Leading/trailing JSON whitespace
+is allowed within the byte limit. This byte-slice check is not a streaming HTTP
+body-read limit; a future operational handler must enforce that separately.
+
+Only `workflow_definition_id` and `event_id` are accepted. Both are required JSON
+strings. Unknown keys and duplicate keys (including equivalent escaped spellings)
+are rejected by a top-level token decoder before a request can succeed. Nested
+values are unsupported; this is not a recursive schema framework.
+
+Both decoded identifiers must contain 1–128 ASCII bytes drawn exclusively from
+`A-Z`, `a-z`, `0-9`, `_`, `-` and `.`. Empty, padded, whitespace-only, control,
+Unicode and other punctuation values are invalid; values are never trimmed.
+JSON escapes are decoded normally, then this same identifier policy applies.
+
+The approved-definition map is a trusted, server-supplied support set. It must
+contain the requested definition with exact, case-sensitive matching. Nil/empty
+sets and unsupported selections fail with `unsupported workflow definition`;
+there is no wildcard, default workflow or dynamically selected function. The
+validator reads but does not mutate the set; callers must not mutate it
+concurrently. Membership establishes local support, not caller authorization.
+
+`payment_status`, including `CONFIRMED`, is an unknown field and is rejected.
+The DTO and enrollment eligibility rules remain unchanged. No client payment
+value is authority to grant an entitlement.
+
+Validation performs no repository access, execution creation, business callback,
+workflow invocation, grant, network call, scheduling or provider authentication.
+Negative tests place an observable fake downstream callback after successful
+validation only, assert zero calls/repository creation/business calls for every
+rejection, and use valid-request controls to prove the seam reaches downstream.
+The fake repository is a test sentinel, not an engine repository integration;
+production validation imports only standard-library decoding/HTTP packages and
+has no downstream dependency. These tests prove this local validation boundary,
+not future handler-to-engine integration.
+
+No operational route, middleware, authentication or application service is added.
+Health and Gin's default 404 behavior remain unchanged. Historical M4.2 statements
+above describe that milestone; only this validation function is newly implemented.

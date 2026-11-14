@@ -462,7 +462,7 @@
       "id": "M4.3",
       "title": "Request Validation",
       "objective": "Reject invalid or unsupported requests before workflow or business side effects.",
-      "status": "pending",
+      "status": "verified",
       "depends_on": [
         "M4.2"
       ],
@@ -475,10 +475,37 @@
         "Prior regressions pass."
       ],
       "evidence": {
-        "revision": null,
-        "commands": [],
-        "result": null,
-        "reviewed_by": null
+        "revision": "Published baseline 89c1317b2785df994036bb6ea7ca087599ca828b plus accepted uncommitted six-file M4.3 implementation and three-file local acceptance reconciliation (2026-11-14); no M4.3 commit or publication.",
+        "commands": [
+          "bash init.sh (exit 0; clean baseline)",
+          "git ls-remote origin refs/heads/main (initial sandbox DNS failure exit 128; permission-enabled retry exit 0; main 89c1317b2785df994036bb6ea7ca087599ca828b)",
+          "python3 scripts/validate_features.py feature_list.json (exit 0 before and after activation)",
+          "python3 scripts/task_preflight.py --task M4.3 (exit 0 before activation; structurally eligible only)",
+          "bash scripts/verify.sh (baseline sandbox exit 1 at Go-cache trim permission; permission-enabled retry exit 0)",
+          "go test -count=1 -v ./internal/httpapi/... (RED exit 1: undefined ValidationFailure and ParseAndValidateCreateExecutionRequest; GREEN exit 0)",
+          "gofmt -w internal/httpapi/validation.go internal/httpapi/validation_test.go (each file formatted; exit 0)",
+          "python3 /private/tmp/p1-m4.3-review/route_audit.py (initial sandbox exit 1 at go list cache access; permission-enabled retry exit 0)",
+          "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p test_*.py -v (exit 0; 60 tests)",
+          "go test -count=1 ./... (exit 0)",
+          "go test -race -count=1 ./... (exit 0)",
+          "go vet ./... (exit 0)",
+          "bash scripts/verify.sh (post-implementation exit 0; all six checks)",
+          "git diff --check (exit 0)",
+          "git diff --cached --check (exit 0)",
+          "bash scripts/verify.sh (final post-document sandbox exit 1 from root Go-cache denial; permission-enabled retry exit 0, all six checks)",
+          "2026-11-14 acceptance: bash init.sh (exit 0; expected six-file dirty tree notice reviewed); git ls-remote origin refs/heads/main (sandbox DNS exit 128, permission-enabled exit 0; expected 89c1317b2785df994036bb6ea7ca087599ca828b)",
+          "2026-11-14 acceptance: exact six-file working-tree patch compared byte-for-byte to /private/tmp/p1-m4.3-review/Complete-review.patch (PASS); pre-preservation audit exit 0; no activation preflight rerun",
+          "2026-11-14 acceptance before status: go test -count=1 -v ./internal/httpapi/... (exit 0; 13 test functions, 74 rejection cases and 74 negative seam cases with positive controls)",
+          "2026-11-14 acceptance before status: go test -race -count=1 ./internal/httpapi/... (exit 0)",
+          "2026-11-14 acceptance before status: go test -count=1 ./...; go test -race -count=1 ./...; go vet ./...; bash scripts/verify.sh (each initial sandbox exit 1 from denied Go-cache access; each permission-enabled retry exit 0)",
+          "2026-11-14 acceptance before status: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p test_*.py -v (exit 0; 60 tests); python3 scripts/validate_features.py feature_list.json (exit 0)",
+          "2026-11-14 acceptance before status: git diff --check; git diff --cached --check; gofmt -l internal/httpapi/validation.go internal/httpapi/validation_test.go (each exit 0; no formatting output); untracked whitespace audit PASS",
+          "2026-11-14 acceptance after status: python3 scripts/validate_features.py feature_list.json; PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p test_*.py -v; go test -count=1 -v ./internal/httpapi/...; go test -count=1 ./...; go test -race -count=1 ./... (each exit 0; 60 Python tests, 13 focused functions, all three Go packages)",
+          "2026-11-14 acceptance after status: go vet ./...; bash scripts/verify.sh (each initial sandbox exit 1 at root Go-cache permission; each permission-enabled retry exit 0; canonical all six checks PASS)",
+          "2026-11-14 acceptance after status: git diff --check; git diff --cached --check; gofmt -l internal/httpapi/validation.go internal/httpapi/validation_test.go (each exit 0, no formatting output); independent /private/tmp/p1-m4.3-acceptance-review/preservation_audit.py exit 0; untracked whitespace clean"
+        ],
+        "result": "Local M4.3 implementation ready for human source review; not accepted or verified. Strict side-effect-free two-field token decoding, 4096-byte bound, duplicate/unknown-key rejection, 1-128 ASCII identifier policy, trusted case-sensitive support set, zero DTO on rejection and HTTP 400 INVALID_REQUEST. Focused suite passes: 74 rejection cases repeated for deterministic results, 74 negative downstream cases with positive controls, valid identifier/body boundaries, and prior HTTP tests. One-time external overlay audit confirms health-only registration, default execution-path 404s, unchanged router/server and absent engine dependency. Full unit/race/vet, 60 Python tests and canonical verifier passed. Review artifacts outside repository: /private/tmp/p1-m4.3-review/. No operational handler or engine/business integration; no publication or later task activation. revision and reviewed_by remain null for uncommitted source awaiting review.\n\n2026-11-14 local acceptance reconciliation: the human explicitly reports ChatGPT source-level acceptance of the six-file patch against all six original criteria, no correction required. Codex confirmed exact patch bytes, inspected source/tests, and ran fresh focused unit/race, full Go unit/race, vet, 60 Python harness tests and canonical verifier successfully before this status transition. Initial full Go unit/race/vet/canonical sandbox runs each exited 1 at Go-cache access; permission-enabled retries each exited 0. Historical RED/GREEN, route-audit method/output and all earlier commands/result text remain preserved. Router/server bytes still match audited publication; historical route evidence is not claimed freshly executed in this acceptance session. Negative seam proves local rejection before simulated downstream effects, not a real repository or deployed end-to-end system. M4.3 changed in_progress -> verified and active_task_id cleared only after checks passed. Earlier revision/review fields were null; current revision text distinguishes baseline from uncommitted source and this reconciliation. All other task records and accepted source remain unchanged; no new routes/invocation/security/provider/durability systems. No stage, commit, push, deployment, dependency change or M4.4 activation. Acceptance artifacts: /private/tmp/p1-m4.3-acceptance-review/; final post-status results recorded there.\nFinal post-status verification passed on successful runs: tracker, 60 Python tests, focused 13 Go functions/74 rejection/74 negative seam cases, full Go unit/race, vet, canonical all-six checks, formatting and whitespace. Initial post-status sandbox vet/canonical exit 1 from root Go-cache denial; permission-enabled retries exit 0. Independent preservation audit exit 0: exactly three acceptance-only changes, accepted implementation/API policy unchanged, earlier evidence preserved, other 19 tasks unchanged, active_task_id null, index empty. Only factual evidence text changed afterward; final audit/patch checks retained with review materials. Local acceptance remains uncommitted pending separate publication authorization.",
+        "reviewed_by": "Human engineering owner explicitly authorized M4.3 acceptance reconciliation on 2026-11-14 after ChatGPT source-level review accepted the six-file M4.3 implementation against all six original criteria without requiring a correction. Codex separately performed and reported local verification. ChatGPT did not independently execute the local Go/Python test commands; the human is not claimed to have personally run tests. Acceptance is local and uncommitted pending separate publication authorization."
       },
       "blocker": null
     },
