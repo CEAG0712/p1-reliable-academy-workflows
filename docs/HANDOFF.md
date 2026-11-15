@@ -2514,3 +2514,281 @@ Frozen SHA256:
 06914bb9d224338c95490e555861d1be45592c5c368f04364ca4cc9d4c0474cf  internal/httpapi/request_identity.go
 5944c9c4fbb4cbe589231491aa92706454a3ad9d4a27e36d5e3e1308e50e2e25  internal/httpapi/request_identity_test.go
 f2707a6bf53fed828e9beebfd6042cc6344a7ba04ff9195eb2edcbb1adb2294a  docs/API_CONTRACTS.md
+
+
+## M4.8 bounded integration-verification checkpoint (2026-11-14)
+
+Previous M4.7 acceptance checkpoint recorded revision:
+`97365a29fa58f4b0813c22015a4c2925a795e04f` plus then-uncommitted acceptance.
+Current observed published starting HEAD and unchanged current HEAD:
+`0bf7b76efdf69f9bdd8c778eabdf4513ee69bf35` on main, establishing verified M4.7.
+Earlier publication-pending/in_progress statements remain historical. Starting
+worktree and index were clean; cached origin/main matched. Live remote main also
+matched after initial sandbox DNS exit128 and approved retry exit0. init.sh was
+inspected before execution and passed; its cached-remote notice was reconciled
+with live inspection. Tracker validation and M4.8 preflight passed. Eligibility
+alone granted no authority: the human owner separately authorized activation and
+bounded implementation ONLY, without acceptance, commit, push or deployment.
+
+Only active_task_id null -> M4.8 and M4.8 pending -> in_progress changed in the
+tracker; immediate validation passed. Acceptance evidence remains untouched:
+revision/result/reviewed_by null, commands empty. Original six criteria, objective,
+dependency M4.7, task order, other nineteen task objects, schema1 and WIP1 remain
+unchanged. M4.9/M4.10 remain pending; no later task implementation is authorized.
+
+One new Go file: internal/httpapi/integration_test.go, external package
+httpapi_test. Public scopes/handlers, deterministic atomic ID allocation, real
+approved fixture catalog/engine/repository and Gin/httptest compose without a
+listener or production seam. Five top-level TestM48 functions,17 named subtests,
+22 RUN entries including parents: FixtureLifecycle (four fixtures),
+RequestIdentityConflicts (four cases), ValidationBeforeEffects (nine cases),
+IndependentStatusVisibility, ProductionRouteIsolation. Exact HTTP JSON maps verify
+keys/counts/values and exclude private metadata; controlled handlers require JSON
+content type and no-store. All four fixtures assert expected status,owner,version,
+attempts,complete transition history and diagnostic, followed by three read-only
+status GETs with explicit independent visibility. Known local.failure diagnostic
+is derived from the actual fixture error and ExecuteActions/RunActions wrappers,
+not copied from the snapshot. WAIT/condition remain RUNNING2 with claim-only
+history; no WAITING/resume/terminal transition. Existing application handoff tests
+supply direct callback non-evaluation evidence; no new private injection is added.
+
+Duplicate/equivalent JSON/changed-event/changed-definition POSTs return exact409
+without new ID allocation or stored mutation. Nine representative invalid body/
+header selections return exact400 before ID allocation/creation; subsequent valid
+POST succeeds at capacity1. Empty visibility scope conceals a created execution
+with zero reads; explicit allowlist permits lookup. Concealed and allowed-missing
+responses have identical code/body/headers; no constant-time claim. Get-only
+observer counts reads and repository snapshots remain unchanged. Production router
+route table contains only GET /health; health JSON/type/status and twenty GET/POST
+execution/test/payment/enrollment/entitlement/admin probes retain default404.
+All production source, prior tests, API contracts, roadmap, dependencies and harness
+are frozen; only the new test, tracker and these two appended checkpoints change.
+
+Test-first evidence: pre-addition focused command exited0 with no tests to run,
+a coverage gap, NOT a failing production baseline. First added-file run exited1
+from sandbox Go-cache denial; approved retry exited1 on two missing http.Header
+type names in the new test literals. Corrected only those literals and gofmt on
+this file; focused verbose run exited0. No behavioral RED or production defect
+is claimed. Focused run counts5 functions/22 RUN entries. Focused race, full Go
+unit and race suites across four packages, go vet, actual60 Python harness tests,
+tracker validation and canonical bash scripts/verify.sh all passed on valid runs.
+Initial focused-race/full-unit/full-race/vet attempts exited1 from sandbox cache
+restrictions; approved retries exited0 without production workarounds. Canonical
+run exited0, including all six checks and both whitespace checks. Existing
+cancellation/capacity/uncertainty/panic/terminal-rejection/owner-version/snapshot/
+concurrent-admission tests are retained and exercised by the full regressions;
+no M4.9 concurrency scope was added. Exact argv/exits/raw logs:
+/private/tmp/p1-m4.8-review-loz8t0ai/commands.jsonl and named logs. Final post-append
+canonical/preservation/formatting/patch checks are recorded externally after this
+checkpoint; inspect actual logs rather than assuming those later results.
+
+Limits unchanged: controlled-local fixture verification only; no authentication,
+tenant ownership, payment proof, real enrollment/grants/providers, operational
+execution/status route, durable idempotency/storage, cloud access, scheduler,
+automatic resume/retry/recovery or distributed exactly-once claim. ID count and
+snapshot assertions prove the tested public path; direct callback/fault evidence
+remains in existing package-private tests. Panics/cancellation/ambiguous effects
+retain their accepted limits and do not authorize blind replay under a new key.
+M4.10 must independently assess controlled-local versus operational delivery.
+
+M4.8 remains in_progress, active_task_id M4.8; formal acceptance and source review
+remain outstanding. Four-path work is local,unstaged,uncommitted; index empty and
+HEAD unchanged. No stage/commit/push/deploy or M4.9/M4.10 activation. Complete
+tracked-plus-untracked review patch and preservation hashes are external. STOP
+for independent human source review; this checkpoint does not mark M4.8 verified.
+
+
+## M4.8 formal local acceptance reconciliation (2026-11-14)
+
+Previous implementation checkpoint recorded revision:
+`0bf7b76efdf69f9bdd8c778eabdf4513ee69bf35` plus then-uncommitted M4.8 work.
+Current observed published starting/current HEAD remains that exact SHA on main.
+Earlier source-review-pending, original five-test counts and publication-pending
+statements are historical; this acceptance records the corrected source below.
+No future commit is invented. The baseline contains verified M4.7, not M4.8.
+
+The human engineering owner explicitly ACCEPTED the corrected M4.8 implementation
+source and authorized LOCAL ACCEPTANCE RECONCILIATION ONLY. Codex independently
+inspected the entire458-line test and real supporting implementation, compared
+all four expected starting hashes and applied the reviewed new-file patch outside
+the repository to reproduce the exact current test bytes. Reviewed patch SHA256:
+7713d65d02109d10bf27d2e7856eb3e973237015db49e9a120a9933bd4df8e85.
+Accepted frozen internal/httpapi/integration_test.go SHA256:
+afce8ab3658e05a0fd1979e7e09dce665d604bef0eeb6bd7c599adb87899d7a1.
+The three tracked pre-acceptance files were saved byte-for-byte externally before
+edits. Expected four-path dirty tree, empty index and cached origin/main matched;
+live main matched after sandbox DNS exit128 and approved retry exit0. Inspected
+read-only initialization passed; its dirty-tree/cached-remote notices reconciled.
+README/roadmap introductory status and older source-review headings remain
+historical; actual source/tracker/Git/fresh tests determine this checkpoint.
+
+Fresh BEFORE-acceptance commands all exited0: focused verbose TestM48 suite
+(6 top-level functions,51 named subtests,57 RUN entries including parents), focused
+race, supporting M4.5-M4.7 tests(5 functions/9 RUN entries), full Go units/races
+across four packages, go vet, actual60 Python harness tests, tracker validation,
+canonical verifier all six checks, working-tree/index whitespace. No Go-cache or
+engineering failure occurred in these fresh pre-acceptance runs. Earlier source
+correction/cache failures remain historical; only the live-remote query needed
+an environmental retry here. Exact gofmt bytes checked without rewriting; all70
+starting file hashes remained unchanged before acceptance. Human source review is
+attributed to the owner; fresh checks were executed by Codex, not the human.
+
+All six original criteria PASS within their approved scope; exact original text,
+source/functions, named M4.8 tests, supporting regressions, fresh logs and limits
+are mapped in external Six-criterion-acceptance.json. Public Gin/httptest handlers
+traverse sealed command/reservation/invocation, approved fixture resolver, real
+RunActions and repository; no listener or mocked engine/orchestration. Expected
+COMPLETED3,FAILED3,RUNNING2 for WAIT/condition retain owner m48-local-worker,
+attempts1 and exact claim/terminal histories. Source-derived local.failure reason
+matches LastError and failure history;201 FAILED and authorized200 FAILED exclude
+that diagnostic. Repeated GETs preserve snapshots. Existing handoff/callback/fault
+tests provide direct private-behavior evidence without adding production seams.
+
+Strict response expectations use fixed test-owned maps, independently of DTOs.
+Token parsing rejects decoded duplicate keys at every object depth, including
+escaped names and objects inside arrays; one object and EOF required. Separate
+objects may share names; legitimate reordering remains accepted. json.Number
+retains exact version integers, including maximum uint64. All25 negative and9
+valid synthetic controls passed. Assertions establish the tested response schema
+and duplicate rejection, not an absolute guarantee that arbitrary future data
+can never leak. Existing exact diagnostic wording remains a maintenance coupling.
+Nine invalid request cases prove400 before ID allocation/creation and successful
+valid admission afterward at capacity1. Four duplicate/equivalent/conflicting
+cases prove409 with no new ID,execution or state change. Independent visibility
+conceals a created execution with zero reads; explicit allowlist permits GET;
+concealed and allowed-missing responses match code/body/headers. No timing claim.
+Actual production router remains solely GET /health; exact health and twenty
+GET/POST operational/test-path default404 probes pass. No router/server changes.
+
+Only after Gates A-F and all six criteria passed: M4.8 in_progress -> verified,
+active_task_id M4.8 -> null. Evidence accurately identifies published baseline plus
+human-reviewed uncommitted source; no published M4.8 revision is claimed. Other19
+task objects/evidence, original objective/six criteria/dependency/order,20 tasks,
+schema1 and WIP1 preserved. M4.9/M4.10 remain pending. Only feature_list.json,
+PROGRESS.md and docs/HANDOFF.md change during acceptance; old content is preserved
+by append. The accepted test is frozen; production/previous tests/contracts/
+dependencies/harness are unchanged. Fresh AFTER-acceptance verification, final
+preservation, hashes and acceptance-only/complete patch results are recorded
+externally after this append; inspect actual logs rather than assuming success.
+Exact argv/exits/raw logs and review artifacts:
+/private/tmp/p1-m4.8-acceptance-review-xnsvoank/commands.jsonl.
+
+Limits: controlled-local in-memory fixtures only. No production authentication,
+tenant/payment authority, real enrollment/entitlement/provider effects, operational
+execution/status routes, durable idempotency/storage, scheduler/resume/recovery,
+cloud integration or distributed exactly-once guarantee. Scope-local reservations
+retain their accepted capacity/cancellation/panic/ambiguity limits; new keys/scopes
+are not automatic safe retries. M4.10 must assess controlled-local versus
+operational delivery independently. This acceptance neither finishes Stage4 nor
+starts M4.9/M4.10. Work remains local,unstaged,uncommitted with empty index and
+unchanged HEAD. No stage/commit/push/deploy. STOP for separate human publication
+review and explicit publication authorization; local acceptance is not publication.
+
+
+## M4.8 current-evidence attestation (2026-11-15)
+
+Attested at 2026-11-15T10:27:28-05:00 (America/Panama); 2026-11-15T15:27:28+00:00 UTC.
+The human owner authorized bounded evidence amendments to feature_list.json,
+PROGRESS.md and docs/HANDOFF.md only. This is a NEW current-evidence attestation
+by Codex, not a recreation or authentication of the original acceptance.
+M4.8 remains verified; active_task_id remains null. No acceptance transition.
+
+Previous recorded acceptance checkpoint revision:
+0bf7b76efdf69f9bdd8c778eabdf4513ee69bf35 plus uncommitted M4.8 acceptance.
+Current observed HEAD and cached origin/main: that same SHA, on main.
+This continuation did not query live main; the immediately preceding read-only
+audit observed it matching that SHA. No current live observation is invented.
+Exact starting inventory: modified feature_list.json, PROGRESS.md, docs/HANDOFF.md;
+untracked internal/httpapi/integration_test.go; index empty.
+Starting SHA256 (before this evidence amendment):
+b69bc5d84dd7e548ce6f55396b42fa0008c2cb5e7f015a6cb62de6abbbaf0124  feature_list.json
+04de2d10615e0eba5bf8a4ea7937fa8aca672de3febd7c7928b7151c5ec2f5a7  PROGRESS.md
+e135993521c28992af49270a6becd350cda537ac4ce3769b0ba974fce1b43a90  docs/HANDOFF.md
+Frozen test SHA256:
+afce8ab3658e05a0fd1979e7e09dce665d604bef0eeb6bd7c599adb87899d7a1  internal/httpapi/integration_test.go
+
+Historical evidence limitation: the original directories
+/private/tmp/p1-m4.8-review-loz8t0ai/ and
+/private/tmp/p1-m4.8-acceptance-review-xnsvoank/ are unavailable. Their historical
+raw logs, pre-acceptance snapshots, reviewed patch and matrices cannot be
+independently authenticated. Previous evidence remains verbatim as historical
+claims. These new commands are not backdated and prove neither the original gate
+ordering nor historical human source-review provenance. Missing historical files
+do not block this separately authorized current-evidence attestation.
+
+Fresh PRE-AMENDMENT verification executed by Codex (all exit0; no retries or
+environmental/behavioral failures in this continuation). The preceding read-only
+audit's sandbox-cache failures and successful retries are separate earlier runs.
+PYTHONDONTWRITEBYTECODE=1 was supplied to every subprocess. Initialization and
+tracker validation also exited0; dirty-tree/cached-remote notices reconciled.
+Exact argv, UTC start/end timestamps, exit codes and raw output:
+/private/tmp/p1-m4.8-current-attestation-3po0k1ow/commands.jsonl
+- `go test -count=1 -v ./internal/httpapi -run '^TestM48'` — exit 0; 2026-11-15T15:26:24.791873+00:00 to 2026-11-15T15:26:25.547654+00:00; raw pre-sandbox-focused-unit.log
+- `go test -race -count=1 ./internal/httpapi -run '^TestM48'` — exit 0; 2026-11-15T15:26:31.233642+00:00 to 2026-11-15T15:26:32.961103+00:00; raw pre-focused-race.log
+- `go test -count=1 -v ./internal/application ./internal/httpapi -run '^(TestLocalInvocationHandoffBoundaries|TestLocalStatusNoCallbackReplay|TestLocalRequestIdentityFailedSnapshotWithoutAcceptedFail|TestLocalRequestIdentityHTTPUncertainCreation|TestLocalStatusHandlerMissingConcealed)$'` — exit 0; 2026-11-15T15:26:32.961398+00:00 to 2026-11-15T15:26:33.531799+00:00; raw pre-supporting.log
+- `go test -count=1 ./...` — exit 0; 2026-11-15T15:26:33.532033+00:00 to 2026-11-15T15:26:34.162178+00:00; raw pre-full-unit.log
+- `go test -race -count=1 ./...` — exit 0; 2026-11-15T15:26:34.162401+00:00 to 2026-11-15T15:26:36.207470+00:00; raw pre-full-race.log
+- `go vet ./...` — exit 0; 2026-11-15T15:26:36.207770+00:00 to 2026-11-15T15:26:36.442521+00:00; raw pre-vet.log
+- `python3 -m unittest discover -s scripts -p 'test_*.py' -v` — exit 0; 2026-11-15T15:26:36.442887+00:00 to 2026-11-15T15:26:37.857679+00:00; raw pre-python.log
+- `python3 scripts/validate_features.py feature_list.json` — exit 0; 2026-11-15T15:26:37.857982+00:00 to 2026-11-15T15:26:37.891742+00:00; raw pre-tracker.log
+- `bash scripts/verify.sh` — exit 0; 2026-11-15T15:26:37.891945+00:00 to 2026-11-15T15:26:42.048989+00:00; raw pre-canonical.log
+- `git diff --check` — exit 0; 2026-11-15T15:26:42.049230+00:00 to 2026-11-15T15:26:42.065383+00:00; raw pre-whitespace.log
+- `git diff --cached --check` — exit 0; 2026-11-15T15:26:42.065635+00:00 to 2026-11-15T15:26:42.080122+00:00; raw pre-index-whitespace.log
+
+Six ORIGINAL M4.8 criteria, preserved verbatim and independently revalidated:
+
+1. ORIGINAL: An HTTP request can exercise the selected workflow through the approved application boundary.
+   VERIFIED. Source: internal/httpapi/request_identity.go: NewLocalRequestIdentityHandler; internal/application/request_identity.go: InvokeLocalRequest; internal/application/local_invocation.go: resolver; internal/application/invocation.go: InvokeLocal; workflow_runner.go: RunActions
+   Tests: TestM48FixtureLifecycle (local.success, local.failure, local.wait, local.condition)
+   Evidence: Real public Gin/httptest handler-to-service-to-engine-to-repository composition; only ID generation is controlled.
+
+2. ORIGINAL: Response contracts are verified.
+   VERIFIED. Source: internal/httpapi/integration_test.go: m48Created, m48Status, m48ErrorValue, m48ParseJSON, m48JSONValue, m48MatchJSON; existing transport projections
+   Tests: TestM48StrictJSONAssertions; TestM48FixtureLifecycle; TestM48RequestIdentityConflicts; TestM48IndependentStatusVisibility; TestM48ProductionRouteIsolation
+   Evidence: Fixed test-owned response maps; recursive decoded-duplicate rejection, nested/escaped names, strict object/EOF, exact json.Number integer precision; 25 rejecting and 9 accepting controls. Production route table only GET /health and twenty default404 probes.
+
+3. ORIGINAL: Repository status, owner, version, attempts, and history are verified where applicable.
+   VERIFIED. Source: workflow_repository.go: CreateIfAbsent, TryClaim, Complete, Fail, Get; workflow_runner.go: RunActions; integration_test.go: m48State, m48Unchanged
+   Tests: TestM48FixtureLifecycle; TestM48IndependentStatusVisibility; TestLocalInvocationHandoffBoundaries; TestLocalStatusNoCallbackReplay
+   Evidence: Exact status/owner/version/attempts/history/diagnostic: COMPLETED3, FAILED3, RUNNING2 at WAIT/condition; owner m48-local-worker, attempts1. Repeated GETs leave snapshots unchanged; direct supporting tests cover unexecuted handoffs and callback non-replay.
+
+4. ORIGINAL: Invalid requests produce no unintended business effects.
+   VERIFIED. Source: internal/httpapi/request_identity.go: validation before scope invocation; internal/application/request_identity.go: validation before reservation; integration_test.go: ID and snapshot assertions
+   Tests: TestM48ValidationBeforeEffects; TestM48RequestIdentityConflicts
+   Evidence: Nine invalid selections produce400 with zero ID allocation/creation and valid admission afterward at capacity1. Four duplicate/equivalent/conflicting selections produce409 without new ID or stored mutation. This establishes tested controlled-local paths, not arbitrary external business effects.
+
+5. ORIGINAL: Known failures produce correct diagnostics.
+   VERIFIED. Source: internal/application/local_invocation.go: local.fail; workflow_actions.go: ExecuteActions; workflow_runner.go: RunActions; workflow_repository.go: Fail; internal/application/invocation.go: classifyInvocation
+   Tests: TestM48FixtureLifecycle/local.failure; TestLocalRequestIdentityFailedSnapshotWithoutAcceptedFail; TestLocalRequestIdentityHTTPUncertainCreation
+   Evidence: Source-derived failure reason matches LastError and failure history; 201 FAILED and authorized200 FAILED expose only fixed public response fields. Accepted Fail evidence distinguishes known failure from uncertain FAILED snapshots.
+
+6. ORIGINAL: Prior regressions pass.
+   VERIFIED. Source: Protected prior tests and source match published HEAD; scripts/verify.sh and tracker validator unchanged
+   Tests: Full Go unit/race suites; go vet; Python harness; tracker validation; canonical verifier; working-tree/index whitespace checks
+   Evidence: All current pre-amendment checks exit0: four Go packages, 60 Python tests, all six canonical checks. No cloud or operational end-to-end claim.
+
+Focused suite: six top-level functions, 51 named subtests, 57 RUN entries;
+25 rejection controls and nine valid controls. Supporting focused suite:
+five top-level functions, nine RUN entries. Full regressions cover four packages.
+Read-only gofmt output equals the 458-line frozen test bytes; no regeneration.
+All 70 starting file hashes matched immediately before amendment. The 66 protected
+tracked files match published HEAD. The other nineteen task objects, all original
+criteria/objective/dependency/order, schema1,20 tasks and WIP1 are preserved.
+Only M4.8 evidence is extended; prior strings and command entries are preserved.
+Both documents retain their complete starting bytes and append this section.
+
+Post-amendment verification and final preservation results will be recorded in
+the NEW commands.jsonl and preservation-results.json in the same external directory
+after these edits. This paragraph does not assert an unexecuted post-check passed.
+External logs are current-session artifacts; their future availability is not
+guaranteed. The durable evidence here records the current pre-amendment outcomes.
+
+Limits remain controlled-local, in-memory fixtures only: no production authority,
+tenant/payment proof, real enrollment/entitlement/provider effects, operational
+execution/status routes, durable idempotency/storage, scheduler/resume/recovery,
+cloud integration or distributed exactly-once guarantee. WAIT/condition stay
+RUNNING at handoff; status visibility is independent of invocation; uncertain
+effects do not authorize blind retries under new keys/scopes. M4.10 must separately
+assess operational delivery. M4.9/M4.10 remain pending and inactive.
+All changes remain local and uncommitted. No stage, commit, push, deployment or
+Git-reference modification. Await separate human publication authorization.
