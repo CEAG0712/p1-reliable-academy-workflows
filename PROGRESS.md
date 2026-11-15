@@ -3415,3 +3415,704 @@ uncommitted. No stage,commit,push,deployment or production/cloud change. Local
 in-memory/process-only limits remain;no operational tenant auth,durable idempotency,
 cross-process coordination,distributed exactly-once,cloud/provider or throughput proof.
 STOP before publication and before M4.10 activation.
+
+
+## M4.10 — Stage 4 Regression and Acceptance: Bounded Implementation Checkpoint
+
+Date: 2026-11-15 (America/Panama). Evidence assembled at 2026-11-15T19:06:04.285053+00:00.
+The human owner explicitly authorized bounded M4.10 activation and evidence-only
+implementation in this session. Authorization covers exactly feature_list.json,
+PROGRESS.md and docs/HANDOFF.md; it does not constitute acceptance of this result.
+No Go/source/test/dependency/router/startup/harness/roadmap/API-contract change.
+
+### Published baseline, authorization and activation
+
+Previous checkpoint revision recorded in the M4.9 acceptance text:
+19de11ddf77e7676afa41694418485c87e88c8e2 plus then-uncommitted M4.9 work.
+Current observed starting/current HEAD on main: 580a92b2c1a2ec48380e0a2447cb657e103a1c9c, published M4.9.
+Cached origin/main and live remote main match this SHA. Initial live read-only
+query exited128: `fatal: unable to access 'https://github.com/CEAG0712/p1-reliable-academy-workflows.git/': Could not resolve host: github.com`.
+Approved environment-only retry exited0 and returned the required SHA.
+No fetch/pull/reset/rebase/merge/restore/clean occurred. Starting worktree clean,
+index empty, no untracked files; 71 tracked files independently counted and hashed.
+init.sh inspected as read-only, then freshly executed: exit0, Go1.24.5,
+required documents present, clean main and cached match. Its notice about not
+verifying live remote was reconciled with the separate successful live query.
+
+Fresh tracker validation and M4.10 preflight both exit0. Preflight says ELIGIBLE,
+HUMAN APPROVAL REQUIRED, no automatic activation. The user's explicit current
+authorization supplies bounded activation authority. Starting schema1,20 ordered
+tasks,WIP1,19 verified,M4.10 pending with dependency M4.9,active_task_id null,
+M4.10 evidence null/empty. Only then: M4.10 pending -> in_progress and active_task_id
+null -> M4.10; immediate validator exit0. reviewed_by remains null. All nineteen
+accepted task objects and original M4.10 title/objective/dependency/seven criteria
+remain unchanged. No verified transition and no other milestone activation.
+
+README/ROADMAP planned headings and earlier handoff/current headings lag source.
+The M4.9 checkpoint's uncommitted wording describes its historical session; Git
+history now establishes publication at 580a92b2c1a2ec48380e0a2447cb657e103a1c9c. Historical text is preserved.
+
+Snapshots and raw evidence outside repository: /private/tmp/p1-m410-evidence-4snl55ll/.
+starting/ contains exact authorized-file snapshots; starting-tracker.json retains
+all20 task objects and all prior acceptance evidence; starting-hashes.json records
+all71 SHA256s; protected-starting-hashes.json records the68 protected paths.
+No external artifact creates an untracked repository file. Temporary artifacts
+can disappear; essential findings/results are retained in this appendix.
+
+### Stage 4 requirement-to-source traceability
+
+Original roadmap Section7 objective is broader than the M4.10 LOCAL milestone.
+Every original scope item, deliverable and acceptance outcome follows verbatim.
+Sources/tests were inspected against frozen published bytes, not inferred from
+historical checkpoint assertions. Fresh result for every test-bearing row:
+post-activation full Go unit suite PASS; additional JSON run confirms each test
+passed. HTTP rows additionally pass focused HTTP, focused race and full race.
+Existing evidence is the named published test assertion; fresh evidence is the
+actual commands recorded below. Documentation presence is source inspection.
+IMPLEMENTED — CONTROLLED LOCAL never means operational registration.
+
+| Original requirement | Source file/function | Existing test evidence | Actual implementation/boundary | Classification | Remaining gap / acceptance impact |
+|---|---|---|---|---|---|
+| Expose the workflow platform through a Go HTTP API. | cmd/p1-api/main.go: main/run; internal/httpapi/router.go: NewRouter | TestM48ProductionRouteIsolation; TestHealth | Health only operationally; workflow invocation/status exist only in controlled composition. | PARTIALLY IMPLEMENTED | Operational workflow routes and real caller/visibility authority remain deferred. Blocks full operational-objective claim, not truthful local evaluation. |
+| Workflow invocation endpoints. | internal/httpapi/invocation.go: NewLocalInvocationHandler; request_identity.go: NewLocalRequestIdentityHandler | TestLocalInvocationHandlerRealEngine; TestM48FixtureLifecycle | Tests register POST /test-only/invoke; public constructors register nothing. | IMPLEMENTED — CONTROLLED LOCAL | No operational invocation endpoint; blocks operational delivery claim. |
+| Request validation. | internal/httpapi/validation.go: ParseAndValidateCreateExecutionRequest; request_identity.go: NewLocalRequestIdentityHandler | TestParseAndValidateRejectedRequests; TestM48ValidationBeforeEffects; TestM49ValidationBeforeEffects | Strict body/field/identifier/support/header gates precede admission and creation. | IMPLEMENTED — CONTROLLED LOCAL | Support is not authorization; no blocker for bounded local evidence. |
+| Execution creation/triggering. | internal/application/invocation.go: InvokeLocal/classifyInvocation; workflow_repository.go: CreateIfAbsent; workflow_runner.go: RunActions | TestLocalInvocationRealOutcomes; TestM48FixtureLifecycle | Creates real fresh in-memory execution and synchronously runs the chosen harmless fixture. | IMPLEMENTED — CONTROLLED LOCAL | EventID is correlation; no authenticated business trigger, durable association or operational route. |
+| Status retrieval. | internal/httpapi/status.go: NewLocalStatusHandler; internal/application/status.go: QueryLocal | TestLocalStatusHandlerRealEngine; TestM48IndependentStatusVisibility; TestM49ConcurrentStatusVisibility | Independent local capability/allowlist; one coherent read and narrow projection. | IMPLEMENTED — CONTROLLED LOCAL | Operational status endpoint/tenant visibility deferred; no local evidence blocker. |
+| Explicit error responses. | internal/httpapi/invocation.go: writeInvocationError; status.go: writeStatusError; preparation.go: NewPreparationHandler | TestLocalInvocationHandlerSafeErrors; TestLocalStatusHandlerSafeErrors; TestPreparationHandlerErrors | Fixed handled JSON errors; health/default 404/framework recovery have separate contracts. | IMPLEMENTED — CONTROLLED LOCAL | No universal JSON envelope, panic containment or safe-log guarantee. |
+| Integration with the generic workflow runner. | internal/application/invocation.go: InvokeLocal/lifecycleObserver; workflow_runner.go: HandlerRegistry.RunActions | TestLocalInvocationExactDelegationAndSnapshot; TestM48FixtureLifecycle | Concrete runner and same authoritative repository through an observation-only forwarding wrapper. | IMPLEMENTED — CONTROLLED LOCAL | WAIT/condition hands off without evaluation/continuation; no operational runner exposure. |
+| HTTP routing layer. | internal/httpapi/router.go: NewRouter; cmd/p1-api/main.go: run | TestHealth; TestUnknownRoute; TestM48ProductionRouteIsolation | Gin router/recovery and GET /health operationally; fixture routes separately composed. | PARTIALLY IMPLEMENTED | Health foundation is IMPLEMENTED — OPERATIONAL; workflow routing is DEFERRED. |
+| Request/response contracts. | internal/httpapi/contracts.go: DTOs; validation.go: parser; invocation.go/status.go: projections | TestCreateExecutionRequestJSON; TestCreateExecutionResponseJSON; TestExecutionStatusResponseJSON; TestErrorResponseJSON; TestM48StrictJSONAssertions | Explicit field allowlists and numeric uint64 versions; strict request tokens. | IMPLEMENTED — CONTROLLED LOCAL | DTOs establish no caller authority; operational contracts not exposed. |
+| Handlers invoking workflow services. | internal/httpapi/preparation.go, invocation.go, request_identity.go, status.go: public handler constructors | TestPreparationHandlerRealService; TestLocalInvocationHandlerRealEngine; TestLocalStatusHandlerRealEngine | Adapters delegate through application preparation/invocation/status boundaries. | IMPLEMENTED — CONTROLLED LOCAL | Preparation only reads configuration; no fixture capability may be exposed operationally. |
+| HTTP-level tests. | internal/httpapi/*_test.go; cmd/p1-api/main_test.go | TestM48FixtureLifecycle; TestM49SameKey; TestRunListenFailure; TestRunServeFailure | Real Gin/httptest composition, strict projections, concurrent requests and socket-free startup failures. | IMPLEMENTED — CONTROLLED LOCAL | Successful socket startup and graceful shutdown NOT ESTABLISHED; no new test authorized. |
+| API documentation. | docs/API_CONTRACTS.md: M4.2–M4.7 sections; current PROGRESS appendix | TestNoSensitiveFieldsExposed; TestLocalRequestIdentityHTTPKnownOutcomes; TestLocalStatusHandlerSafeErrors | Contracts compared with current DTOs/handlers/tests; newer local sections qualify older future/pending language. | IMPLEMENTED — CONTROLLED LOCAL | Historical headings retained; this appendix reconciles current state without rewriting accepted documents. |
+| Valid requests trigger the intended workflow. | internal/application/local_invocation.go: ResolveApprovedDefinition; invocation.go: InvokeLocal | TestM48FixtureLifecycle; TestM49ConflictingSelections | Four fixed fixtures produce expected COMPLETED/FAILED/RUNNING lifecycle outcomes. | IMPLEMENTED — CONTROLLED LOCAL | No persisted definition/event association or operational business workflow; full objective remains partial. |
+| Invalid requests are rejected before business side effects. | internal/httpapi/validation.go; internal/application/invocation.go: trust/precreation gates; request_identity.go: admission | TestM48ValidationBeforeEffects; TestM49ValidationBeforeEffects; TestLocalInvocationPrecreationRejections | Invalid input does not allocate IDs/create records/reserve keys; lower-level probes observe callback gating. | IMPLEMENTED — CONTROLLED LOCAL | Fixtures have no real provider effects; tests do not establish production payment/tenant security. |
+| API handlers do not bypass repository lifecycle rules. | workflow_repository.go: TryClaim/Complete/Fail/SaveIfVersion; workflow_runner.go: RunActions; internal/application/invocation.go: classifyInvocation | TestLocalInvocationTerminalRejections; TestLocalInvocationCallbackOwnership; TestRepositoryRejectsStaleCompletion; TestRepositorySaveIfVersionCannotBypassFail; TestM48FixtureLifecycle | Single claim; owner/version checks; authoritative diagnostics/history; no fallback terminal writes or blind replay. | IMPLEMENTED — CONTROLLED LOCAL | In-memory correctness only; no distributed claim guarantee. |
+| Status and errors are represented consistently. | internal/httpapi/contracts.go; invocation.go: writeInvocationError; status.go: writeStatusError | TestLocalStatusHandlerSafeErrors; TestLocalStatusHandlerMissingConcealed; TestM48StrictJSONAssertions | Fixed public projections/errors; missing/concealed responses match; default route/recovery exceptions explicit. | IMPLEMENTED — CONTROLLED LOCAL | No universal envelope or latest-at-delivery snapshot guarantee. |
+| Duplicate or conflicting requests are handled according to defined contracts. | internal/application/request_identity.go: InvokeLocalRequest; workflow_repository.go: CreateIfAbsent | TestM48RequestIdentityConflicts; TestM49SameKey; TestM49ConflictingSelections; TestM49BoundedCapacity; TestLocalRequestIdentityUncertainty | Known/in-flight repeats and changed selections 409; new key at capacity 503; same-tuple uncertain repeat 500. | IMPLEMENTED — CONTROLLED LOCAL | Scope/process-local, no eviction/release/durable replay; legacy invocation has distinct fresh-run semantics. |
+| Integration tests verify handler-to-engine behavior. | internal/httpapi/integration_test.go: newM48Fixture; concurrency_test.go: newM49Fixture/m49Race | TestM48FixtureLifecycle; TestM48IndependentStatusVisibility; TestM49IndependentKeys; TestM49ConcurrentStatusVisibility | Public scope/handler -> concrete application -> real registry/runner -> in-memory repository; test-controlled IDs only. | IMPLEMENTED — CONTROLLED LOCAL | No socket/provider/cloud end-to-end result; no local acceptance-evidence blocker. |
+
+The original objective remains PARTIALLY IMPLEMENTED. Operational workflow
+invocation/status exposure is DEFERRED; full operational delivery, successful
+socket startup and graceful shutdown readiness are NOT ESTABLISHED. A truthful
+M4.10 local evidence package evaluates these discrepancies without changing either
+contract. If full original operational delivery is required for formal acceptance,
+missing endpoints and their trust/visibility model are a material unresolved
+acceptance blocker. This milestone does not authorize filling those gaps.
+
+### Actual API topology and trust boundaries
+
+Operational: cmd/p1-api main -> run(net.Listen) -> http.Server ->
+httpapi.NewRouter -> GET /health only. NewRouter uses gin.New plus gin.Recovery.
+It does not construct workflow repositories, scopes or application services.
+
+Controlled local: test-owned gin.New/httptest -> separately registered fixture
+handler -> strict validation -> trusted local scope command -> optional request
+identity admission -> concrete invocation service -> approved fresh fixture graph
+and registry -> CreateIfAbsent -> HandlerRegistry.RunActions -> authoritative
+in-memory repository. Public construction permits only harmless local.success,
+local.failure,local.wait,local.condition fixtures; arbitrary resolver/runner fault
+injection is private test composition. Constructors validate wiring without
+operational collaborator calls. Preparation has only read-only definition lookup
+and validation, not repository/runner/provider capability.
+
+Test-only routes: POST /test-only/prepare (preparation tests), POST /test-only/invoke
+(invocation/identity/M4.8/M4.9), GET /v1/workflow-executions/:execution_id (isolated
+status tests), GET /test-only/status/:execution_id and
+GET /test-only/concealed/:execution_id (M4.8/M4.9). None is registered by NewRouter.
+TestM48ProductionRouteIsolation checks exactly one GET /health route, exact health
+JSON and20 GET/POST default404 probes, including workflow/fixture/business/admin paths.
+
+Status uses a distinct LocalStatusScope, copied immutable allowlist and a reader
+exposing only Get. QueryLocal checks exact capability/context/syntax/visibility
+before its sole read; concealed IDs perform zero reads; authorized missing IDs
+perform one. Receiving an execution ID does not grant visibility. GET performs no
+claim/completion/failure/resume or callback replay. Independent coherent earlier
+snapshots are valid during concurrent lifecycle transitions.
+
+Client tenant IDs are not proof of ownership and are unknown creation fields.
+EventID is correlation, not authenticated payment. Idempotency-Key is bounded
+scope/process-local admission identity, not durable replay protection. Local
+capabilities are trusted test-host authority, not production caller authentication.
+Local GET visibility is not production tenant authorization. Worker ID enforces
+repository ownership only. No real provider, payment, grant or cloud effect is
+established by the harmless HTTP fixtures.
+
+CreateIfAbsent atomically validates/clones/inserts fresh READY/v1 records.
+TryClaim is single-winner; Complete/Fail enforce RUNNING, owner and expected version.
+SaveIfVersion accepts completion only; Fail requires nonempty diagnostics.
+Repository owns attempts, history and failure reason. RunActions captures the
+claimed version before callbacks and never refreshes/retries a rejected terminal
+write. The application observer forwards calls unchanged once; accepted operations
+plus authoritative snapshots/history determine known outcomes. Uncertainty requires
+reconciliation, even when a later snapshot looks terminal. No blind replay.
+
+### Startup, listener lifecycle and recovery audit
+
+cmd/p1-api/main.go main calls run(net.Listen); nonnil errors reach log.Fatal.
+run builds http.Server with fixed TCP 127.0.0.1:8080 and five-second
+ReadHeaderTimeout. No flag/environment bind configuration, engine/repository
+initialization, background workflow work, signal handling or graceful Shutdown path.
+Listen errors wrap cause/address/listen context. Serve errors wrap cause/address/
+serve context. TestRunListenFailure checks exact network/address and preserved cause;
+TestRunServeFailure uses a failed listener and checks Serve error and Close.
+Both tests are socket-free and freshly pass. Successful socket startup has NOT
+been tested; no socket smoke test/listener was introduced. Health200 returns exact
+{"status":"ok"}, application/json; charset=utf-8; it proves HTTP responsiveness
+only, not workflow/provider readiness. Unknown paths/unsupported methods retain
+Gin404 with `404 page not found`.
+
+Recovery middleware covers request-handler panic unwinding in its composed chain,
+not startup/listen failures or automatic workflow repair. Fixture constructors add
+no recovery. TestLocalStatusHandlerRecovery explicitly composes Gin recovery and
+checks pre-response panic500, no panic payload and retained no-store. No universal
+JSON-envelope or safe-log guarantee follows. Application panics propagate; identity
+deferred bookkeeping retains the affected reservation as uncertain. A crash/lost
+handoff may strand READY/RUNNING/terminal state without a delivered result.
+
+Successful socket startup and graceful shutdown are disclosed operational gaps,
+not evidence to manufacture. No new test is required by the bounded evidence
+scope. If full acceptance requires successful startup proof, separately authorize
+the smallest justified test using the existing listener seam; graceful shutdown
+would require separately approved functionality. No such work is performed here.
+
+### HTTP request, identity and response contracts
+
+docs/API_CONTRACTS.md was compared with current DTO/parser/handlers/tests. Its
+M4.2–M4.7 headings retain historical future/pending-review wording. Current tracker,
+source and fresh tests supersede status wording without rewriting those records.
+CreateExecutionRequest has exactly workflow_definition_id and event_id strings.
+One JSON object only, <=4096 accepted bytes; adapters read <=4097 bytes to detect
+oversize. Token parsing rejects unknown/duplicate members, including escaped aliases,
+non-string values, malformed/trailing/multiple values. Required identifiers are
+1–128 ASCII letters,digits,underscore,hyphen,period, exact/case-sensitive and never
+trimmed. Exact server-approved-definition membership is support, not authority.
+The byte-slice parser alone is not a streaming limiter. Unknown payment_status,
+tenant_id,authority and idempotency_key body members cannot confer permissions.
+
+Identity handler checks body then exactly one Idempotency-Key header value across
+case-insensitive header names, including noncanonical in-process map entries.
+Key values use the same grammar; no trimming/comma splitting/case normalization.
+Network parsers may normalize wire whitespace before the handler sees it.
+Fingerprint is exact (WorkflowDefinitionID,EventID) tuple. Mutex protects admission
+and bookkeeping, released before ID/resolver/repository/runner/callback calls.
+One invocation per scope/key. Same key/tuple in-flight or known ->409; changed
+validated selection ->409; same tuple after uncertainty ->500. New key at capacity
+->503 without allocation/creation. No TTL,eviction,key release,result cache or
+automatic retry. Any creation-call error retains uncertainty; a known precreation
+error consumes an admitted key too. Separate scopes/processes do not coordinate,
+even over one repository; restart loses reservations. Legacy local invocation
+without this opt-in boundary may create independent runs for repeated EventID.
+
+201 creation projection has exactly execution_id/status. Server IDs are exec-
+plus32 lowercase hex characters; collision rejection is authoritative, no ID retry.
+Known COMPLETED/v3 requires accepted claim/Complete; known FAILED/v3 requires
+accepted claim/Fail and matching nonempty state/history reason. Failure of an
+action does not negate resource creation. WAIT/condition -> RUNNING/v2 handoff,
+without evaluation,WAITING,deadline preparation or continuation. Confirmed creation
+interrupted before runner can project READY/v1 if response is writable. No202.
+Internal definition/event/cursor associations are not stored durably.
+
+Status handler accepts the same1–128 identifier grammar (legacy stored IDs outside
+it may be unaddressable), does not trim or decode again, requires independent
+local visibility and returns200 with exactly execution_id,status,numeric uint64
+version. FAILED retrieval is200; no LastError/owner/history/attempts/tenant/event/
+cursor/capability projection. Identity/status responses emitted by handlers set
+Cache-Control:no-store; normal JSON content type application/json; charset=utf-8.
+Synchronous callbacks/Get are not interruptible by context; cancellation checks
+bound entry/projection but may race response delivery. No latest-at-delivery lock.
+
+### Source-defined failure-response matrix
+
+All below are handled JSON responses using {error:{code,message}}. Messages are
+fixed source text, not internal causes. Sources: validation.go:invalidRequest,
+invocation.go:writeInvocationError, status.go:writeStatusError, preparation.go and
+request_identity.go. Health/default404/framework recovery are explicit exceptions.
+
+| Condition | HTTP | Public code | Exact public message | Relevant fresh-passing test |
+|---|---:|---|---|---|
+| Malformed/non-object/trailing JSON | 400 | INVALID_REQUEST | body must be one JSON object | TestParseAndValidateRejectedRequests; TestM48ValidationBeforeEffects |
+| Oversize | 400 | INVALID_REQUEST | body must not exceed 4096 bytes | TestLocalRequestIdentityHTTPBodyBounds |
+| Body read error | 400 | INVALID_REQUEST | could not read request body | TestPreparationHandlerBodyReads; TestLocalInvocationHandlerBodyBounds |
+| Unknown member | 400 | INVALID_REQUEST | unsupported request field | TestM49ValidationBeforeEffects |
+| Duplicate decoded member | 400 | INVALID_REQUEST | duplicate request field | TestM48ValidationBeforeEffects |
+| Missing required member | 400 | INVALID_REQUEST | workflow_definition_id is required / event_id is required | TestParseAndValidateRejectedRequests |
+| Wrong member type | 400 | INVALID_REQUEST | workflow_definition_id must be a string / event_id must be a string | TestParseAndValidateRejectedRequests |
+| Invalid member identifier | 400 | INVALID_REQUEST | workflow_definition_id must contain 1 to 128 ASCII letters, digits, underscores, hyphens or periods / event_id must contain 1 to 128 ASCII letters, digits, underscores, hyphens or periods | TestParseAndValidateRejectedRequests |
+| Unsupported selection at transport gate | 400 | INVALID_REQUEST | unsupported workflow definition | TestValidateApprovedDefinition; TestM49ValidationBeforeEffects |
+| Missing/malformed/repeated identity header | 400 | INVALID_REQUEST | invalid idempotency key | TestLocalRequestIdentityHTTPHeadersBeforeReservation; TestLocalRequestIdentityHTTPKeyBoundaries |
+| Invalid invocation command | 400 | INVALID_REQUEST | invalid invocation command | TestLocalInvocationHandlerSafeErrors |
+| Missing local capability | 401 | UNAUTHENTICATED | local capability required | TestLocalInvocationHandlerSafeErrors; TestLocalStatusHandlerAuthorityFailsClosed |
+| Forbidden invocation | 403 | FORBIDDEN | local invocation not permitted | TestLocalInvocationHandlerSafeErrors; TestLocalInvocationHandlerAuthorityFailsClosed |
+| Missing selected definition | 404 | NOT_FOUND | workflow definition not found | TestLocalInvocationHandlerSafeErrors; TestLocalInvocationPlans |
+| Duplicate/changed selection/rejected claim | 409 | CONFLICT | execution conflict | TestM48RequestIdentityConflicts; TestM49SameKey; TestM49ConflictingSelections |
+| Invocation dependency/cancellation/capacity | 503 | UNAVAILABLE | local invocation unavailable | TestLocalRequestIdentityHTTPCancellationAndCapacity; TestM49BoundedCapacity |
+| Invalid plan/result/reconciliation/uncertainty | 500 | INTERNAL_ERROR | internal error | TestLocalInvocationHandlerInconsistentOutcome; TestLocalRequestIdentityHTTPUncertainCreation |
+| Invalid matched status ID/command | 400 | INVALID_REQUEST | invalid execution ID | TestLocalStatusHandlerPathValidation |
+| Foreign status capability | 403 | FORBIDDEN | local status query not permitted | TestLocalStatusHandlerAuthorityFailsClosed |
+| Missing/concealed execution | 404 | NOT_FOUND | execution not found | TestLocalStatusHandlerMissingConcealed; TestM48IndependentStatusVisibility |
+| Status policy/dependency/cancellation | 503 | UNAVAILABLE | local status query unavailable | TestLocalStatusHandlerSafeErrors; TestLocalStatusHandlerCorruptionAndCancellation |
+| Invalid status snapshot/projection/unexpected error | 500 | INTERNAL_ERROR | internal error | TestLocalStatusHandlerInvalidProjection; TestLocalStatusHandlerSafeErrors |
+| Invalid preparation command | 400 | INVALID_REQUEST | invalid preparation command | TestPreparationHandlerErrors |
+| Preparation unavailable | 503 | UNAVAILABLE | preparation service unavailable | TestPreparationHandlerErrors |
+| Missing preparation definition | 404 | NOT_FOUND | workflow definition not found | TestPreparationHandlerErrors |
+| Invalid preparation graph/unexpected error | 500 | INTERNAL_ERROR | internal error | TestPreparationHandlerErrors; TestPreparationHandlerRealService |
+
+Known execution failure is201 FAILED after accepted failure evidence; a FAILED
+snapshot with rejected Fail is uncertain500. TestLocalRequestIdentityFailedSnapshotWithoutAcceptedFail
+and application terminal-rejection tests establish that distinction; public scope
+does not expose their injected faults. Same-key uncertain retry remains500 without
+dependency calls; changed selection409. Blind retries/new keys/scope replacement
+cannot safely reconcile unknown effects. Unmatched/missing path segments use plain
+Gin404, not NOT_FOUND JSON; panic recovery can be bodyless500, not INTERNAL_ERROR JSON.
+
+### Complete regression inventory and layer responsibilities
+
+Recount from published source:28 Go test files,213 top-level functions,4 packages:
+root104,application48,httpapi59,cmd/p1-api2. Additional post-activation JSON run
+confirms213 top-level PASS plus691 subtest PASS:root139,application121,httpapi431,
+startup0 subtests. No test failure/skip in that run. Focused verbose HTTP has490
+RUN entries (59 top-level+431 subtests). M4.9 contains6 top-level/8 subtests;
+race20 exercises20 repetitions, not a new source-test count.
+
+M1 validates enrollment/payment fields, tenant-aware entitlement tuple and fake
+provider idempotent/concurrent grants; it does not authenticate payment providers.
+M2 covers state/synchronization/single winner, owner/version rejection, terminal
+safety and preserved failure diagnostics/history. M3 covers generic definitions,
+graph validation, matching, registration, branches, local wait helpers/handoffs,
+lifecycle, concurrency and distinct reusable workflows. M4 covers router/DTOs,
+strict validation, preparation, invocation/identity/status, real local HTTP-to-engine
+integration, concurrent HTTP safety and socket-free startup failures.
+Parser/application/transport/integration assertions overlap intentionally at
+different boundaries. Private collaborator-fault probes complement public concrete
+composition; lower-level tests retain exact lifecycle invariants. No duplicate
+M4.10 Go suite, no assertion changes and no new test are introduced.
+
+Exact test-function inventory by file (source inventory, all freshly exercised):
+
+- `cmd/p1-api/main_test.go`: `TestRunListenFailure`, `TestRunServeFailure`.
+- `enrollment_test.go`: `TestEnrollmentStatusMustBeActive`, `TestPaymentMustBeConfirmed`, `TestConfirmedPaymentReturnsTrue`, `TestConfirmedPaymentEvent`, `TestPaymentEventWithoutTenantIsInvalid`, `TestRequiredEnrollmentFields`, `TestPendingPaymentCannotProceedToEnrollment`, `TestConfirmedPaymentWithRequiredFieldsCanProceed`, `TestConfirmedPaymentWithoutStudentCannotProceed`, `TestEntitlementMapStoresCorrectStudentAccess`, `TestNewFakeEnrollmentProviderInitializesState`, `TestFakeEnrollmentProviderGrantsEntitlement`, `TestFakeEnrollmentProviderVerifiesActiveEntitlement`, `TestFakeEnrollmentProviderRejectsUngrantedEntitlement`, `TestFakeEnrollmentProviderIsolatesEntitlements`, `TestFakeEnrollmentProviderRepeatedGrantKeepsOneEntitlement`, `TestFakeEnrollmentProviderCountsOnlyNewGrants`, `TestFakeEnrollmentProviderCountsDistinctGrants`, `TestFakeEnrollmentProviderConcurrentDuplicateGrants`, `TestFakeEnrollmentProviderConcurrentDistinctGrants`.
+- `internal/application/invocation_test.go`: `TestLocalInvocationConstruction`, `TestLocalInvocationRealOutcomes`, `TestLocalInvocationTrustGate`, `TestLocalInvocationDuplicateAndCorrelation`, `TestLocalInvocationIDFailures`, `TestLocalInvocationPrivateDependencies`, `TestLocalInvocationPlans`, `TestLocalInvocationExactDelegationAndSnapshot`, `TestLocalInvocationPrecreationRejections`, `TestLocalInvocationCancellation`, `TestLocalInvocationTerminalRejections`, `TestLocalInvocationClaimAndSnapshotRejections`, `TestLocalInvocationHandoffBoundaries`, `TestLocalInvocationFailureCauseAndOwner`, `TestLocalInvocationCallbackOwnership`, `TestLocalInvocationConcurrentSameID`, `TestLocalInvocationObserverDelegates`, `TestLocalInvocationJSONCannotMintAuthority`.
+- `internal/application/request_identity_test.go`: `TestLocalRequestIdentityConstruction`, `TestLocalRequestIdentityValidationBeforeReservation`, `TestLocalRequestIdentityOutcomesAndRepeats`, `TestLocalRequestIdentityCapacityAndScope`, `TestLocalRequestIdentityCollision`, `TestLocalRequestIdentityFailedSnapshotWithoutAcceptedFail`, `TestLocalRequestIdentityUncertainty`, `TestLocalRequestIdentityCancellation`, `TestLocalRequestIdentityPrecreationErrorsRetained`, `TestLocalRequestIdentityPanicRetention`, `TestLocalRequestIdentityConcurrent`, `TestLocalRequestIdentityCompetingReservations`, `TestLocalRequestIdentityIndependentProgress`, `TestLocalRequestIdentityCancelledCallback`.
+- `internal/application/status_test.go`: `TestLocalStatusConstruction`, `TestLocalStatusAuthority`, `TestLocalStatusVisibility`, `TestLocalStatusPolicyFailures`, `TestLocalStatusBasicSnapshots`, `TestLocalStatusSnapshotValidation`, `TestLocalStatusLegacyCompatibility`, `TestLocalStatusCancellation`, `TestLocalStatusReadOnly`, `TestLocalStatusConcurrentSnapshots`, `TestLocalStatusGateBeforePolicy`, `TestLocalStatusNoCallbackReplay`.
+- `internal/application/submission_test.go`: `TestServiceConstruction`, `TestPreparationReadsConfigurationOnly`, `TestPreparationErrors`, `TestPreparationInvalidUse`.
+- `internal/httpapi/concurrency_test.go`: `TestM49SameKey`, `TestM49ConflictingSelections`, `TestM49IndependentKeys`, `TestM49BoundedCapacity`, `TestM49ValidationBeforeEffects`, `TestM49ConcurrentStatusVisibility`.
+- `internal/httpapi/contracts_test.go`: `TestCreateExecutionRequestJSON`, `TestCreateExecutionResponseJSON`, `TestExecutionStatusResponseJSON`, `TestErrorResponseJSON`, `TestNoSensitiveFieldsExposed`, `TestHealthContractUnchanged`.
+- `internal/httpapi/integration_test.go`: `TestM48FixtureLifecycle`, `TestM48RequestIdentityConflicts`, `TestM48ValidationBeforeEffects`, `TestM48IndependentStatusVisibility`, `TestM48ProductionRouteIsolation`, `TestM48StrictJSONAssertions`.
+- `internal/httpapi/invocation_test.go`: `TestLocalInvocationHandlerConstruction`, `TestLocalInvocationHandlerRejectedRequests`, `TestLocalInvocationHandlerBodyBounds`, `TestLocalInvocationHandlerRealEngine`, `TestLocalInvocationHandlerDuplicateAndCancellation`, `TestLocalInvocationHandlerSafeErrors`, `TestLocalInvocationHandlerAuthorityFailsClosed`, `TestLocalInvocationHandlerCreatedNotStartedProjection`, `TestLocalInvocationHandlerInconsistentOutcome`.
+- `internal/httpapi/preparation_test.go`: `TestPreparationHandlerConstruction`, `TestPreparationHandlerRejectsBeforeDelegation`, `TestPreparationHandlerBodyReads`, `TestPreparationHandlerDelegation`, `TestPreparationHandlerErrors`, `TestPreparationHandlerRealService`.
+- `internal/httpapi/request_identity_test.go`: `TestLocalRequestIdentityHTTPConstruction`, `TestLocalRequestIdentityHTTPHeadersBeforeReservation`, `TestLocalRequestIdentityHTTPBodyBeforeReservation`, `TestLocalRequestIdentityHTTPKnownOutcomes`, `TestLocalRequestIdentityHTTPUncertainCreation`, `TestLocalRequestIdentityHTTPCancellationAndCapacity`, `TestLocalRequestIdentityHTTPPanicRetention`, `TestLocalRequestIdentityHTTPBodyBounds`, `TestLocalRequestIdentityHTTPKeyBoundaries`.
+- `internal/httpapi/router_test.go`: `TestHealth`, `TestUnknownRoute`, `TestHealthUnsupportedMethod`, `TestHealthRepeatedCalls`.
+- `internal/httpapi/status_test.go`: `TestLocalStatusHandlerConstruction`, `TestLocalStatusHandlerPathValidation`, `TestLocalStatusHandlerExactDelegation`, `TestLocalStatusHandlerMissingConcealed`, `TestLocalStatusHandlerSafeErrors`, `TestLocalStatusHandlerAuthorityFailsClosed`, `TestLocalStatusHandlerRealEngine`, `TestLocalStatusHandlerCorruptionAndCancellation`, `TestLocalStatusHandlerInvalidProjection`, `TestLocalStatusHandlerRecovery`.
+- `internal/httpapi/validation_test.go`: `TestParseAndValidateRejectedRequests`, `TestValidateApprovedDefinition`, `TestRejectedRequestHasNoSideEffects`.
+- `workflow_actions_test.go`: `TestHandlerRegistryExecuteActionsOrderAndReadOnly`, `TestHandlerRegistryExecuteActionsFailure`, `TestHandlerRegistryExecuteActionsUnknownHandler`, `TestHandlerRegistryExecuteActionsRejectsInvalidInput`, `TestHandlerRegistryExecuteActionsBoundary`, `TestHandlerRegistryExecuteActionsStartsAtSuppliedStep`.
+- `workflow_branch_test.go`: `TestHandlerRegistrySelectConditionSuccessor`, `TestHandlerRegistrySelectConditionSuccessorUnknown`, `TestHandlerRegistrySelectConditionSuccessorRejectsWrongType`.
+- `workflow_definition_test.go`: `TestWorkflowDefinitionDescribesEnrollment`, `TestWorkflowDefinitionDescribesCustomerFollowUp`.
+- `workflow_definition_validation_test.go`: `TestWorkflowDefinitionValidateAcceptsValidGraphs`, `TestWorkflowDefinitionValidateRejectsMalformedDefinitions`, `TestWorkflowDefinitionValidateRejectsCycles`, `TestWorkflowDefinitionValidateIsDeterministicAndReadOnly`.
+- `workflow_handlers_test.go`: `TestHandlerRegistryNamedInvocation`, `TestHandlerRegistryRejectsUnknownNames`, `TestHandlerRegistryRejectsInvalidRegistration`, `TestHandlerRegistryDuplicatesPreserveOriginal`, `TestHandlerRegistryPropagatesErrors`, `TestHandlerRegistryZeroValueAndIsolation`.
+- `workflow_repository_creation_test.go`: `TestRepositoryCreateIfAbsentInvalid`, `TestRepositoryCreateIfAbsentIsolationAndDuplicates`, `TestRepositoryCreateIfAbsentConcurrency`, `TestRepositoryCreateIfAbsentSaveOrdering`.
+- `workflow_repository_test.go`: `TestInMemoryWorkflowRepositoryStoresAndRetrievesExecution`, `TestInMemoryWorkflowRepositoryGetReturnsIndependentSnapshot`, `TestInMemoryWorkflowRepositoryConditionalClaim`, `TestInMemoryWorkflowRepositoryConcurrentCompetingClaims`, `TestInMemoryWorkflowRepositoryStaleSaveCannotOverwriteClaim`, `TestInMemoryWorkflowRepositoryClaimIncrementsVersion`, `TestInMemoryWorkflowRepositoryRejectsStaleVersionedUpdate`, `TestInMemoryWorkflowRepositoryVersionedUpdateCannotChangeOwner`, `TestInMemoryWorkflowRepositoryVersionedUpdateCannotReopenCompleted`, `TestInMemoryWorkflowRepositoryConcurrentVersionedUpdates`, `TestRepositoryOwnerCanCompleteWorkflow`, `TestRepositoryRejectsCompletionByDifferentWorker`, `TestRepositoryRejectsStaleCompletion`, `TestRepositoryOwnerCanFailWorkflow`, `TestRepositoryRejectsFailureWithoutReason`, `TestRepositoryRejectsFailureByDifferentWorker`, `TestRepositoryTracksSuccessfulClaimAndCompletion`, `TestRepositoryTracksFailureHistory`, `TestRepositoryHistorySnapshotIsIndependent`, `TestRepositoryVersionedUpdateRecordsHistory`, `TestRepositoryCannotCompleteReadyWorkflow`, `TestRepositoryCannotCompleteTwice`, `TestRepositoryCannotFailCompletedWorkflow`, `TestRepositoryCannotCompleteMissingWorkflow`, `TestRepositorySaveIfVersionCannotBypassFail`, `TestRepositoryFailPreservesReasonInStateAndHistory`.
+- `workflow_runner_concurrency_test.go`: `TestRunnerConcurrencySuccessfulExecutions`, `TestRunnerConcurrencyFailedExecutions`, `TestRunnerConcurrencyDuplicateAfterCompletion`, `TestRunnerConcurrencyInvalidOwnership`, `TestRunnerConcurrencyBlockedCallback`.
+- `workflow_runner_reusability_test.go`: `TestRunnerReusabilityWorkflows`, `TestRunnerReusabilityActionShapes`, `TestRunnerReusabilityIndependentFailure`.
+- `workflow_runner_test.go`: `TestLifecycleRunnerTerminalOutcomes`, `TestLifecycleRunnerRejectedClaim`, `TestLifecycleRunnerHandoffs`, `TestLifecycleRunnerTerminalRejection`, `TestLifecycleRunnerInvalidClaimSnapshot`, `TestLifecycleRunnerExecutionValidationFailure`.
+- `workflow_test.go`: `TestNewWorkflowExecutionStartsReady`, `TestWorkflowExecutionCanStartOnlyOnce`, `TestWorkflowExecutionConcurrentClaimsAllowOnlyOneWinner`, `TestNewWorkflowExecutionStartsWithoutClaimOwner`, `TestWorkflowExecutionClaimPreservesOriginalOwner`, `TestWorkflowExecutionConcurrentCompetingOwners`, `TestNewWorkflowExecutionStartsAtVersionOne`, `TestWorkflowExecutionClaimIncrementsVersion`, `TestWorkflowExecutionStartIncrementsVersion`.
+- `workflow_trigger_test.go`: `TestWorkflowDefinitionMatchesEventTypes`, `TestWorkflowDefinitionMatchesEventRejectsBlankTypes`, `TestWorkflowDefinitionMatchesEventRejectsInvalidDefinitions`, `TestWorkflowDefinitionMatchesEventIsDeterministicAndReadOnly`.
+- `workflow_wait_test.go`: `TestWaitPreparationAndEarlyResume`, `TestWaitResumeWithoutReplay`, `TestWaitResumeBoundaries`, `TestWaitRejectsInvalidInput`, `TestWaitDefinitionSnapshot`, `TestWaitFailureConsumesWithoutRetry`.
+
+
+### Fresh executed verification evidence
+
+All commands below execute the actual activated repository state with
+PYTHONDONTWRITEBYTECODE=1. Exact argv,UTC start/end,exit,cwd,environment and separate
+raw stdout/stderr are in external commands.jsonl and phase-key.stdout/stderr.log.
+No timestamp is invented for initial tool-only Git calls; their actual exit/output
+is retained in baseline.json and above. The timestamped checks follow:
+
+| Phase/key | Exact command | UTC start → end | Exit |
+|---|---|---|---:|
+| baseline/init | `bash init.sh` | 2026-11-15T19:01:28.486386+00:00 → 2026-11-15T19:01:28.589794+00:00 | 0 |
+| baseline/tracker | `python3 scripts/validate_features.py feature_list.json` | 2026-11-15T19:01:28.590108+00:00 → 2026-11-15T19:01:28.624609+00:00 | 0 |
+| baseline/preflight | `python3 scripts/task_preflight.py --task M4.10` | 2026-11-15T19:01:28.624901+00:00 → 2026-11-15T19:01:28.659208+00:00 | 0 |
+| activated/tracker | `python3 scripts/validate_features.py feature_list.json` | 2026-11-15T19:01:44.662606+00:00 → 2026-11-15T19:01:44.700626+00:00 | 0 |
+| activated/http | `go test -count=1 -v ./internal/httpapi` | 2026-11-15T19:01:44.700914+00:00 → 2026-11-15T19:01:45.459095+00:00 | 0 |
+| activated/http-race | `go test -race -count=1 ./internal/httpapi` | 2026-11-15T19:01:45.459391+00:00 → 2026-11-15T19:01:47.265137+00:00 | 0 |
+| activated/m49-race20 | `go test -race -count=20 ./internal/httpapi -run '^TestM49'` | 2026-11-15T19:01:47.265451+00:00 → 2026-11-15T19:01:47.306085+00:00 | 1 |
+| permitted/m49-race20 | `go test -race -count=20 ./internal/httpapi -run '^TestM49'` | 2026-11-15T19:02:21.481753+00:00 → 2026-11-15T19:02:23.821954+00:00 | 0 |
+| permitted/units | `go test -count=1 ./...` | 2026-11-15T19:02:23.822271+00:00 → 2026-11-15T19:02:24.503015+00:00 | 0 |
+| permitted/race | `go test -race -count=1 ./...` | 2026-11-15T19:02:24.503322+00:00 → 2026-11-15T19:02:26.346573+00:00 | 0 |
+| permitted/vet | `go vet ./...` | 2026-11-15T19:02:26.346889+00:00 → 2026-11-15T19:02:26.573349+00:00 | 0 |
+| permitted/python | `python3 -m unittest discover -s scripts -p 'test_*.py' -v` | 2026-11-15T19:02:26.573634+00:00 → 2026-11-15T19:02:27.918867+00:00 | 0 |
+| permitted/canonical | `bash scripts/verify.sh` | 2026-11-15T19:02:27.919149+00:00 → 2026-11-15T19:02:32.014487+00:00 | 0 |
+| permitted/whitespace | `git diff --check` | 2026-11-15T19:02:32.014715+00:00 → 2026-11-15T19:02:32.027579+00:00 | 0 |
+| permitted/index-whitespace | `git diff --cached --check` | 2026-11-15T19:02:32.027834+00:00 → 2026-11-15T19:02:32.039919+00:00 | 0 |
+| permitted/go-json | `go test -json -count=1 ./...` | 2026-11-15T19:02:32.040218+00:00 → 2026-11-15T19:02:32.666629+00:00 | 0 |
+
+Initial focused HTTP unit and HTTP race passed in sandbox. First race20 exited1
+at setup because opening Go-cache path
+/Users/carlosarosemena/Library/Caches/go-build/1d/1db63bebe3f66e745a43366c3ea30772af91b3ce803df1eae50337e7ab0ea4db-a
+returned operation not permitted (internal/application/invocation.go:10:2 import).
+This is recorded environmental failure, not behavioral RED or a race finding.
+Approved environment-only retry passed race20 and all remaining commands; no
+source/workaround/assertion edit occurred between attempts. Full Go unit/race
+cover four packages; vet has no diagnostics; Python60 tests OK; canonical all six
+checks PASS, including worktree/index whitespace. Additional Go JSON run passes
+all213 top-level and691 subtests; counts do not come from nonverbose output.
+No observed assertion/compile/product/race/static-analysis failure. No cache
+redirection, socket smoke test, external provider access or deployment.
+
+These results precede documentation amendments. Final post-documentation checks
+must run and their actual outcomes will be appended, never inferred from this run.
+
+### Seven original M4.10 criteria: current bounded evidence
+
+Human engineering review remains necessary for every row's formal acceptance.
+PASS below means bounded evidence satisfies that criterion, not final acceptance.
+
+1. **The published Stage 4 roadmap's API requirements are evaluated against source and tests.**
+   **PASS** — Roadmap Section7; current DTO/handler/application/runner/repository source and the complete matrix above. TestM48FixtureLifecycle, TestM48ProductionRouteIsolation, TestM49SameKey and full Go/JSON unit evidence freshly pass. Objective explicitly PARTIALLY IMPLEMENTED operationally; evaluation is complete, no operational readiness manufactured.
+
+2. **All M1/M2/M3/M4 tests pass.**
+   **PASS** — All28 existing Go test files, M1/M2/M3 root and M4 application/httpapi/startup. go test -count=1 ./... and go test -json -count=1 ./... exit0;213 top-level+691 subtests PASS. Local tests establish no cloud/provider or successful socket-startup evidence.
+
+3. **Full Go race checks and static analysis pass.**
+   **PASS** — Concurrent repository/runner/request/status source and tests (TestRunnerConcurrencySuccessfulExecutions, TestLocalRequestIdentityConcurrent, TestM49SameKey, TestM49ConcurrentStatusVisibility). Full go test -race -count=1 ./... and go vet ./... exit0; focused HTTP race and approved race20 also pass. Exercised schedules only; no universal race/performance/distributed guarantee.
+
+4. **The canonical verification script passes.**
+   **PASS** — scripts/verify.sh, validate_features.py and existing Python harness tests. bash scripts/verify.sh exit0 with all six checks,60 Python tests,full Go unit/race,vet,whitespace. Final amended-state verification follows; environmental attempt/retry history retained.
+
+5. **HTTP contracts, startup behavior, failure handling, and known limitations are documented.**
+   **PASS** — docs/API_CONTRACTS.md compared with source; current appendix documents DTOs,exact failures,startup/recovery,route isolation and limitations. TestRunListenFailure,TestRunServeFailure,TestLocalStatusHandlerRecovery,TestM48ProductionRouteIsolation and handler contract suites freshly pass. Successful socket startup/graceful shutdown and operational endpoints remain disclosed gaps.
+
+6. **Historical M3 evidence and all previously accepted task evidence remain preserved.**
+   **PASS** — Starting tracker/file snapshots plus independent content/hash comparison. All19 previous task objects unchanged,68 protected files match published HEAD; historical docs preserved as exact byte prefixes. M3 objects also compared with accepted Stage3 checkpoint. Final preservation/reconstruction audit follows. No acceptance/source hash replaced.
+
+7. **Human engineering review is required before final acceptance, commit, and publication.**
+   **PENDING HUMAN REVIEW** — Current user prompt authorizes activation/evidence work only. No command/test can establish genuine human acceptance. M4.10 remains in_progress,reviewed_by null; no verified transition/stage/commit/push. Independent human source/evidence review remains required before final acceptance,commit,publication. Full operational-objective acceptance remains materially blocked if that broader standard is required.
+
+
+### Preservation, risks and next human gate
+
+All ten M3 task objects equal the accepted Stage3 tracker at
+5457b77e7835cf951b1c71ab332080d7b81fe735; M4.1–M4.9 equal the published starting
+objects. All19 previous evidence records/order/status retained. All68 protected
+files, including every production/test/harness/dependency/API-contract/roadmap file,
+match published bytes. Both documents append only; prior historical limitations,
+hashes and acceptance records remain as exact prefixes. Final audit independently
+rechecks these assertions and reconstructs the exact three-file review patch
+outside the repository; it is never applied to the working repository.
+
+Local evidence readiness, formal M4.10 acceptance, and full operational Stage4
+completion are separate. Current work is uncommitted evidence on published M4.9.
+No real tenant auth/ownership,payment-provider authority,external entitlement effect,
+durable request identity/storage/continuation,retry/recovery,queue,AWS/distributed
+coordination/exactly-once or performance result. Reservation exhaustion/stranding,
+lost handoffs and ambiguous effects require host inspection/reconciliation; no
+automatic retry/new key/scope replacement is justified. Production routes remain
+health only; original roadmap objective remains PARTIALLY IMPLEMENTED.
+
+Only feature_list.json,PROGRESS.md,docs/HANDOFF.md change. M4.10 in_progress,
+active_task_id M4.10,WIP1,reviewed_by null. Independent human review is the next
+gate; formal acceptance,verified status,staging,commit,push,deployment and another
+milestone remain unauthorized. No future revision is invented.
+
+
+### M4.10 actual post-documentation verification and preservation
+
+Initial amended-state tracker exit0; sandbox canonical exited1 during race
+setup after tracker,Python60 and Go units passed. All four packages reported Go
+cache access operation not permitted at /Users/carlosarosemena/Library/Caches/go-build/81/81a7de8cf1faff95e1b130b4e6d428d0fc2b8d6560d8ae627437bf57edf5adaa-a.
+No test assertion/race finding or source change. Approved environment-only retry
+passed tracker,canonical(all six),worktree and index whitespace,each exit0.
+
+| Phase/key | Exact command | UTC start → end | Exit |
+|---|---|---|---:|
+| documented/tracker | `python3 scripts/validate_features.py feature_list.json` | 2026-11-15T19:06:04.317452+00:00 → 2026-11-15T19:06:04.351484+00:00 | 0 |
+| documented/canonical | `bash scripts/verify.sh` | 2026-11-15T19:06:04.351786+00:00 → 2026-11-15T19:06:06.469205+00:00 | 1 |
+| documented-permitted/tracker | `python3 scripts/validate_features.py feature_list.json` | 2026-11-15T19:07:09.820828+00:00 → 2026-11-15T19:07:09.855376+00:00 | 0 |
+| documented-permitted/canonical | `bash scripts/verify.sh` | 2026-11-15T19:07:09.855653+00:00 → 2026-11-15T19:07:14.111022+00:00 | 0 |
+| documented-permitted/whitespace | `git diff --check` | 2026-11-15T19:07:14.111248+00:00 → 2026-11-15T19:07:14.131925+00:00 | 0 |
+| documented-permitted/index-whitespace | `git diff --cached --check` | 2026-11-15T19:07:14.132217+00:00 → 2026-11-15T19:07:14.146851+00:00 | 0 |
+
+The external audit exited0: all68 protected files byte-identical to published HEAD;
+all19 previous task objects unchanged;all10 M3 objects match accepted Stage3;
+M4.10 original contract unchanged,in_progress/active,reviewed_by null,WIP1;
+documents retain exact starting byte prefixes;only three allowed paths modified;
+HEAD/cached unchanged,index empty,no untracked files. Exact review patch forward
+check/apply reconstructed all three current files byte-for-byte externally;reverse
+check/apply restored all three baseline snapshots. No patch touched the repository.
+Patch will be regenerated after this factual evidence append;final SHA256 is
+recorded in external preservation-results.json and final report,avoiding a
+self-referential patch hash inside the changed documents.
+
+Bounded evidence criteria1–6 PASS;criterion7 remains PENDING HUMAN REVIEW.
+Evidence package is prepared for independent review,subject to final amended-state
+verification below. Original Stage4 objective PARTIALLY IMPLEMENTED;full operational
+workflow delivery remains unestablished and a blocker if required for acceptance.
+No human review/acceptance,verified transition,stage,commit,push or deployment.
+A final canonical/tracker/whitespace check on this last evidence append and final
+preservation/patch regeneration follow;their actual results reside in commands.jsonl
+and preservation-results.json and final report. No outcome is presumed in advance.
+
+
+## M4.10 — Formal Local Acceptance Reconciliation
+
+2026-11-15 (America/Panama); acceptance reconciliation recorded at 2026-11-15T19:35:26.946926+00:00.
+**M4.10 is accepted as verification of the controlled-local Gin API milestone,
+not acceptance of full operational Stage 4 delivery.**
+
+### Published parent, reviewed identity and authority
+
+Published parent and current observed main HEAD: 580a92b2c1a2ec48380e0a2447cb657e103a1c9c (M4.9).
+Previous checkpoint is that published revision plus the reviewed UNCOMMITTED
+M4.10 evidence implementation. The older M4.9 checkpoint's19de11d/uncommitted
+wording remains historical;no publication SHA or prior checkpoint was rewritten.
+HEAD,cached origin/main and live main match580a92b. Initial live Git query128:
+`fatal: unable to access 'https://github.com/CEAG0712/p1-reliable-academy-workflows.git/': Could not resolve host: github.com`.
+Approved environment-only read-only retry0 returned expected SHA. No fetch,pull,
+reset,restore,rebase,merge,clean or history mutation. Starting tree exactly three
+modified evidence files,index empty,no untracked files,71 tracked files.
+
+Original independently reviewed implementation patch:
+/private/tmp/p1-m410-evidence-4snl55ll/three-file-review.patch
+SHA256:e0fd89198f972b2bbf716277fc291fbb0db0b651dcd1a9b93f12e4b9d164d5aa.
+Artifact exists/hash matches;independently generated current git diff --binary is
+byte-identical;external forward check/apply reconstructs all three current files,
+reverse check/apply restores exact published baseline. No fourth path;no patch
+applied to working repository. Original reviewed identity is a pre-acceptance
+freeze,not the final accepted patch hash. Exact current files,all20 task objects,
+old M4.10 evidence/document lengths/hashes and68 protected hashes were snapshotted
+externally BEFORE acceptance edits in /private/tmp/p1-m410-acceptance-oa0d2sff/.
+
+Human engineering owner explicitly accepted the exact reviewed controlled-local
+M4.10 source/evidence implementation WITHOUT corrections and authorized LOCAL
+acceptance reconciliation. Reviewer attribution is role-based;no personal identity,
+handle,signature or human command execution is invented. Codex separately performed
+independent source/evidence/remote inspection and fresh command execution.
+Human acceptance covers local regression milestone,requirements evaluation,gap
+disclosure and three-file evidence work. It excludes full operational API delivery,
+real caller/tenant/payment/provider authority,durability,distributed exactly-once,
+new routes,commit,publication and deployment. Publication remains separately gated.
+
+init.sh inspected as read-only,then freshly executed exit0:Go1.24.5,required docs
+present,expected three-file dirty-tree notice and cached match. Both notices were
+reconciled with reviewed patch identity and independent live query. Tracker validator0;
+starting schema1,20 tasks,WIP1,19 verified,M4.10 in_progress/active,reviewed_by null.
+No activation/preflight rerun:preflight requires pending and the historical genuine
+pre-activation eligibility remains preserved. No reset/reactivation is needed.
+
+### Independent source acceptance gates A–F
+
+All gates passed before acceptance editing. Existing18-row roadmap matrix covers
+the objective plus all17 verbatim scope/deliverable/acceptance requirements.
+Named test references match actual source and fresh passing JSON outcomes.
+Independent source/test inspection confirms classifications; no inference of
+operational registration from a constructible handler. Whole prior matrix,
+startup audit,exact failure table and regression inventory remain intact.
+
+Operational cmd/p1-api -> run/net.Listen -> http.Server -> NewRouter -> GET /health
+only. Controlled gin.New/httptest separately registers POST /test-only/prepare,
+POST /test-only/invoke,isolated GET /v1/workflow-executions/:execution_id and
+integration GET /test-only/status/:execution_id,/test-only/concealed/:execution_id.
+Actual invocation reaches validation,trusted local capability/optional admission,
+concrete application,approved fresh harmless fixture/registry,RunActions and real
+in-memory repository. Preparation only validates configuration. Status uses an
+independent capability/allowlist before its sole Get;concealed0 reads,GET no mutation.
+Owner/version/single-claim/failure/history rules remain authoritative;uncertain
+terminal outcomes do not justify fallback writes or blind retries.
+
+Request parser/body/identity contract rechecked:one object,max4096 bytes,bounded4097
+read,two required strings,ASCII1–128 identifier policy,unknown/duplicate decoded
+members and unsupported selections rejected before effects. Exactly one key value
+across case-insensitive header names;exact tuple/value matching,no trim/comma split.
+Known/in-flight same key or changed selection409;capacity503;uncertain same tuple500.
+No TTL/release/eviction/cached replay/durability.201 has only execution_id/status;
+FAILED requires accepted Fail and coherent history;handoff RUNNING/v2;created-not-
+started READY/v1 limited to confirmed insertion. Status200 has exact numeric
+version projection;no diagnostics/owner/history/authority exposure or implicit resume.
+Fixed400/401/403/404/409/503/500 codes/messages independently match existing documented
+matrix and source. Default Gin404 and framework recovery remain explicit exceptions.
+
+Startup fixed TCP127.0.0.1:8080,5s ReadHeaderTimeout,no workflow/repository startup
+initialization. Fresh TestRunListenFailure/TestRunServeFailure cover cause/address
+propagation and failed Serve listener closure without sockets. No successful socket
+startup proof,signal-driven graceful shutdown or operational workflow readiness.
+Gin recovery applies to composed request middleware only;TestLocalStatusHandlerRecovery
+checks no false success/panic payload,not universal JSON/log safety or state repair.
+Health indicates HTTP responsiveness only;TestM48ProductionRouteIsolation confirms
+single health route and20 default404 probes. No listener/new test/source change.
+
+Original Stage4 roadmap objective remains **PARTIALLY IMPLEMENTED**. Operational
+workflow invocation/status endpoints are **DEFERRED**. This is compatible with
+unchanged M4.10 objective to verify LOCAL Gin API and prepare acceptance;criterion1
+requires evaluation,which accurately reports unfinished operational requirements.
+Full operational Stage4 acceptance would remain blocked by routes/trust/visibility
+gaps. That broader acceptance was explicitly excluded by the human;no objective or
+criterion text is narrowed/rewritten and no missing functionality is implemented.
+
+### Fresh PRE-ACCEPTANCE commands and actual results
+
+All12 required verification commands plus init executed freshly against exact
+reviewed in-progress bytes BEFORE status editing. Every command exit0 in sandbox;
+no Go-cache retry in this pre-acceptance run. Earlier implementation cache failures
+remain historical. This session's live Git DNS failure/retry is retained above.
+An external read-only audit helper initially expected14 instead of13 command rows
+and matched prose Tests as a function name;both helper assertions corrected with
+no repository/test changes. All actual acceptance gates pass;diagnostics preserved
+in audit-helper-correction.json,not misreported as product/test failures.
+
+Exact argv,UTC start/end,cwd,environment,exit and separate raw stdout/stderr:
+/private/tmp/p1-m410-acceptance-oa0d2sff/commands.jsonl and pre-*.stdout/stderr.log.
+PYTHONDONTWRITEBYTECODE=1 supplied to all commands. Actual results:
+
+| Command | UTC start → end | Exit |
+|---|---|---:|
+| `bash init.sh` | 2026-11-15T19:31:40.614718+00:00 → 2026-11-15T19:31:40.704989+00:00 | 0 |
+| `python3 scripts/validate_features.py feature_list.json` | 2026-11-15T19:31:40.705372+00:00 → 2026-11-15T19:31:40.739710+00:00 | 0 |
+| `go test -count=1 -v ./internal/httpapi` | 2026-11-15T19:31:40.739973+00:00 → 2026-11-15T19:31:41.465871+00:00 | 0 |
+| `go test -race -count=1 ./internal/httpapi` | 2026-11-15T19:31:41.466150+00:00 → 2026-11-15T19:31:43.360280+00:00 | 0 |
+| `go test -race -count=20 ./internal/httpapi -run '^TestM49'` | 2026-11-15T19:31:43.360615+00:00 → 2026-11-15T19:31:45.591055+00:00 | 0 |
+| `go test -count=1 ./...` | 2026-11-15T19:31:45.591425+00:00 → 2026-11-15T19:31:46.244577+00:00 | 0 |
+| `go test -race -count=1 ./...` | 2026-11-15T19:31:46.244840+00:00 → 2026-11-15T19:31:48.072022+00:00 | 0 |
+| `go vet ./...` | 2026-11-15T19:31:48.072347+00:00 → 2026-11-15T19:31:48.298455+00:00 | 0 |
+| `go test -json -count=1 ./...` | 2026-11-15T19:31:48.298838+00:00 → 2026-11-15T19:31:48.934712+00:00 | 0 |
+| `python3 -m unittest discover -s scripts -p 'test_*.py' -v` | 2026-11-15T19:31:48.935003+00:00 → 2026-11-15T19:31:50.381038+00:00 | 0 |
+| `bash scripts/verify.sh` | 2026-11-15T19:31:50.381337+00:00 → 2026-11-15T19:31:54.601033+00:00 | 0 |
+| `git diff --check` | 2026-11-15T19:31:54.601267+00:00 → 2026-11-15T19:31:54.616830+00:00 | 0 |
+| `git diff --cached --check` | 2026-11-15T19:31:54.617054+00:00 → 2026-11-15T19:31:54.628824+00:00 | 0 |
+
+Machine-readable run:213 top-level+691 subtests PASS,0 failures/skips,4 packages;
+root104+139,application48+121,httpapi59+431,startup2+0. Source recount28 test files;
+HTTP490 RUN entries;M4.9 six top-level/eight subtests repeated20 under race.
+Python60 OK;canonical all six PASS;full race no report,vet no diagnostics,both
+whitespace checks0. No product/assertion/compile/race/static-analysis failure.
+All counts are from actual source/JSON/verbose outputs,not prior report reuse.
+
+### Seven original criteria — independent local acceptance matrix
+
+This matrix and gate results were saved externally BEFORE tracker editing in
+seven-criterion-acceptance.json and pre-acceptance-audit.json. Human source/evidence
+acceptance applies to every row;Codex is the fresh verification executor.
+
+1. **The published Stage 4 roadmap's API requirements are evaluated against source and tests.**
+
+   **PASS.** Source: docs/ROADMAP.md Section7; existing PROGRESS.md18-row matrix; internal/httpapi/router.go:NewRouter, invocation/status/identity handlers and concrete application/runner/repository source. Tests: TestM48FixtureLifecycle; TestM48ProductionRouteIsolation; TestM49ConflictingSelections; all matrix-named tests. Fresh evidence: pre/http, pre/units, pre/go-json; independent row/source audit. Observed: All17 scope/deliverable/outcome requirements plus original objective evaluated; each named test freshly PASS; exact requirement wording and local classifications retained. Limit: Original roadmap objective remains PARTIALLY IMPLEMENTED; operational invocation/status DEFERRED. Evaluation criterion does not imply full operational delivery. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+2. **All M1/M2/M3/M4 tests pass.**
+
+   **PASS.** Source: All28 existing Go test files in root,internal/application,internal/httpapi,cmd/p1-api. Tests: All213 top-level functions and691 subtests; M1 enrollment, M2 repository, M3 runner, M4 API/startup. Fresh evidence: pre/http, pre/units, pre/go-json. Observed: All four packages PASS;213 top-level+691 subtests PASS;0 failed/skipped; HTTP490 RUN entries. Limit: Local fixture tests establish no real provider/cloud effect,successful socket startup or production readiness. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+3. **Full Go race checks and static analysis pass.**
+
+   **PASS.** Source: workflow_repository.go; workflow_runner.go; internal/application/request_identity.go/status.go; HTTP concurrency composition. Tests: TestRunnerConcurrencySuccessfulExecutions; TestLocalRequestIdentityConcurrent; TestM49SameKey; TestM49ConcurrentStatusVisibility. Fresh evidence: pre/http-race, pre/m49-race20, pre/race, pre/vet. Observed: Focused/full race and20-iteration M4.9 race exit0;vet exit0 without diagnostics; no race finding. Limit: Race detector covers exercised schedules only; no distributed coordination,throughput or universal race-freedom guarantee. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+4. **The canonical verification script passes.**
+
+   **PASS.** Source: scripts/verify.sh; scripts/validate_features.py; existing Python harness. Tests: 60 Python harness tests; existing four-package Go unit/race suites; whitespace checks. Fresh evidence: pre/canonical, pre/tracker, pre/whitespace, pre/index-whitespace. Observed: Canonical exit0,all six checks including both whitespace targets;Python60 OK. Limit: This independent fresh pre-acceptance result is not inferred from implementation logs; final accepted bytes require fresh post checks. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+5. **HTTP contracts, startup behavior, failure handling, and known limitations are documented.**
+
+   **PASS.** Source: Existing PROGRESS.md startup/contracts/failure/topology inventory; docs/API_CONTRACTS.md; cmd/p1-api/main.go; DTO/parser/handler/application source. Tests: TestRunListenFailure; TestRunServeFailure; TestLocalStatusHandlerRecovery; TestM48ProductionRouteIsolation; safe-error/validation/projection tests. Fresh evidence: pre/http, pre/units, pre/go-json; source/document comparison. Observed: Documented source-defined messages/statuses,strict4096/4097 limits,identity conflicts,status projection,startup failure/recovery and known gaps match source/tests. Limit: No graceful shutdown/successful socket-startup proof; unmatched Gin404/recovery have no universal JSON envelope;no automatic panic state repair. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+6. **Historical M3 evidence and all previously accepted task evidence remain preserved.**
+
+   **PASS.** Source: Starting snapshots/hashes; published tracker at580a92b; accepted Stage3 tracker at5457b77; protected source/test files and append-only documents. Tests: Test original_m3_objects_evidence_and_order_are_preserved in Python harness plus independent byte/object comparisons. Fresh evidence: pre/python, pre/canonical; pre-acceptance-audit.json; authenticated external patch reconstruction. Observed: All68 protected files match HEAD;all19 prior tasks unchanged;M3 objects match accepted Stage3;reviewed docs/history intact;original M4.10 contract unchanged. Limit: Acceptance amendments must retain exact pre-acceptance document prefixes and old M4.10 command/result/revision evidence;final audit rechecks. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+7. **Human engineering review is required before final acceptance, commit, and publication.**
+
+   **PASS.** Source: Current explicit human owner acceptance prompt; authenticated reviewed three-file patch; existing tracker evidence schema permits nonempty role attribution. Tests: Human review is supplied directly,not established by an automated test;validator checks evidence schema only. Fresh evidence: Authenticated reviewed patch SHA256; pre/tracker and independent local-acceptance authorization audit. Observed: Human engineering owner explicitly accepted source/evidence without corrections and authorized local reconciliation;Codex independently inspected source and executed fresh checks. Limit: Human acceptance is controlled-local M4.10 only. Commit/publication/deployment remain separately gated and unauthorized;no invented identity or claim human executed commands. Human attribution: Human engineering owner — explicit reviewed controlled-local M4.10 source/evidence acceptance without corrections; Codex verification separately attributed.
+
+
+### Conditional local tracker transition and preservation
+
+Only AFTER reviewed-patch authentication,source gates A–F,fresh verification,
+historical preservation and all seven criteria passed: M4.10 in_progress -> verified;
+active_task_id M4.10 -> null. Schema1,20 tasks,WIP1,task order,other19 verified task
+objects and original M4.10 title/objective/dependency/seven criteria preserved.
+Existing M4.10 commands retained as exact array prefix;revision/result retained
+as exact string prefixes with acceptance appended. reviewed_by records role-based
+human source/evidence acceptance separately from Codex audit/verification.
+Human review criterion now reconciled for LOCAL acceptance;commit/publication
+authorization is still absent. Historical in_progress/pending-review passages are
+intact and describe their earlier checkpoint;this append supplies current state.
+
+All68 protected tracked files match published HEAD bytes,including M4.8/M4.9 tests,
+engine,handlers,router,startup,harness,contracts,roadmap,README and dependencies.
+M3 objects also match accepted Stage3 at5457b77e7835cf951b1c71ab332080d7b81fe735.
+All19 prior acceptance evidence unchanged;both docs retain exact PRE-ACCEPTANCE
+bytes as prefixes. No formatter/generator,history rewrite or changed source hash.
+Only feature_list.json,PROGRESS.md,docs/HANDOFF.md are modified,uncommitted on
+published580a92b;index empty,no untracked files. No stage,commit,push,deployment,
+new routes/tests or new milestone. Local scope/reservations/in-memory storage
+remain non-durable;EventID not authenticated payment;allowlists not tenant authority;
+no provider effects,distributed coordination/exactly-once or performance claim.
+
+Fresh POST-ACCEPTANCE full verification is still to run at this initial acceptance
+append. Actual results will be recorded after execution;none is inferred from pre
+results. Complete and acceptance-only patches/hashes will be reconstructed externally
+after final factual append,with forward/reverse byte comparisons;never applied to
+working repository. No future commit SHA is invented. Next gate after successful
+post checks:SEPARATE read-only publication review;publication is not authorized.
+
+
+### M4.10 actual POST-ACCEPTANCE verification and final review boundary
+
+Fresh post-acceptance HTTP and HTTP race first passed in sandbox. First race20
+exited1 at setup:internal/application/invocation.go:10:2 import could not open
+/Users/carlosarosemena/Library/Caches/go-build/35/353cf33d00e09c8e88d98be7c319159b94d5da94bc9cfaa46f02a3517a670c4e-a
+(operation not permitted). Original attempt preserved;not assertion/behavioral
+failure or a race report. No source/test edit or workaround followed. Approved
+environment-only rerun executed ALL12 post-acceptance commands,each exit0:
+
+| Phase/key | Exact command | UTC start → end | Exit |
+|---|---|---|---:|
+| post/http | `go test -count=1 -v ./internal/httpapi` | 2026-11-15T19:35:26.983240+00:00 → 2026-11-15T19:35:27.724968+00:00 | 0 |
+| post/http-race | `go test -race -count=1 ./internal/httpapi` | 2026-11-15T19:35:27.725313+00:00 → 2026-11-15T19:35:29.582597+00:00 | 0 |
+| post/m49-race20 | `go test -race -count=20 ./internal/httpapi -run '^TestM49'` | 2026-11-15T19:35:29.582906+00:00 → 2026-11-15T19:35:29.622177+00:00 | 1 |
+| post-permitted/http | `go test -count=1 -v ./internal/httpapi` | 2026-11-15T19:35:54.178454+00:00 → 2026-11-15T19:35:54.775373+00:00 | 0 |
+| post-permitted/http-race | `go test -race -count=1 ./internal/httpapi` | 2026-11-15T19:35:54.775674+00:00 → 2026-11-15T19:35:56.559679+00:00 | 0 |
+| post-permitted/m49-race20 | `go test -race -count=20 ./internal/httpapi -run '^TestM49'` | 2026-11-15T19:35:56.560002+00:00 → 2026-11-15T19:35:58.763831+00:00 | 0 |
+| post-permitted/units | `go test -count=1 ./...` | 2026-11-15T19:35:58.764089+00:00 → 2026-11-15T19:35:59.386682+00:00 | 0 |
+| post-permitted/race | `go test -race -count=1 ./...` | 2026-11-15T19:35:59.386939+00:00 → 2026-11-15T19:36:01.253311+00:00 | 0 |
+| post-permitted/vet | `go vet ./...` | 2026-11-15T19:36:01.253638+00:00 → 2026-11-15T19:36:01.471193+00:00 | 0 |
+| post-permitted/go-json | `go test -json -count=1 ./...` | 2026-11-15T19:36:01.471497+00:00 → 2026-11-15T19:36:02.084632+00:00 | 0 |
+| post-permitted/python | `python3 -m unittest discover -s scripts -p 'test_*.py' -v` | 2026-11-15T19:36:02.084873+00:00 → 2026-11-15T19:36:03.430217+00:00 | 0 |
+| post-permitted/tracker | `python3 scripts/validate_features.py feature_list.json` | 2026-11-15T19:36:03.430494+00:00 → 2026-11-15T19:36:03.465187+00:00 | 0 |
+| post-permitted/canonical | `bash scripts/verify.sh` | 2026-11-15T19:36:03.465453+00:00 → 2026-11-15T19:36:07.490967+00:00 | 0 |
+| post-permitted/whitespace | `git diff --check` | 2026-11-15T19:36:07.491197+00:00 → 2026-11-15T19:36:07.507208+00:00 | 0 |
+| post-permitted/index-whitespace | `git diff --cached --check` | 2026-11-15T19:36:07.507480+00:00 → 2026-11-15T19:36:07.519568+00:00 | 0 |
+
+Fresh accepted-state JSON counts:213 top-level+691 subtests PASS,0 failures/skips,
+4 packages/28 source test files;root104+139,application48+121,httpapi59+431,startup2.
+Focused HTTP490 RUN entries;race20 PASS;full Go units/race PASS;vet no diagnostics;
+Python60 OK;tracker PASS;canonical all six PASS;both whitespace checks PASS.
+Exact argv/UTC/exits and separate raw stdout/stderr retained in commands.jsonl and
+post/post-permitted logs in /private/tmp/p1-m410-acceptance-oa0d2sff/. No pre-acceptance
+result was substituted for a post-acceptance run. Pre run had no Go-cache retry;
+this post setup denial and initial live Git DNS failure are current environmental
+failures and their approved retries remain visible. Historical failures unchanged.
+
+Independent accepted-state preservation audit exit0:all68 protected files match
+published HEAD;all19 prior task objects and M3 accepted history unchanged;original
+M4.10 contract and old implementation command/result/revision evidence retained;
+docs exact pre-acceptance byte prefixes.20 tasks verified,active null,WIP1;human
+source/evidence review and Codex verification distinctly attributed.HEAD/cached
+unchanged,index empty,no untracked files,exact three evidence paths modified.
+Complete-final and acceptance-only patches each forward/reverse check/apply and
+byte-compare successfully in external directories only. Final versions regenerate
+after this factual append;original reviewed implementation identity remains
+e0fd89198f972b2bbf716277fc291fbb0db0b651dcd1a9b93f12e4b9d164d5aa.
+Final patch SHA256s and starting/ending/protected hashes are recorded externally
+in preservation-results.json and final report,avoiding self-reference. No patch
+was applied to working repository and nothing staged.
+
+M4.10 LOCALLY ACCEPTED AND VERIFIED:controlled-local Gin API verification ONLY.
+Original Stage4 operational objective remains PARTIALLY IMPLEMENTED;operational
+workflow invocation/status DEFERRED. No real caller/tenant/payment authority,
+provider effects,durable idempotency/storage/continuation,distributed coordination/
+exactly-once,successful socket startup,graceful shutdown or production-readiness
+claim. Full operational delivery is not accepted or authorized. No new task.
+Ready for separate read-only publication review after final factual-append
+tracker/canonical/whitespace recheck;actual final outputs/audit remain external
+and in final report. No future result is presumed here. All changes UNCOMMITTED
+on580a92b2c1a2ec48380e0a2447cb657e103a1c9c.No commit,push,deployment or publication
+authorization. Stop before staging,commit,push or deployment.

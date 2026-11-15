@@ -3186,3 +3186,164 @@ uncommitted. No stage,commit,push,deployment or production/cloud change. Local
 in-memory/process-only limits remain;no operational tenant auth,durable idempotency,
 cross-process coordination,distributed exactly-once,cloud/provider or throughput proof.
 STOP before publication and before M4.10 activation.
+
+
+## M4.10 — Bounded Evidence Implementation Handoff
+
+2026-11-15 (America/Panama). The human explicitly authorized M4.10 activation and
+evidence-only implementation; this is not acceptance. Previous checkpoint revision
+19de11ddf77e7676afa41694418485c87e88c8e2 plus then-uncommitted M4.9 work is historical.
+Published starting/current observed main HEAD is 580a92b2c1a2ec48380e0a2447cb657e103a1c9c; cached origin/main and
+live main match. Initial live Git DNS exit128; approved environment-only retry0.
+Starting tree clean,index empty,no untracked files;71 tracked files. Fresh safe
+init.sh0 reports Go1.24.5. Tracker validation0/preflight0 ELIGIBLE before edits.
+User prompt supplies activation authorization:pending -> in_progress;active null
+->M4.10. Schema1,20 tasks,WIP1,all19 previous verified,dependency M4.9 preserved;
+reviewed_by null. Only feature_list.json,PROGRESS.md,docs/HANDOFF.md changed.
+
+Primary durable evidence: PROGRESS.md section
+M4.10 — Stage 4 Regression and Acceptance: Bounded Implementation Checkpoint.
+It contains every roadmap scope/deliverable/outcome mapped to source/tests,
+operational/local classifications,exact HTTP error matrix,startup audit,all213 test
+names,command UTC timestamps/exits,seven-criterion dispositions and limitations.
+M4.10 original objective/seven criteria unchanged. Earlier headings and uncommitted
+wording were not rewritten; actual published source/tracker/history determine state.
+
+Operational main -> run/net.Listen -> http.Server -> NewRouter -> GET /health only.
+Fixed TCP127.0.0.1:8080,5s header timeout,no workflow/repository startup work,no bind
+configuration or graceful shutdown. Startup tests cover listen failure and failed
+Serve listener closure without sockets; successful socket startup NOT ESTABLISHED.
+Gin recovery covers composed request panic boundary; no JSON-error/safe-log/repair
+guarantee. Health proves responsiveness only. Default routes remain plain404.
+Controlled gin.New/httptest fixture handlers validate then delegate via trusted
+local scope/admission -> concrete application -> real runner -> in-memory repository.
+Separate status capability/allowlist gates one read; GET never changes lifecycle.
+Real claims/terminal operations preserve owner/version/history/diagnostics; no blind
+replay on uncertainty. Exact public DTOs omit internal data. Body4096/reader4097;
+strict identifiers/fields/header;409 conflict,503 capacity,500 uncertain repeat.
+
+Fresh post-activation focused HTTP and HTTP race0;first race20 setup1 from denied
+Go-cache access,approved environment-only race20 retry0. Full Go units/race,vet,
+Python60,tracker,canonical all six,whitespace all0. Additional Go JSON run0 confirms
+213 top-level+691 subtests PASS,no skips/failures;4 packages,28 files:
+root104/application48/httpapi59/startup2. HTTP490 RUN entries59+431;M4.9 six top-level
+and8 subtests repeated20 under race. No observed product/assertion/race/vet failure.
+Exact argv,UTC start/end,exit,cwd,environment,separate stdout/stderr and original
+environmental failures retained externally at /private/tmp/p1-m410-evidence-4snl55ll/commands.jsonl.
+Snapshots/hashes and test inventory reside alongside;essential results durable here.
+Post-documentation checks are still to run at initial append;actual results follow.
+
+The project demonstrates a verified controlled-local Gin API integration
+architecture. Original Stage4 objective remains PARTIALLY IMPLEMENTED; full
+operational workflow API delivery is NOT ESTABLISHED. Fixture capabilities are
+test-host authority,not caller/tenant/payment authorization;EventID correlation
+and scope-local key suppression do not supply durable/distributed replay safety.
+No operational workflow routes,external provider/cloud effects,durable associations/
+continuation/recovery,distributed exactly-once or performance claim. WAIT/condition
+remains RUNNING handoff. Reservation exhaustion/uncertainty and lost outcomes remain.
+If full original operational objective is required for formal acceptance,missing
+routes/trust/visibility are material unresolved blockers;do not implement them here.
+
+Criteria1–6 have bounded evidence PASS (final amended-state checks pending at this
+append);criterion7 PENDING HUMAN REVIEW. All19 accepted task objects and68 protected
+files unchanged;M3 objects match accepted Stage3;docs exact-prefix preservation.
+Final independent audit and review-patch reconstruction occur externally.
+Next:independent human source/evidence review. M4.10 remains in_progress/active,
+reviewed_by null;no acceptance,verified transition,staging,commit,push,deployment or
+next milestone. Evidence changes remain uncommitted on 580a92b2c1a2ec48380e0a2447cb657e103a1c9c.
+
+
+### M4.10 post-documentation results and review boundary
+
+Amended-state tracker0;initial sandbox canonical1 at race setup from denied
+Go-cache access after tracker/Python60/Go units passed. Approved environment-only
+retry:tracker0,canonical0(all six),worktree/index whitespace0. No source/test edit
+or assertion/race finding. Raw attempts/retries with UTC timing and exact argv
+are documented-* and documented-permitted-* logs in the external evidence directory.
+Independent audit0 confirms68 protected bytes,19 prior task objects,M3 accepted
+history,original M4.10 contract and append-only docs preserved;three paths only,
+HEAD/cached unchanged,index empty,no untracked files. External patch forward/reverse
+reconstruction0,byte-for-byte. Final patch/hashes regenerate after this append;
+final amended-state canonical/tracker/whitespace and audit outcomes are recorded
+externally and in final report rather than inferred before execution.
+Criteria1–6 bounded evidence PASS;criterion7 PENDING HUMAN REVIEW. Original Stage4
+objective remains PARTIALLY IMPLEMENTED;operational workflow endpoints deferred.
+Current main HEAD580a92b2c1a2ec48380e0a2447cb657e103a1c9c;only three evidence files
+uncommitted.M4.10 in_progress/active,WIP1,reviewed_by null. Stop for independent
+human review;no acceptance,staging,commit,push,deployment or next task.
+
+
+## M4.10 — Formal Local Acceptance Reconciliation
+
+2026-11-15 (America/Panama). Published starting/current main HEAD 580a92b2c1a2ec48380e0a2447cb657e103a1c9c.
+Previous checkpoint:published M4.9 plus reviewed uncommitted M4.10 evidence.
+Authenticated original patch SHA256:e0fd89198f972b2bbf716277fc291fbb0db0b651dcd1a9b93f12e4b9d164d5aa;artifact exists,
+current diff byte-identical,external forward/reverse reconstruction exact.
+Starting exactly three modified evidence files,index empty,no untracked files;
+71 tracked,68 protected match HEAD. Live main/cached match;initial Git DNS128,
+approved environment-only retry0. Fresh safe init0,Go1.24.5;expected dirty-tree
+notice reconciled. Tracker0;no reactivation/preflight manipulation.
+
+Human engineering owner explicitly accepted exact source/evidence WITHOUT
+corrections and authorized local reconciliation. Codex separately inspected source,
+authenticated identity and ran fresh verification;human command execution is not
+claimed. **M4.10 is accepted as verification of the controlled-local Gin API milestone,
+not acceptance of full operational Stage 4 delivery.** Publication/deployment absent.
+
+Fresh pre-acceptance12 required checks all0 plus init0:focused HTTP,HTTP race,
+race20,full Go units/race,vet,JSON inventory,Python60,tracker,canonical all six,both
+whitespace checks.213 top-level+691 subtests pass,no skips/failures;28 files,four
+packages,HTTP490 RUN entries;M4.9 six top-level/eight subtests repeated20.No pre
+Go-cache retries;historical failures retained. External audit helper assertions
+corrected without source/test changes;not product failures. Logs with exact argv,
+UTC timing/exits and separate stdout/stderr:/private/tmp/p1-m410-acceptance-oa0d2sff/commands.jsonl.
+
+Source gates A–F and all seven original criteria independently PASS BEFORE
+transition. Detailed matrix in PROGRESS.md appended section of this name and
+external seven-criterion-acceptance.json. Criterion7 now supplied by explicit human
+controlled-local source/evidence acceptance;commit/publication remains separately
+gated. M4.10 in_progress -> verified;active M4.10 ->null;schema1,20 tasks,WIP1,other19
+task objects,original contract,old M4.10 command/result/revision evidence preserved.
+reviewed_by attributes human source review and Codex verification distinctly.
+
+Existing18-row roadmap/source matrix audited against17 original requirements,
+objective,source and fresh passing tests;operational objective PARTIALLY IMPLEMENTED,
+workflow invocation/status DEFERRED. NewRouter health only;fixture gin/httptest
+composition reaches concrete application,real runner,in-memory repository. Local
+scope/visibility not production caller/tenant/payment authority;scope-local keys
+not durable/distributed replay protection. Startup loopback8080,5s header timeout,
+no engine/repo startup work;failure/closure tests pass,socket success/graceful shutdown
+not established. Default404/recovery have no universal JSON/repair guarantee.
+No durable storage/continuation,provider effect,cloud/distributed exactly-once or
+performance result. Full operational Stage4 acceptance remains outside accepted scope.
+
+Both docs preserve exact starting bytes as prefixes;all68 protected files,19 prior
+task objects,M3 accepted history,M4.1–M4.9 evidence unchanged. Exact modified inventory:
+feature_list.json,PROGRESS.md,docs/HANDOFF.md. All M4.10 work/acceptance UNCOMMITTED on
+published580a92b. No stage,commit,push,deployment,new test/route or next milestone.
+Post-acceptance verification is to run after this initial append;actual results
+follow. Final patches/hashes reconstruct externally;no patch touches working tree.
+After successful checks,ready only for separate read-only publication review.
+
+
+### M4.10 actual post-acceptance results
+
+Post HTTP/HTTP race first pass;sandbox race20 setup1 from denied Go-cache import
+access;original retained.No assertion/race finding or source/test change.Approved
+environment-only rerun of ALL12 required post commands exit0:HTTP,race,race20,full
+units/race,vet,JSON,Python60,tracker,canonical all six,both whitespace checks.
+JSON213 top-level+691 subtests PASS,0 failures/skips,4 packages/28 source files;
+HTTP490 RUN entries.No pre-result substitution.Raw argv/UTC/exits/stdout/stderr
+are post/post-permitted logs and commands.jsonl in external acceptance directory.
+Preservation audit0:68 protected bytes,19 earlier tasks,M3 history,original M4.10
+contract,prior implementation evidence and document prefixes intact.Exact three
+modified files,index empty,no untracked;HEAD/cached unchanged.External complete
+and acceptance-only patch forward/reverse reconstruction matches exact bytes.
+Final factual-append tracker/canonical/whitespace and final patch/hash audit follow;
+actual outcomes in external artifacts/final report.No self-referential patch hash.
+M4.10 locally accepted/verified;all20 verified,active null,WIP1.Human review supplied,
+Codex verification separate.Original roadmap PARTIALLY IMPLEMENTED;operational
+workflow endpoints DEFERRED.No production readiness,provider/tenant/payment or
+durable/distributed proof.Ready for separate read-only publication review after
+final checks;all acceptance changes UNCOMMITTED on published580a92b.No stage,
+commit,push,deployment,publication authorization or next milestone.
