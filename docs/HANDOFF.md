@@ -3347,3 +3347,92 @@ workflow endpoints DEFERRED.No production readiness,provider/tenant/payment or
 durable/distributed proof.Ready for separate read-only publication review after
 final checks;all acceptance changes UNCOMMITTED on published580a92b.No stage,
 commit,push,deployment,publication authorization or next milestone.
+
+## ENGINEERGAME v7.0 Day 1 — Local DynamoDB conditional claim
+
+2026-11-24 (America/Panama). The previous handoff checkpoint observed
+`580a92b2c1a2ec48380e0a2447cb657e103a1c9c` with M4.10 acceptance uncommitted.
+This session started clean on `main` at `0f4af56fa13ebd1016516f963e093b17e8582068`,
+the published M4.10 acceptance revision supplied for comparison. Cached
+`origin/main` matched. `bash init.sh` reported that the remote was not fetched.
+The tracker has all 20 tasks verified, `active_task_id: null` and WIP limit 1.
+The working tree contains the two new `internal/dynamodbclaim` Go files and
+modifications to `go.mod`, `go.sum`, and this handoff. These edits are uncommitted.
+
+| Exact source or evidence | First-person business explanation |
+| --- | --- |
+| `internal/dynamodbclaim/claim.go` uses `attribute_exists(workflow_id) AND #status = :ready AND #version = :one` and one `UpdateItem` with `SET #status = :running, #owner = :owner, attempt_id = :attempt ADD #version :one, attempts :one` and `ALL_NEW`. | I can trust a confirmed claim to assign one owner and one attempt in the same write that advances the workflow. |
+| `Claim` returns `NOT_CLAIMED` for `ConditionalCheckFailedException` and `ERROR/UNKNOWN` for other errors or an unconfirmed response. The SDK retries are disabled. | I authorize downstream work only on `CLAIMED`. A lost response can leave ownership recorded, so I treat that result as unresolved. |
+| `internal/dynamodbclaim/claim_test.go` creates, reads with `ConsistentRead: true`, and deletes its own fixture table. | I can reproduce the exercise and inspect the exact stored records before the fixture is cleaned up. |
+
+Environment: Darwin arm64, Go `1.24.5`, Docker client and server `29.9.3`, AWS
+CLI `2.31.25`, LocalStack Community `4.14.0`, DynamoDB `running`, endpoint
+`http://127.0.0.1:4566`, fixture authentication, region `us-east-1`. The SDK uses
+that fixed base endpoint, disables redirects, and uses an HTTP transport
+with no proxy. The initial sandbox probes failed with Docker socket permission
+denied, `curl` exit 7, and AWS CLI exit 255. The same read-only probes passed
+outside the sandbox, with LocalStack HTTP 200 and DynamoDB `{"TableNames": []}`.
+
+```sh
+bash init.sh
+python3 scripts/validate_features.py feature_list.json
+docker info --format '{{.ServerVersion}}'
+curl --noproxy '*' --silent --show-error --include --connect-timeout 3 --max-time 5 http://127.0.0.1:4566/_localstack/health
+env -i PATH="$PATH" AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-east-1 AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null AWS_RETRY_MODE=standard AWS_MAX_ATTEMPTS=1 aws dynamodb list-tables --endpoint-url http://127.0.0.1:4566 --cli-connect-timeout 3 --cli-read-timeout 3 --no-cli-pager
+go get github.com/aws/aws-sdk-go-v2/service/dynamodb@v1.53.1
+go mod tidy
+P1_DYNAMODB_CLAIM_TEST=1 go test -count=1 -v ./internal/dynamodbclaim
+bash scripts/verify.sh
+```
+
+Initialization and standalone tracker validation exited 0. The first `go get`
+failed on sandbox DNS resolution for `proxy.golang.org`; the permitted retry and
+`go mod tidy` exited 0. The initial live test and canonical verifier exited 1
+at Go setup due to denied build-cache access. Tracker validation and all 60
+Python tests had passed in the first verifier run. The permitted retry of
+both commands exited 0. The canonical run passed tracker validation, 60 Python
+tests, Go unit and race suites, `go vet`, and working-tree/index whitespace.
+The live LocalStack case is opt-in and ran in the explicit integration command.
+
+Observed table `p1-day1-claim-1795545848547865000`, using DynamoDB's typed JSON.
+The fixture's delete completed as part of the passing test.
+
+```text
+before accepted    {"attempts":{"N":"0"},"status":{"S":"READY"},"version":{"N":"1"},"workflow_id":{"S":"accepted"}}
+CLAIMED accepted   {"attempt_id":{"S":"attempt-A"},"attempts":{"N":"1"},"owner":{"S":"worker-A"},"status":{"S":"RUNNING"},"version":{"N":"2"},"workflow_id":{"S":"accepted"}}
+duplicate accepted NOT_CLAIMED, same item as CLAIMED above
+before/after stale {"attempts":{"N":"0"},"status":{"S":"READY"},"version":{"N":"2"},"workflow_id":{"S":"stale"}}
+missing item       NOT_CLAIMED, no item created
+missing table      ERROR/UNKNOWN, ResourceNotFoundException (HTTP 400)
+before ambiguous   {"attempts":{"N":"0"},"status":{"S":"READY"},"version":{"N":"1"},"workflow_id":{"S":"ambiguous"}}
+lost response      ERROR/UNKNOWN, fixture dropped successful update response, one request
+after ambiguous    {"attempt_id":{"S":"attempt-C"},"attempts":{"N":"1"},"owner":{"S":"worker-C"},"status":{"S":"RUNNING"},"version":{"N":"2"},"workflow_id":{"S":"ambiguous"}}
+```
+
+Stop at Day 1. The test shows a claim against the local emulator and a separate
+read showing that the write with a lost response committed. The experiment is
+isolated from the workflow runner. Review these local changes before any further
+scope. Tracker and prior acceptance evidence were preserved.
+
+### Day 1 local closeout verification
+
+2026-11-24 (America/Panama). The owner authorized a local Day 1 commit. The
+observed pre-commit `main` and cached `origin/main` both pointed to
+`0f4af56fa13ebd1016516f963e093b17e8582068`. The working tree contained exactly
+the five Day 1 paths listed above, and the index was empty. The tracker and
+progress log matched the published baseline byte-for-byte. All 20 M3/M4 tasks
+were verified, with no active task. The existing runner and in-memory source
+matched the baseline as well.
+
+`bash init.sh`, standalone tracker validation, Docker daemon access, and
+loopback LocalStack health each exited 0. LocalStack Community 4.14.0 reported
+DynamoDB running. `P1_DYNAMODB_CLAIM_TEST=1 go test -count=1 -v
+./internal/dynamodbclaim` exited 0 on Darwin arm64 with Go 1.24.5 and Docker
+29.9.3. Fixture `p1-day1-claim-1795546210958400000` reproduced the exact
+item states above. The lost response produced `ERROR/UNKNOWN` after one
+request, and the separate consistent read found the committed update. The
+package has only fixture-test callers. `bash scripts/verify.sh` exited 0
+with all six checks passing, including 60 Python tests, Go unit and race
+suites, `go vet`, and both Git whitespace checks.
+
+Separate owner authorization is required for publication or Day 2 work.
