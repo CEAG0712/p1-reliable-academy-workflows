@@ -3611,3 +3611,78 @@ build cache and required no test retry. Closeout logs are in
 This records the observed pre-commit revision and fresh verification. Git
 history is the source for the resulting commit and its inventory. The next
 authorization boundary is publication.
+
+## ENGINEERGAME v7.0 Day 4 — Reproduction and README review
+
+2026-11-24 (America/Panama). The preceding closeout recorded the Day 3
+commit's parent `9f0edba121c0d63bedcf45efc143047aec72c621`. Day 4 started
+clean on `main` at `a0afee0c70c809e61e54cce642cc8630467d717f`, matching
+cached `origin/main` and the independently verified Day 3 publication. Day 4
+used that local baseline. The tracker still has 20 verified tasks, no active
+task, a work-in-progress limit of one, and SHA-256
+`00d1df573e0534303a2e9c79cb607985acd180d168a83a5d4fed8499804e4d78`.
+
+The owner supplied the 163-line `docs/P1-Day4-README-CANDIDATE.md` during
+review. It is an untracked input with SHA-256
+`cd002e4580b58d42844f4e3fd0804fcbdcfe0760646168fd47345ecdee902f24`.
+The review compared its claims with source, the tracker, the roadmap, and fresh
+tests. `README.md` clarifies the production router's health route, local
+workflow and wait behavior, the isolated DynamoDB adapter, and the model's
+presentation-only role. The two diagrams describe production targets. The
+5,000-hour estimate was omitted because the existing README and roadmap support
+the other three targets. The contention count was corrected to one standard
+run plus four race repeats, and the local commands now reproduce that split.
+The supplied candidate remains separate from the two tracked documentation edits.
+
+Environment was macOS 27.2 on Darwin arm64, Go 1.24.5, Python 3.13.2, Docker
+client 29.9.3, AWS Command Line Interface (CLI) 2.31.25, and LocalStack Community
+4.14.0 with DynamoDB running at `127.0.0.1:4566` in `us-east-1`. The health
+probe and LocalStack commands used approved loopback access from the first
+attempt. Go used a writable cache under `/private/tmp/p1-day3-evidence.HXg2q9/`.
+The opt-in tests used a dedicated temporary directory to assess fixture cleanup.
+
+| Command | Exit and observed result |
+| --- | --- |
+| `bash init.sh` and `python3 scripts/validate_features.py feature_list.json` | Both 0. Clean expected baseline and valid tracker. |
+| `curl --noproxy '*' --silent --show-error --fail --connect-timeout 3 --max-time 5 http://127.0.0.1:4566/_localstack/health` | 0. LocalStack reported DynamoDB running. |
+| `go test -count=1 -v ./internal/investigator` | 0 in 0.496 s package time. Five tests and eight subtests passed. `real_model_invoked=false`. |
+| `P1_DYNAMODB_CLAIM_TEST=1 go test -count=1 -v ./internal/dynamodbclaim -run '^TestLocal(ConditionalClaim\|ClaimProcesses)$'` | 0 in 0.418 s package time. Both conditional-claim and ten-process tests passed. |
+| `P1_DYNAMODB_CLAIM_TEST=1 go test -race -count=4 -v ./internal/dynamodbclaim -run '^TestLocalClaimProcesses$'` | 0 in 5.716 s package time. Four ten-process repeats passed. |
+| `bash scripts/verify.sh` before documentation edits | 0. All six checks passed, including 60 Python tests and Go unit and race suites across six packages. The LocalStack test flags were unset for this command. |
+
+The loopback-only cleanup probe ran before and after the integration tests.
+Both invocations exited 0 with `{"TableNames": []}`. The dedicated fixture
+temporary directory was empty after the tests.
+
+```sh
+env -i PATH="$PATH" AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-east-1 AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null AWS_MAX_ATTEMPTS=1 aws dynamodb list-tables --endpoint-url http://127.0.0.1:4566 --cli-connect-timeout 3 --cli-read-timeout 3 --no-cli-pager
+```
+
+Each contention run released ten ready child processes from a shared start gate.
+The table records operating-system process identifiers (PIDs).
+Every run had 1 `CLAIMED`, 9 `NOT_CLAIMED`, and 0 `ERROR/UNKNOWN`. The sole
+work marker matched the confirmed winner. Each strongly consistent final read
+returned `RUNNING`, version 2, attempts 1, and the owner and attempt below.
+
+| Table suffix after `p1-day2-claim-` | Parent PID | Child PIDs | Winner PID | Stored owner / attempt ID |
+| --- | ---: | --- | ---: | --- |
+| `1795548993335679000` | 24306 | 24307–24316 | 24314 | `worker-08` / `attempt-08` |
+| `1795548994024598000` | 24347 | 24354–24363 | 24355 | `worker-02` / `attempt-02` |
+| `1795548995155296000` | 24347 | 24365–24374 | 24370 | `worker-06` / `attempt-06` |
+| `1795548996269321000` | 24347 | 24381–24390 | 24381 | `worker-01` / `attempt-01` |
+| `1795548997392452000` | 24347 | 24391–24400 | 24399 | `worker-09` / `attempt-09` |
+
+Separately, the Day 1 test dropped a successful response. The caller
+received `ERROR/UNKNOWN` after one request. A consistent read found `worker-C`
+and `attempt-C` stored at `RUNNING`, version 2, attempts 1. This demonstrates
+why an unknown result requires reconciliation before another business action.
+Logs with every process result are in `/private/tmp/p1-day4-evidence.5Hk6xg/`
+and may expire. The tests required no environmental retry and made no real
+AWS or paid model calls. Production authorization, external effect guarantees,
+live model quality, and adapter-independent cancellation remain unverified.
+
+The first post-documentation `bash scripts/verify.sh` exited 0 with all six
+checks passing, including 60 Python tests and Go unit and race suites across
+six packages. The final path review expects only unstaged `README.md` and this
+append, plus the unchanged owner-supplied candidate as an untracked input.
+Day 4 stops at documentation review, before staging or a local commit.
