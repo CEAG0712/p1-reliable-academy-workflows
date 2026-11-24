@@ -3436,3 +3436,90 @@ with all six checks passing, including 60 Python tests, Go unit and race
 suites, `go vet`, and both Git whitespace checks.
 
 Separate owner authorization is required for publication or Day 2 work.
+
+## ENGINEERGAME v7.0 Day 2 — Ten-process LocalStack claim
+
+2026-11-24 (America/Panama). The Day 1 checkpoint above observed
+`0f4af56fa13ebd1016516f963e093b17e8582068` with the claim experiment in the
+working tree. Day 2 started clean on `main` at the supplied published baseline
+`8139cbc1b9afe5bce84c6f44e35fd19567ac952f`, which contains that work and matches
+cached `origin/main`. `bash init.sh` reported that the remote was not fetched.
+Observed HEAD remains `8139cbc1b9afe5bce84c6f44e35fd19567ac952f`. The exact
+uncommitted paths are `internal/dynamodbclaim/claim_test.go` and
+`docs/HANDOFF.md`. The tracker still has 20 verified tasks, a null active task,
+WIP limit 1, and SHA-256
+`00d1df573e0534303a2e9c79cb607985acd180d168a83a5d4fed8499804e4d78`.
+
+| Inspected source | First-person business logic |
+| --- | --- |
+| `internal/dynamodbclaim/claim.go`, `Client.Claim` | I ask DynamoDB to atomically claim the existing READY/version-1 item. I proceed only on `CLAIMED`, treat `NOT_CLAIMED` as a rejection, and treat `ERROR/UNKNOWN` as unresolved. |
+| `internal/dynamodbclaim/claim_test.go`, `TestLocalClaimProcesses` and `TestLocalClaimWorker` | I wait for ten child processes with distinct owners and attempts, release them together, and account for each result using its OS PID. Only the confirmed winner may write the fixture work marker. |
+| `internal/dynamodbclaim/claim_test.go`, `assertItem` | I use a strongly consistent read to verify that the stored status, version, attempt count, owner, and attempt ID match the winner. |
+| `workflow.go`, `workflow_repository.go`, `workflow_runner.go` | I retain the Boolean in-memory claim contract and the existing owner/version checks for workflow transitions. |
+
+Environment: Darwin arm64, macOS `27.2`, Go `1.24.5`, Docker server `29.9.3`,
+AWS CLI `2.31.25`, LocalStack Community `4.14.0` at `http://127.0.0.1:4566`,
+DynamoDB running in `us-east-1` with fixture-only credentials. The harness
+re-executes the Go test binary and uses Unix inherited pipe descriptors. Each
+run creates a fresh table and seeds one `shared` item with `READY`, version 1,
+attempts 0. The parent releases the start pipe after receiving ten readiness
+signals. Table and temporary work marker cleanup are registered with Go testing.
+
+All five passing runs produced 10 accounted results, 1 `CLAIMED`, 9
+`NOT_CLAIMED`, and 0 `ERROR/UNKNOWN`. In every run a single work marker named
+for the winner contained its attempt ID. The consistent read returned
+`RUNNING`, version 2, attempts 1, and the exact winner below.
+
+| Table suffix, after `p1-day2-claim-` | Parent PID | Child PIDs | Winning PID | Stored owner / attempt ID |
+| --- | ---: | --- | ---: | --- |
+| `1795546943400500000` | 9672 | 9673–9682 | 9675 | `worker-03` / `attempt-03` |
+| `1795546944145909000` | 9713 | 9720–9729 | 9721 | `worker-02` / `attempt-02` |
+| `1795546945269441000` | 9713 | 9731–9740 | 9731 | `worker-01` / `attempt-01` |
+| `1795546946389851000` | 9713 | 9747–9756 | 9749 | `worker-03` / `attempt-03` |
+| `1795546947499008000` | 9713 | 9757–9766 | 9759 | `worker-03` / `attempt-03` |
+
+Commands executed for initialization, implementation, and verification:
+
+```sh
+bash init.sh
+curl --noproxy '*' --silent --show-error --fail --connect-timeout 3 --max-time 5 http://127.0.0.1:4566/_localstack/health
+env -i PATH="$PATH" AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-east-1 AWS_EC2_METADATA_DISABLED=true AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null AWS_MAX_ATTEMPTS=1 aws dynamodb list-tables --endpoint-url http://127.0.0.1:4566 --cli-connect-timeout 3 --cli-read-timeout 3 --no-cli-pager
+docker info --format '{{.ServerVersion}}'
+go version
+uname -sm
+sw_vers -productVersion
+aws --version
+gofmt -w internal/dynamodbclaim/claim_test.go
+P1_DYNAMODB_CLAIM_TEST=1 go test -count=1 -v ./internal/dynamodbclaim -run '^TestLocal(ConditionalClaim|ClaimProcesses)$'
+P1_DYNAMODB_CLAIM_TEST=1 go test -race -count=4 -v ./internal/dynamodbclaim -run '^TestLocalClaimProcesses$'
+bash scripts/verify.sh
+git diff --check
+git diff --cached --check
+git diff --exit-code HEAD -- feature_list.json PROGRESS.md workflow.go workflow_repository.go workflow_runner.go internal/dynamodbclaim/claim.go
+shasum -a 256 feature_list.json
+```
+
+Initialization exited 0. The first sandbox health probe exited 7 and the
+permitted retry exited 0. Table listing exited 0 and returned `TableNames: []`
+both before and after the tests. Docker and toolchain checks exited 0. The first
+focused attempt exited 1 at Go setup due to sandbox build-cache access. In
+the first permitted run, Day 1 passed and Day 2 failed after receiving only
+eight decodable results. The parent copied output buffers before `Wait`
+completed. Reading the original buffers after `Wait` fixed the harness. The
+corrected focused command exited 0 (0.371 s package time), and all four live
+race repeats exited 0 (5.721 s package time). `bash scripts/verify.sh` exited
+0 with tracker validation, 60 Python tests, Go unit and race suites, `go vet`,
+and both Git whitespace checks passing. Formatting and baseline comparison
+exited 0. Per-process output and verifier logs are in
+`/private/tmp/p1-day2-evidence.IRgKnz/` and may expire.
+
+Elapsed implementation and checks through the first complete verifier run
+were about 2 min 15 s (14:00:23 to 14:02:38 local), plus the handoff and final
+review. Remaining sprint budget is indeterminate because the starting budget
+was unspecified. Evidence covers a single item per run on loopback LocalStack
+and a test-file marker as the only work effect. The contention runs observed
+zero unknowns. Day 1 separately exercised the lost-response classification,
+and the Day 2 worker's marker gate requires a confirmed claim and a nil error.
+Production behavior, workflow-runner integration with DynamoDB, and recovery
+from a committed claim with a lost response remain outside this evidence.
+Stop at the bounded Day 2 result with the two paths uncommitted.
