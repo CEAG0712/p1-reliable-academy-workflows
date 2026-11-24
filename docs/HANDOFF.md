@@ -3523,3 +3523,91 @@ and the Day 2 worker's marker gate requires a confirmed claim and a nil error.
 Production behavior, workflow-runner integration with DynamoDB, and recovery
 from a committed claim with a lost response remain outside this evidence.
 Stop at the bounded Day 2 result with the two paths uncommitted.
+
+## ENGINEERGAME v7.0 Day 3 — Read-only workflow exception investigator
+
+2026-11-24 (America/Panama). The previous handoff observed
+`8139cbc1b9afe5bce84c6f44e35fd19567ac952f` with Day 2 edits in the working tree.
+Day 3 started clean on `main` at `9f0edba121c0d63bedcf45efc143047aec72c621`,
+which contains the Day 2 changes and matches cached `origin/main`. `bash init.sh`
+reported that the remote was not fetched. The tracker has all 20 tasks verified,
+no active task, a work-in-progress limit of one, and SHA-256
+`00d1df573e0534303a2e9c79cb607985acd180d168a83a5d4fed8499804e4d78`.
+Repository history, the tracker, and source/tests establish the actual baseline
+where older milestone summaries in `README.md` and `PROGRESS.md` lag.
+
+A deterministic report covers every fact the operator needs from this fixture.
+The large language model (LLM) adds one presentation choice, whether to lead
+with the provider timeout or the workflow record. Go renders both facts, the
+uncertainty, and a read-only next step. This keeps the business answer useful
+even when the model is unavailable and gives the model no workflow action.
+
+| Exact inspected code or path | First-person academy business reasoning |
+| --- | --- |
+| `workflow.go`, `WorkflowExecution` and `WorkflowTransition`; `workflow_repository.go`, `Get` and `Fail`; `workflow_repository_test.go`, `TestRepositoryTracksFailureHistory` | I use status, attempts, and transition history to describe what our workflow recorded. I need separate provider evidence to determine whether access took effect. |
+| `workflow_runner.go`, `RunActions`; `internal/dynamodbclaim/claim.go`, `Client.Claim`; `internal/dynamodbclaim/claim_test.go`, `TestLocalClaimProcesses` | I keep an investigation separate from the code that claims work, executes actions, and records outcomes. The Day 2 fixture uses ten separate processes to test ownership of a claim. |
+| `go.mod`, `github.com/tmc/langchaingo v0.1.15`; module `prompts/prompt_template.go`, `NewPromptTemplate` and `Format`; module `llms/llms.go` and `llms/generatecontent.go`, `GenerateContent` and `TextParts` | I pin the library I inspected. I use `prompts` to fill a fixed Go template and `llms` to send one text request through a narrow interface that a controlled fake can implement. |
+| `internal/investigator/evidence.go`, `FixtureScope`, `loadFixture`, `sanitizedEvidence` | I match both synthetic identifiers and copy only known field values. The evidence contains workflow status, attempts, the latest transition's from/to/version, and the provider operation and outcome. I keep student names, contact details, worker identifiers, and raw error text out of the evidence. |
+| `internal/investigator/investigator.go`, `investigate`, `json.Marshal`, `context.WithTimeout`, `WithMaxTokens(16)`, `WithCandidateCount(1)` | I use JavaScript Object Notation (JSON) to encode a small evidence record. I give the model one request with at most two seconds, sixteen requested output tokens, and one candidate. A caller's earlier deadline takes precedence. |
+| `internal/investigator/investigator.go`, `responseLead` and `explain` | I accept only a short, exact lead identifier. I keep arbitrary replies and tool requests out of the report, and I can still explain the case when the model fails or the evidence is incomplete. |
+| `internal/investigator/investigator_test.go`, `TestInvestigateProviderTimeout`, `TestInvestigateMissingEvidenceAndScope`, `TestInvestigateDiscardsEvidenceInstructionsWithoutMutation`, `TestInvestigateModelFallback`, `TestInvestigateDeadline` | I check the exact model inputs and operator report. I exercise scope mismatch, missing evidence, injected instructions, confident unsupported answers, late replies and model failures, and compare fixture data before and after investigation. |
+
+The controlled timeout fixture recorded `FAILED` after one attempt, with a
+`RUNNING` → `FAILED` transition at version 3. The course-access request timed out.
+The request may have taken effect, and current access is unconfirmed. The next
+step is to check the entitlement and provider request logs using read-only
+lookups before considering a retry. The fixture identifiers have demo lookup
+scope only. Production authentication, authorization, live provider behavior,
+and live model behavior are outside this evidence. The model interface relies
+on its adapter honoring cancellation. The tests use only an in-process fake.
+
+### Day 3 local verification
+
+Environment was macOS 27.2 on Darwin arm64, Go 1.24.5, and Python 3.13.2.
+Elapsed time from the implementation start marker to the completed test check
+was 3 min 26 s (14:22:22 to 14:25:48 local), plus the handoff and final audit.
+The implementation and test paths are `internal/investigator/evidence.go`,
+`internal/investigator/investigator.go`, and
+`internal/investigator/investigator_test.go`. `go.mod` and `go.sum` pin
+LangChainGo and record the module graph, which includes indirect dependency
+version changes. This handoff is the sixth changed path.
+
+| Command executed | Outcome |
+| --- | --- |
+| `bash init.sh` and `python3 scripts/validate_features.py feature_list.json` | Exit 0. Clean expected baseline and valid tracker. |
+| `go mod download -json github.com/tmc/langchaingo@v0.1.15` | First attempt failed on sandbox DNS. The permitted repeat exited 0 and identified tag `v0.1.15` at `ec6243f52664c36274c65857e0039a5a2551fa7f`. The downloaded source was inspected before edits. |
+| `go mod edit -require=github.com/tmc/langchaingo@v0.1.15`, `go mod tidy`, `go mod edit -fmt`, `gofmt -w internal/investigator` | Module edit and formatting exited 0. Initial tidy failed on sandbox DNS, and the permitted retry exited 0. |
+| `go mod tidy -diff && go list -m github.com/tmc/langchaingo && go mod verify` | Initial attempt failed at the tidy check on sandbox access to the default Go build cache. The permitted repeat exited 0, with no tidy diff, pinned version `v0.1.15`, and all modules verified. |
+| `go test -count=1 -v ./internal/investigator` | Exit 0, five top-level tests and eight subtests passed. The log records `real_model_invoked=false model=controlled_fake calls=1` for the timeout explanation. |
+| `bash scripts/verify.sh` | Exit 0. Tracker validation, 60 Python harness tests, Go unit and race suites across six packages, `go vet`, and working-tree/index whitespace checks passed. Day 1 and Day 2 live LocalStack cases are opt-in and were outside Day 3. |
+| `gofmt -l internal/investigator`, `git diff --check`, `git diff --cached --check`, baseline path comparison, and `shasum -a 256 feature_list.json` | Exit 0. Formatting and whitespace were clean. Tracker, progress, workflow lifecycle source, and DynamoDB source and tests matched baseline. |
+
+The focused and verifier runs used a writable Go build cache under
+`/private/tmp/p1-day3-evidence.HXg2q9/`. The `focused.log` and `verify.log` there
+may expire. The current observed HEAD remains
+`9f0edba121c0d63bedcf45efc143047aec72c621`. The Day 3 files are local and
+uncommitted. Stop at Day 3 for owner review.
+
+### Day 3 local commit closeout
+
+On 2026-11-24 (America/Panama), the owner authorized one local Day 3 commit.
+The closeout began on `main` at the observed parent
+`9f0edba121c0d63bedcf45efc143047aec72c621` with only the six Day 3 paths in
+the working tree and an empty index. The earlier handoff entries are preserved
+as recorded. The tracker still has 20 verified tasks, no active task, and a
+work-in-progress limit of one. The workflow runner, DynamoDB claim code and
+tests, and prior acceptance evidence match the parent bytes.
+
+Fresh `go test -count=1 -v ./internal/investigator` exited 0 with five top-level
+tests and eight subtests passing. It logged `real_model_invoked=false`. The
+tests covered timeout uncertainty, missing evidence and scope, filtering of
+injected evidence, output rejection and fallback, late responses, and fixture
+immutability. Fresh `bash scripts/verify.sh` exited 0 with all six checks passing,
+including 60 Python harness tests, Go unit and race suites across six packages,
+`go vet`, and both whitespace checks. Both runs used the existing writable Go
+build cache and required no test retry. Closeout logs are in
+`/private/tmp/p1-day3-closeout.QCqZTG/` and may expire.
+
+This records the observed pre-commit revision and fresh verification. Git
+history is the source for the resulting commit and its inventory. The next
+authorization boundary is publication.
